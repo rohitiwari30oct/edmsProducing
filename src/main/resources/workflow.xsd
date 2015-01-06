@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://edms.com/Workflow" xmlns:tns="http://edms.com/Workflow"
+	elementFormDefault="qualified">
+
+	<xs:element name="getAuthorizeUserRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userId" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getAuthorizeUserResponse" />
+
+	<xs:element name="getStartWorkflowRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="variables" type="tns:hashMap"
+					minOccurs="0" maxOccurs="unbounded" nillable="true" />
+				<xs:element name="processKey" type="xs:string" />
+				<xs:element name="processName" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="hashMap">
+		<xs:sequence>
+			<xs:element name="key" minOccurs="0" type="xs:string" />
+			<xs:element name="value" minOccurs="0" type="xs:anyType" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="getStartWorkflowResponse" />
+
+	<xs:element name="getGenerateProcessImageRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="processKey" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getGenerateProcessImageResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="image" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getFetchUserTaskRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="employeeId" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getFetchUserTaskResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userTaskListReturn" type="tns:UserTaskListReturn" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="UserTaskListReturn">
+		<xs:sequence>
+			<xs:element name="userTaskList" minOccurs="0" maxOccurs="unbounded"
+				nillable="true" type="tns:Task" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Task">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" />
+			<xs:element name="assignee" type="xs:string" />
+			<xs:element name="category" type="xs:string" />
+			<xs:element name="processInstanceId" type="xs:string" />
+			<xs:element name="id" type="xs:string" />
+			<xs:element name="description" type="xs:string" />
+			<xs:element name="formKey" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="getFetchGroupTaskRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="departmentId" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getFetchGroupTaskResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="groupTaskListReturn" type="tns:GroupTaskListReturn" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="GroupTaskListReturn">
+		<xs:sequence>
+			<xs:element name="groupTaskList" minOccurs="0" maxOccurs="unbounded"
+				nillable="true" type="tns:Task" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="getContinueTaskRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="taskVariables" type="tns:hashMap"
+					minOccurs="0" maxOccurs="unbounded" nillable="true" />
+				<xs:element name="taskId" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getContinueTaskResponse" />
+
+	<xs:element name="getTaskFormDataRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="taskId" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getTaskFormDataResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="taskFormData" type="tns:TaskFormData" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="TaskFormData">
+		<xs:sequence>
+			<xs:element name="taskFormProperties" minOccurs="0"
+				maxOccurs="unbounded" nillable="true" type="tns:TaskFormProperty" />
+			<xs:element name="formKey" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TaskFormProperty">
+		<!-- <xs:sequence> <xs:element name="formProperty" type="tns:FormProperty" 
+			/> </xs:sequence> </xs:complexType> <xs:complexType name="FormProperty"> -->
+		<xs:sequence>
+			<xs:element name="id" type="xs:string" />
+			<xs:element name="name" type="xs:string" />
+			<xs:element name="value" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="getStartFormDataRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="processKey" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getStartFormDataResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="startFormData" type="tns:StartFormData" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="StartFormData">
+		<xs:sequence>
+			<xs:element name="startFormProperties" minOccurs="0"
+				maxOccurs="unbounded" nillable="true" type="tns:StartFormProperty" />
+			<xs:element name="formKey" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="StartFormProperty">
+		<!-- <xs:sequence> <xs:element name="formProperty" type="tns:FormProperty" 
+			/> </xs:sequence> </xs:complexType> <xs:complexType name="FormProperty"> -->
+		<xs:sequence>
+			<xs:element name="id" type="xs:string" />
+			<xs:element name="name" type="xs:string" />
+			<xs:element name="value" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- <xs:element name="getStartFormDataResponse"> <xs:complexType> <xs:sequence> 
+		<xs:element name="startFormData" type="tns:StartFormData" /> </xs:sequence> 
+		</xs:complexType> </xs:element> <xs:complexType name="StartFormData"> <xs:sequence> 
+		<xs:element name="formPropertiesList" type="tns:StartFormPropertyList" /> 
+		</xs:sequence> </xs:complexType> <xs:complexType name="StartFormPropertyList"> 
+		<xs:sequence> <xs:element name="formProperty" type="tns:TaskFormProperty" 
+		minOccurs="0" maxOccurs="unbounded" nillable="true" /> </xs:sequence> </xs:complexType> -->
+
+	<xs:element name="getClaimTaskRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="taskId" type="xs:string" />
+				<xs:element name="userId" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getClaimTaskResponse" />
+
+</xs:schema>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://edms.com/group" xmlns:tns="http://edms.com/group"
+	elementFormDefault="qualified">
+	<xs:element name="createGroupRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="GroupName" type="xs:string" />
+				<xs:element name="noOfMembers" type="xs:integer" />
+			<xs:element name="creationDate" type="xs:string" />
+			<xs:element name="modificationDate" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="Group">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="1" name="GroupName"
+				type="xs:string" />
+				<xs:element name="noOfMembers" type="xs:integer" />
+			<xs:element name="creationDate" type="xs:string" />
+			<xs:element name="modificationDate" type="xs:string" />
+			<xs:element  name="memberList" type="tns:membersList"/>
+		</xs:sequence>
+	</xs:complexType>
+<xs:complexType name="User" >
+	<xs:sequence>
+		<xs:element name="userId" type="xs:string"/>
+	</xs:sequence>
+</xs:complexType>
+	<xs:complexType name="membersList">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="1" name="membersListResult"
+				type="tns:ArrayOfMembers" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfMembers">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="GroupMemberList"
+				nillable="true" type="tns:User" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="createGroupResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Group" type="tns:Group" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

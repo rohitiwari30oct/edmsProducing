@@ -1,0 +1,87 @@
+<nt = 'http://www.jcp.org/jcr/nt/1.0'>
+<jcr = 'http://www.jcp.org/jcr/1.0'>
+<mix = 'http://www.jcp.org/jcr/mix/1.0'>
+<edms = 'http://www.edms.com/1.0'>
+
+[mix:accessControlled] mixin
+- edms:authUsersRead (string) multiple
+- edms:authUsersWrite (string) multiple
+- edms:authUsersDelete (string) multiple
+- edms:authUsersSecurity (string) multiple
+- edms:authRolesRead (string) multiple
+- edms:authRolesWrite (string) multiple
+- edms:authRolesDelete (string) multiple
+- edms:authRolesSecurity (string) multiple
+
+[mix:notification] mixin
+- edms:subscriptors (string) = '' multiple autocreated
+
+[mix:scripting] mixin
+- edms:scriptCode (string)
+
+[mix:encryption] mixin
+- edms:cipherName (string)
+
+[edms:resource] > nt:resource, mix:versionable
+- edms:size (long)
+- edms:author (string)
+- edms:text (string)
+- edms:versionComment (string) copy
+
+[edms:note]
+- edms:user (string)
+- edms:date (date)
+- edms:text (string)
+
+[edms:notes] > nt:hierarchyNode
++ * (edms:note)
+
+[mix:notes] mixin
++ edms:notes (edms:notes) = edms:notes autocreated
+
+[edms:document] > nt:hierarchyNode, mix:referenceable, mix:lockable, mix:accessControlled
+- edms:author (string)
+- edms:name (string)
+- edms:language (string)
+- edms:title (String)
+- edms:description (String)
+- edms:recycle (String)
+- edms:restorationPath (String)
+- edms:keywords (string) multiple
+- edms:categories (reference) multiple
++ edms:content (edms:resource) primary
+
+[edms:folder] > nt:folder, mix:referenceable, mix:lockable, mix:accessControlled
+- edms:author (string)
+- edms:name (string)
+- edms:description (String)
+- edms:created (String)
+- edms:modified (String)
+- edms:permissions (String)
+- edms:no_of_folders (string)
+- edms:no_of_documents (string)
+- edms:recycle (String)
+- edms:restorationPath (String)
+- edms:keywords (string) multiple
+- edms:categories (reference) multiple
+
+[edms:mail] > nt:folder, mix:referenceable, mix:accessControlled
+- edms:size (long)
+- edms:author (string)
+- edms:from (string)
+- edms:reply (string) multiple
+- edms:to (string) multiple
+- edms:cc (string) multiple
+- edms:bcc (string) multiple
+- edms:sentDate (date)
+- edms:receivedDate (date)
+- edms:subject (string)
+- edms:content (string)
+- edms:mimeType (string)
+- edms:keywords (string) multiple
+- edms:categories (reference) multiple
++ * (edms:document)
+
+[edms:sysConfig]
+- edms:uuid (string)
+- edms:version (string)

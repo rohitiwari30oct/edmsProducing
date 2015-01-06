@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://edms.com/User" xmlns:tns="http://edms.com/User"
+	elementFormDefault="qualified">
+	<xs:element name="createUserRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="UserName" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="User">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="1" name="UserName"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="1" name="parentGroup"
+				type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+		<xs:element name="createUserResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="User" type="tns:User" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="getUserListRequest">
+	</xs:element>
+	<xs:element name="getUserListResponse">
+		<xs:complexType>
+				<xs:sequence>
+					
+			<xs:element  name="userList" type="tns:userList"/>
+				</xs:sequence>
+		</xs:complexType>
+	
+	</xs:element>
+		<xs:complexType name="userList">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="1" name="userListResult"
+				type="tns:ArrayOfUsers" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfUsers">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="allUserList"
+				nillable="true" type="tns:User" />
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

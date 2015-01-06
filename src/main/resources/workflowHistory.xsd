@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://edms.com/WorkflowHistory" xmlns:tns="http://edms.com/WorkflowHistory"
+	elementFormDefault="qualified">
+
+	<xs:element name="getProcessVariablesRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="processInstId" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getProcessVariablesResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="histDetVrblInstUpdateEntityReturn"
+					type="tns:HistDetVrblInstUpdateEntityReturn" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="HistDetVrblInstUpdateEntityReturn">
+		<xs:sequence>
+			<xs:element name="histDetVrblInstUpdateEntity" type="tns:HistDetVrblInstUpdateEntity" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="HistDetVrblInstUpdateEntity">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" />
+			<xs:element name="value" type="xs:anyType" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="getHistoryTaskInstanceRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="taskId" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getHistoryTaskInstanceResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="histTaskInstListReturn" type="tns:HistTaskInstListReturn" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="HistTaskInstListReturn">
+		<xs:sequence>
+			<xs:element name="histTaskInstList" type="tns:HistTaskInstList"
+				minOccurs="0" maxOccurs="unbounded" nillable="true" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="HistTaskInstList">
+		<xs:sequence>
+			<xs:element name="processInstanceId" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+</xs:schema>
