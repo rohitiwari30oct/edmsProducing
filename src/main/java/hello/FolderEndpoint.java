@@ -20,8 +20,12 @@ import com.edms.folder.HasChildRequest;
 import com.edms.folder.HasChildResponse;
 import com.edms.folder.RecycleFolderRequest;
 import com.edms.folder.RecycleFolderResponse;
+import com.edms.folder.RenameFolderRequest;
+import com.edms.folder.RenameFolderResponse;
 import com.edms.folder.RestoreFolderRequest;
 import com.edms.folder.RestoreFolderResponse;
+import com.edms.folder.RestoreVersionRequest;
+import com.edms.folder.RestoreVersionResponse;
 import com.edms.folder.ShareFolderByPathRequest;
 import com.edms.folder.ShareFolderByPathResponse;
 
@@ -146,6 +150,26 @@ public class FolderEndpoint {
 			@RequestPayload RestoreFolderRequest request) {
 		RestoreFolderResponse response = new RestoreFolderResponse();
 		response.setRestoreFolderResponse(folderRepository.restoreFolder(request.getFolderPath(),request.getUserid()));
+		return response;
+	}
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "renameFolderRequest")
+	@ResponsePayload
+	public RenameFolderResponse renameFolderRequest(
+			@RequestPayload RenameFolderRequest request) {
+		RenameFolderResponse response = new RenameFolderResponse();
+		response.setRenameFolderRes(folderRepository.renameFolder(request.getOldName(),request.getNewName(),request.getUserid()));
+		return response;
+	}
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "restoreVersionRequest")
+	@ResponsePayload
+	public RestoreVersionResponse restoreVersionRequest(
+			@RequestPayload RestoreVersionRequest request) {
+		RestoreVersionResponse response = new RestoreVersionResponse();
+		response.setRestoreVersionResponse(folderRepository.restoreVersion(request.getFolderPath(),request.getVersionName(),request.getUserid()));
+		if(response.getRestoreVersionResponse().equals("success")){
+		response.setSuccess(true);}else{
+			response.setSuccess(false);
+		}
 		return response;
 	}
 }

@@ -2,18 +2,13 @@ package edms.core;
 
 import java.util.Date;
 
+import javax.annotation.PostConstruct;
 import javax.jcr.LoginException;
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
-import javax.jcr.Workspace;
-import javax.jcr.nodetype.NodeTypeManager;
-import javax.jcr.nodetype.NodeTypeTemplate;
-import javax.jcr.security.AccessControlManager;
-import javax.jcr.security.Privilege;
-
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.core.TransientRepository;
 
@@ -21,12 +16,20 @@ public class JcrRepositorySession {
 
 	public static Session jcrsession = null;
 
+	@PostConstruct
+	public void initData() {
+		System.out.println("only single time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ");
+		jcrsession=JcrRepositorySession.getSession();
+	}
 	public static Session getSession() {
 		Repository repository = new TransientRepository();
 		try {
 			jcrsession = repository.login(new SimpleCredentials("admin",
 					"admin".toCharArray()));
-			//createFolder("sanjay@avi-oil.com/trash");
+		//	createFolder("santosh@avi-oil.com");
+		//	createFolder("sanjay@avi-oil.com/trash");
+		//	createFolder("sanjay@avi-oil.com/sharedByOthers");
+		//	createFolder("sanjay@avi-oil.com/sharedCalendersByOthers");
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 			return null;
@@ -39,14 +42,14 @@ public class JcrRepositorySession {
 		try {
 			Node root = jcrsession.getRootNode();
 			folder = root.addNode(folderName, Config.EDMS_FOLDER);
-			folder.setProperty(Config.USERS_READ, new String[] {  });
-			folder.setProperty(Config.USERS_WRITE, new String[] {  });
-			folder.setProperty(Config.USERS_DELETE, new String[] {  });
-			folder.setProperty(Config.USERS_SECURITY, new String[] {  });
-			folder.setProperty(Config.GROUPS_READ, new String[] {  });
-			folder.setProperty(Config.GROUPS_WRITE, new String[] {  });
-			folder.setProperty(Config.GROUPS_DELETE, new String[] {  });
-			folder.setProperty(Config.GROUPS_SECURITY, new String[] {  });
+			folder.setProperty(Config.USERS_READ, new String[] {Config.EDMS_ADMIN });
+			folder.setProperty(Config.USERS_WRITE, new String[] { Config.EDMS_ADMIN });
+			folder.setProperty(Config.USERS_DELETE, new String[] { Config.EDMS_ADMIN });
+			folder.setProperty(Config.USERS_SECURITY, new String[] { Config.EDMS_ADMIN });
+			folder.setProperty(Config.GROUPS_READ, new String[] {Config.EDMS_ADMIN  });
+			folder.setProperty(Config.GROUPS_WRITE, new String[] {Config.EDMS_ADMIN  });
+			folder.setProperty(Config.GROUPS_DELETE, new String[] { Config.EDMS_ADMIN });
+			folder.setProperty(Config.GROUPS_SECURITY, new String[] { Config.EDMS_ADMIN });
 			folder.setProperty(Config.EDMS_KEYWORDS, "root,folder".split(","));
 			folder.setProperty(Config.EDMS_AUTHOR, "admin");
 			folder.setProperty(Config.EDMS_DESCRIPTION, "this is root folder");

@@ -4,7 +4,7 @@
 	elementFormDefault="qualified">
 
 	<xs:element name="getSharedFoldersRequest">
-	<xs:complexType>
+		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="userid" type="xs:string" />
 			</xs:sequence>
@@ -13,15 +13,15 @@
 	<xs:element name="getSharedFoldersResponse">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element minOccurs="0" maxOccurs="1"
-					name="GetSharedFolders" type="tns:FolderListReturn" />
+				<xs:element minOccurs="0" maxOccurs="1" name="GetSharedFolders"
+					type="tns:FolderListReturn" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-	
-	
+
+
 	<xs:element name="getSharedFoldersByPathRequest">
-	<xs:complexType>
+		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="path" type="xs:string" />
@@ -36,9 +36,9 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-	
+
 	<xs:element name="getRecycledDocsRequest">
-	<xs:complexType>
+		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="path" type="xs:string" />
@@ -48,15 +48,15 @@
 	<xs:element name="getRecycledDocsResponse">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element minOccurs="0" maxOccurs="1"
-					name="GetRecycledDocs" type="tns:FolderListReturn" />
+				<xs:element minOccurs="0" maxOccurs="1" name="GetRecycledDocs"
+					type="tns:FolderListReturn" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-	
-	
 
-<xs:element name="getFolderRequest">
+
+
+	<xs:element name="getFolderRequest">
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="folderPath" type="xs:string" />
@@ -88,29 +88,51 @@
 	</xs:complexType>
 	<xs:complexType name="Folder">
 		<xs:sequence>
-				<xs:element name="folderName" type="xs:string" />
-				<xs:element name="parentFolder" type="xs:string" />
-				<xs:element name="createdBy" type="xs:string" />
-				<xs:element name="folderPath" type="xs:string" />
-				<xs:element minOccurs="0" maxOccurs="unbounded" name="keywords"	type="xs:string" />
-				<xs:element name="notes" type="xs:string" />
-				<xs:element name="creationDate" type="xs:string" />
-				<xs:element name="modificationDate" type="xs:string" />
-				<xs:element name="no_of_folders" type="xs:string" />
-				<xs:element name="no_of_documents" type="xs:string" />
-				<xs:element name="recycle" type="xs:boolean" />
-				<xs:element minOccurs="0" maxOccurs="unbounded" name="user_read" type="xs:string" />
-				<xs:element minOccurs="0" maxOccurs="unbounded" name="user_write" type="xs:string" />
-				<xs:element minOccurs="0" maxOccurs="unbounded" name="user_delete" type="xs:string" />
-				<xs:element minOccurs="0" maxOccurs="unbounded" name="user_security" type="xs:string" />
-				<xs:element minOccurs="0" maxOccurs="unbounded" name="group_read" type="xs:string" />
-				<xs:element minOccurs="0" maxOccurs="unbounded" name="group_write" type="xs:string" />
-				<xs:element minOccurs="0" maxOccurs="unbounded" name="group_delete" type="xs:string" />
-				<xs:element minOccurs="0" maxOccurs="unbounded" name="group_security" type="xs:string" />
+			<xs:element name="folderName" type="xs:string" />
+			<xs:element name="parentFolder" type="xs:string" />
+			<xs:element name="createdBy" type="xs:string" />
+			<xs:element name="folderPath" type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="keywords"
+				type="xs:string" />
+			<xs:element name="notes" type="xs:string" />
+			<xs:element name="creationDate" type="xs:string" />
+			<xs:element name="modificationDate" type="xs:string" />
+			<xs:element name="no_of_folders" type="xs:string" />
+			<xs:element name="no_of_documents" type="xs:string" />
+			<xs:element name="recycle" type="xs:boolean" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="versionsHistory" type="tns:versionDetail" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="user_read"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="user_write"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="user_delete"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="user_security"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="group_read"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="group_write"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="group_delete"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="group_security"
+				type="xs:string" />
 		</xs:sequence>
 	</xs:complexType>
 
 
+	<xs:complexType name="versionDetail">
+		<xs:sequence>
+			<xs:element name="versionName" type="xs:string" />
+			<xs:element name="createdBy" type="xs:string" />
+			<xs:element name="versionPath" type="xs:string" />
+			<xs:element name="details" type="xs:string" />
+			<xs:element name="notes" type="xs:string" />
+			<xs:element name="creationDate" type="xs:string" />
+			<xs:element name="versionLabel" type="xs:string" />
+			
+		</xs:sequence>
+	</xs:complexType>
 	<xs:element name="hasChildRequest">
 		<xs:complexType>
 			<xs:sequence>
@@ -142,6 +164,7 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="folder" type="tns:Folder" />
+				<xs:element name="Success" type="xs:boolean" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -160,6 +183,7 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="folder" type="tns:Folder" />
+				<xs:element name="Success" type="xs:boolean" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -181,6 +205,7 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="shareResponse" type="xs:string" />
+				<xs:element name="Success" type="xs:boolean" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -200,6 +225,7 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="assignSinglePermissionResponse" type="xs:string" />
+				<xs:element name="Success" type="xs:boolean" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -217,11 +243,12 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="deleteFolderResponse" type="xs:string" />
+				<xs:element name="Success" type="xs:boolean" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
 
-	
+
 
 
 	<xs:element name="recycleFolderRequest">
@@ -237,11 +264,12 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="recycleFolderResponse" type="xs:string" />
+				<xs:element name="Success" type="xs:boolean" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
 
-	
+
 	<xs:element name="restoreFolderRequest">
 		<xs:complexType>
 			<xs:sequence>
@@ -255,16 +283,38 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="restoreFolderResponse" type="xs:string" />
+				<xs:element name="Success" type="xs:boolean" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
 
-	
+
+
+	<xs:element name="restoreVersionRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folderPath" type="xs:string" />
+				<xs:element name="versionName" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="restoreVersionResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="restoreVersionResponse" type="xs:string" />
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
 
 	<xs:element name="renameFolderRequest">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="folderPath" type="xs:string" />
+				<xs:element name="oldName" type="xs:string" />
 				<xs:element name="newName" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
 			</xs:sequence>
@@ -274,11 +324,15 @@
 	<xs:element name="renameFolderResponse">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="renameFolderResponse" type="xs:string" />
+				<xs:element name="renameFolderRes" type="tns:renameFolderRes" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-
-
+	<xs:complexType name="renameFolderRes">
+		<xs:sequence>
+			<xs:element name="Success" type="xs:boolean" />
+			<xs:element name="response" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
 
 </xs:schema>

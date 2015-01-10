@@ -19,11 +19,13 @@ import javax.jcr.Workspace;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.security.AccessControlEntry;
-import javax.jcr.security.AccessControlException;
 import javax.jcr.security.AccessControlList;
 import javax.jcr.security.AccessControlManager;
-import javax.jcr.security.AccessControlPolicy;
 import javax.jcr.security.Privilege;
+import javax.jcr.version.Version;
+import javax.jcr.version.VersionHistory;
+import javax.jcr.version.VersionIterator;
+import javax.jcr.version.VersionManager;
 import javax.print.attribute.standard.MediaSize.NA;
 
 import java.io.IOException;
@@ -37,6 +39,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
+
+
+
+
+
+
+
 
 
 
@@ -61,6 +71,8 @@ import org.apache.tika.metadata.Office;
 import com.edms.folder.ArrayOfFolders;
 import com.edms.folder.Folder;
 import com.edms.folder.FolderListReturn;
+import com.edms.folder.RenameFolderRes;
+import com.edms.folder.VersionDetail;
 
 import org.neo4j.cypher.internal.compiler.v2_0.untilMatched;
 import org.springframework.stereotype.Component;
@@ -78,11 +90,6 @@ public class FolderRepository {
 
 	// @Autowired DefaultSpringSecurityContextSource contextSource;
 
-	@PostConstruct
-	public void initData() {
-		System.out.println("only single time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ");
-		jcrsession=JcrRepositorySession.getSession();
-	}
 
 	public FolderListReturn listFolder(String name, String userid) {
 		Assert.notNull(name);
@@ -104,8 +111,9 @@ public class FolderRepository {
 			
 					root = jcrsession.getRootNode();
 					if (name.length() > 1) {
-						if (!root.hasNode(name.substring(1))) {
-							root=root.getNode("/"+userid);
+						if (!root.hasNode(userid)) {
+							root=JcrRepositorySession.createFolder(userid);
+							JcrRepositorySession.createFolder(userid+"/trash");
 						} else {
 							root = root.getNode(name.substring(1));
 						}
@@ -130,9 +138,7 @@ public class FolderRepository {
 		} catch (RepositoryException e) {
 			jcrsession.logout();
 			e.printStackTrace();
-		} finally {
-		//	jcrsession.logout();
-		}
+		} 
 		folderList1.setFolderListResult(folders);
 		folderList1.setSuccess(true);
 		return folderList1;
@@ -220,8 +226,28 @@ public class FolderRepository {
 				folder.getGroupSecurity().add(actualUsers[i].getString());
 			}	
 			}
-			/* end mapping permissions to edms folder */
-	
+			
+			
+			VersionHistory history = jcrsession.getWorkspace().getVersionManager().getVersionHistory(node.getPath());
+			// To iterate over all versions
+			VersionIterator versions = history.getAllVersions();
+			System.out.println("versions of : "+node.getName());
+			while (versions.hasNext()) {
+			  Version version = versions.nextVersion();
+			  VersionDetail versionDetail=new VersionDetail();
+			  versionDetail.setCreatedBy(userid);
+			  versionDetail.setCreationDate(version.getCreated().getTime().toString());
+			  versionDetail.setDetails(version.getIdentifier());
+			  versionDetail.setVersionName(version.getName());
+			  versionDetail.setVersionLabel(version.getParent().getName());
+			  folder.getVersionsHistory().add(versionDetail);
+			  System.out.println(version.getCreated().getTime());
+			  System.out.println(version.getPath());
+			}
+			/*node.checkout();
+			Version mySpecificVersion = history.getVersion("1.0");
+			jcrsession.getWorkspace().getVersionManager().restore(node.getParent().getPath()+"/new6",mySpecificVersion, true);
+			node.checkin();*/
 		} catch (RepositoryException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -286,7 +312,7 @@ public class FolderRepository {
 			for (int i = 0; i < actualUsers.length; i++) {
 				newUsers+=actualUsers[i].getString()+",";
 			}
-			if(newUsers.contains(userid)||root.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
+			if(newUsers.contains(userid)||root.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)||(root.getName().equals(userid)&&(root.getProperty(Config.EDMS_AUTHOR).getString()).equals(Config.JCR_USERNAME))){
 				
 			folder = root.addNode(folderName, Config.EDMS_FOLDER);
 			
@@ -383,8 +409,13 @@ public class FolderRepository {
 			folder.setProperty(Config.USERS_DELETE,new String[]{userid});
 			folder.setProperty(Config.USERS_SECURITY,new String[]{userid});*/
 			folder.setProperty(Config.EDMS_KEYWORDS, keywords.split(","));
+			if(root.getProperty(Config.EDMS_AUTHOR).getString().equals("admin")){
+
+				folder.setProperty(Config.EDMS_AUTHOR,userid);
+					
+			}else{
 			folder.setProperty(Config.EDMS_AUTHOR,root.getProperty(Config.EDMS_AUTHOR).getString());
-			folder.setProperty(Config.EDMS_DESCRIPTION, description);
+			}folder.setProperty(Config.EDMS_DESCRIPTION, description);
 			folder.setProperty(Config.EDMS_CREATIONDATE, (new Date()).toString());
 			folder.setProperty(Config.EDMS_MODIFICATIONDATE, (new Date()).toString());
 			folder.setProperty(Config.EDMS_RECYCLE_DOC, false);
@@ -431,7 +462,7 @@ public class FolderRepository {
 			folder1.setFolderPath(root.getPath().toString());
 			if(root.getPath().toString().length()>1){
 			if(folderPath.length()>1){
-					if(root.getProperty(Config.EDMS_AUTHOR).getString().equals(userid))
+					if(root.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)||(root.getName().equals(userid)&&(root.getProperty(Config.EDMS_AUTHOR).getString()).equals(Config.JCR_USERNAME)))
 					{
 						setProperties(root, folder1,userid);
 					}
@@ -1298,12 +1329,12 @@ case "ngs":
 				}
 				if(newUser.contains(userid)||root.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
 			recycleFolderRecursion(root,userid);
-			response= "success";
+			response= "true";
 		}else{
-			response="access denied";
+			response="false";
 		}
 		}}catch (RepositoryException e) {
-			response= "Exception Occured";
+			response= "false";
 			e.printStackTrace();
 		}
 		return response;
@@ -1355,7 +1386,7 @@ case "ngs":
 		try {
 			Node root = jcrsession.getRootNode();
 			root=root.getNode(folderPath.substring(1));
-			restoreFolderRecursion(root);
+			restoreFolderRecursion(root,userid);
 			response= "success";
 		}catch (RepositoryException e) {
 			response= "Exception Occured";
@@ -1365,12 +1396,18 @@ case "ngs":
 	}
 	
 
-	public void restoreFolderRecursion(Node root){
+	public void restoreFolderRecursion(Node root,String userid){
 		try{
 			String parents=root.getProperty(Config.EDMS_RESTORATION_PATH).getString().substring(1);
-			parents=parents.substring(0,parents.lastIndexOf("/")+1);
+			parents=parents.substring(0,parents.lastIndexOf("/"));
 			System.out.println("parent is "+parents);
-		Node parent=jcrsession.getRootNode().getNode(parents);
+			Node jcrRoot=jcrsession.getRootNode();
+			Node parent;
+		if(jcrRoot.hasNode(parents)){
+			parent = jcrRoot.getNode(parents);
+		}else{
+			parent=createFolderRecursionWhenNotFound(parents,userid);
+		}
 		//root.setProperty(Config.EDMS_RECYCLE_DOC, false);
 		System.out.println(root.getPath()+" source to : "+root.getProperty(Config.EDMS_RESTORATION_PATH).getString());
 		root.getSession().getWorkspace().copy(root.getPath(), root.getProperty(Config.EDMS_RESTORATION_PATH).getString());
@@ -1380,7 +1417,7 @@ case "ngs":
 		int no_of_folders=Integer.parseInt(parent.getProperty(Config.EDMS_NO_OF_FOLDERS).getString());
 		parent.setProperty(Config.EDMS_NO_OF_FOLDERS,no_of_folders+1);
 		jcrsession.save();
-	/*	if(root.hasNodes()){
+		/*	if(root.hasNodes()){
 			for (NodeIterator nit = root.getNodes(); nit.hasNext();) {
 				Node node = nit.nextNode();
 				restoreFolderRecursion(node);
@@ -1390,4 +1427,118 @@ case "ngs":
 		e.printStackTrace();
 	}
 }
+	public Node createFolderRecursionWhenNotFound(String folderName,String userid){
+		Node folder = null;
+		try {
+			Node root = jcrsession.getRootNode();
+			System.out.println("in folder creation recursion "+folderName.substring(0,folderName.lastIndexOf("/")+1));
+			String parent=folderName.substring(0,folderName.lastIndexOf("/"));
+			if(root.hasNode(parent)){
+				root=root.getNode(parent);
+				folder = root.addNode(folderName.substring(folderName.lastIndexOf("/")+1), Config.EDMS_FOLDER);
+				folder.setProperty(Config.USERS_READ, new String[] {  });
+				folder.setProperty(Config.USERS_WRITE, new String[] {  });
+				folder.setProperty(Config.USERS_DELETE, new String[] {  });
+				folder.setProperty(Config.USERS_SECURITY, new String[] {  });
+				folder.setProperty(Config.GROUPS_READ, new String[] {  });
+				folder.setProperty(Config.GROUPS_WRITE, new String[] {  });
+				folder.setProperty(Config.GROUPS_DELETE, new String[] {  });
+				folder.setProperty(Config.GROUPS_SECURITY, new String[] {  });
+				folder.setProperty(Config.EDMS_KEYWORDS, "root,folder".split(","));
+				folder.setProperty(Config.EDMS_AUTHOR, userid);
+				folder.setProperty(Config.EDMS_DESCRIPTION, "this is system created folder while restoration");
+				folder.setProperty(Config.EDMS_CREATIONDATE,(new Date()).toString());
+				folder.setProperty(Config.EDMS_MODIFICATIONDATE,(new Date()).toString());
+				folder.setProperty(Config.EDMS_RECYCLE_DOC, false);
+				folder.setProperty(Config.EDMS_NO_OF_FOLDERS, 0);
+				folder.setProperty(Config.EDMS_NO_OF_DOCUMENTS, 0);
+				folder.addMixin(JcrConstants.MIX_SHAREABLE);
+				folder.addMixin(JcrConstants.MIX_VERSIONABLE);
+				jcrsession.save();
+			}else{
+				createFolderRecursionWhenNotFound(folderName.substring(0,folderName.lastIndexOf("/")+1),userid);
+			}
+			
+		} catch (LoginException e) {
+			e.printStackTrace();
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+		}
+		return folder;
+	
+	}
+
+	public RenameFolderRes renameFolder(String oldfolderPath, String newFolderPath,String userid) {
+		RenameFolderRes response=new RenameFolderRes();
+		try {
+			
+			Node forVer=jcrsession.getRootNode().getNode(oldfolderPath.substring(1));
+			System.out.println(forVer.getProperty(Config.EDMS_AUTHOR).getString());
+			if(forVer.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
+			jcrsession.getWorkspace().getVersionManager().checkin(forVer.getPath());
+			jcrsession.move(oldfolderPath, oldfolderPath.substring(0,oldfolderPath.lastIndexOf("/")) + "/" + newFolderPath);
+			jcrsession.save();	
+			
+			jcrsession.getWorkspace().getVersionManager().checkout(forVer.getPath());
+			
+			response.setResponse("Success");
+			response.setSuccess(true);
+		}else
+		{
+
+			   response.setResponse("Access Denied");
+			   response.setSuccess(false);	
+		}}
+		catch (RepositoryException e) {
+			   response.setResponse("Access Denied");
+			   response.setSuccess(false);
+			e.printStackTrace();
+		}
+		return response;
+	}
+
+	public String restoreVersion(String folderPath, String versionName,String userid) {
+		String response="";
+		try {
+			VersionManager versionManager=jcrsession.getWorkspace().getVersionManager();
+			Node forVer=jcrsession.getRootNode().getNode(folderPath.substring(1));
+			System.out.println(forVer.getProperty(Config.EDMS_AUTHOR).getString());
+			if(forVer.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
+				Version version=versionManager.getVersionHistory(folderPath).getVersion(versionName);
+			
+			
+			versionManager.restore(version, true);
+			jcrsession.save();
+			versionManager.checkout(forVer.getPath());
+			response="success";
+		}else
+		{
+			   response="Access Denied";
+		}}
+		catch (RepositoryException e) {
+			   response="Access Denied";
+			e.printStackTrace();
+		}
+		return response;
+	}
+	/*public static String[] usrValue2String(Value[] values, String usrId) throws ValueFormatException, IllegalStateException, javax.jcr.RepositoryException {
+		ArrayList<String> list = new ArrayList<String>();
+		
+		for (int i=0; i<values.length; i++) {
+			// Admin and System user is not propagated across the child nodes
+			if (!values[i].getString().equals(Config.SYSTEM_USER) && 
+					!values[i].getString().equals(Config.ADMIN_USER)) {
+				list.add(values[i].getString());
+			}
+		}
+		
+		if (Config.USER_ASSIGN_DOCUMENT_CREATION) {
+			// No add an user twice
+			if (!list.contains(usrId)) {
+				list.add(usrId);
+			}
+		}
+		
+		return (String[]) list.toArray(new String[list.size()]);
+	}*/
 }

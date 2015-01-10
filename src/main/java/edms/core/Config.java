@@ -24,11 +24,13 @@ package edms.core;
 import java.util.Date;
 
 public class Config {
-	
+
 	public static String JCR_USERNAME="admin";
+	public static String EDMS_ADMIN="admin";
 	public static String JCR_PASSWORD="admin";
 	public static String JCR_SYSTEM="jcr:system";
 	public static final String EDMS_FOLDER = "edms:folder";
+	public static final String EDMS_FILE = "edms:file";
 	public static final String EDMS_DOCUMENT = "edms:document";
 	public static final String USERS_READ = "edms:authUsersRead";
 	public static final String USERS_WRITE = "edms:authUsersWrite";
