@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://edms.com/File" xmlns:tns="http://edms.com/File"
+	elementFormDefault="qualified">
+
+	<xs:element name="getSharedFilesRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getSharedFilesResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element minOccurs="0" maxOccurs="1" name="GetSharedFiles"
+					type="tns:FileListReturn" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
+	<xs:element name="getSharedFilesByPathRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="path" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getSharedFilesByPathResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element minOccurs="0" maxOccurs="1"
+					name="GetSharedFilesByPath" type="tns:FileListReturn" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
+
+	<xs:element name="getFileRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FilePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getFileResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element minOccurs="0" maxOccurs="1"
+					name="GetFilesByParentFile" type="tns:FileListReturn" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="FileListReturn">
+		<xs:sequence>
+			<xs:element minOccurs="1" maxOccurs="1" name="Success"
+				type="xs:boolean" />
+			<xs:element minOccurs="0" maxOccurs="1" name="FileListResult"
+				type="tns:ArrayOfFiles" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfFiles">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="FileList"
+				nillable="true" type="tns:File" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="File">
+		<xs:sequence>
+			<xs:element name="fileName" type="xs:string" />
+			<xs:element name="parentFile" type="xs:string" />
+			<xs:element name="createdBy" type="xs:string" />
+			<xs:element name="filePath" type="xs:string" />
+			
+<xs:element name="fileContent" type="xs:hexBinary"/> 
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="keywords"
+				type="xs:string" />
+			<xs:element name="notes" type="xs:string" />
+			<xs:element name="creationDate" type="xs:string" />
+			<xs:element name="modificationDate" type="xs:string" />
+			<xs:element name="no_of_Files" type="xs:string" />
+			<xs:element name="no_of_documents" type="xs:string" />
+			<xs:element name="recycle" type="xs:boolean" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="user_read"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="user_write"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="user_delete"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="user_security"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="group_read"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="group_write"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="group_delete"
+				type="xs:string" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="group_security"
+				type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:element name="createFileRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FileName" type="xs:string" />
+				<xs:element name="parentFile" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="keywords" type="xs:string" />
+				<xs:element name="notes" type="xs:string" />
+				<xs:element name="fileContent" type="xs:string"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="createFileResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="File" type="tns:File" />
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getFileByPathRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FilePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
+	<xs:element name="getFileByPathResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="File" type="tns:File" />
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="shareFileByPathRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FilePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="users" type="xs:string" />
+				<xs:element name="groups" type="xs:string" />
+				<xs:element name="grouppermissions" type="xs:string" />
+				<xs:element name="userpermissions" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="shareFileByPathResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="shareResponse" type="xs:string" />
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
+	<xs:element name="deleteFileRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FilePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="deleteFileResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="deleteFileResponse" type="xs:string" />
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
+
+
+	<xs:element name="recycleFileRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FilePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="recycleFileResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="recycleFileResponse" type="xs:string" />
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
+	<xs:element name="restoreFileRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FilePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="restoreFileResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="restoreFileResponse" type="xs:string" />
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
+
+	<xs:element name="renameFileRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="oldName" type="xs:string" />
+				<xs:element name="newName" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="renameFileResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="renameFileRes" type="tns:renameFileRes" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="renameFileRes">
+		<xs:sequence>
+			<xs:element name="Success" type="xs:boolean" />
+			<xs:element name="response" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+</xs:schema>
