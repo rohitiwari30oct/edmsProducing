@@ -102,7 +102,7 @@ public class FolderEndpoint {
 	@ResponsePayload
 	public GetFolderByPathResponse getFolderByPath(
 			@RequestPayload GetFolderByPathRequest request) {
-		System.out.println("in Endpoint");
+	//	System.out.println("in Endpoint");
 		GetFolderByPathResponse response = new GetFolderByPathResponse();
 		response.setFolder(folderRepository.getFolderByPath(
 				request.getFolderPath(),request.getUserid()));

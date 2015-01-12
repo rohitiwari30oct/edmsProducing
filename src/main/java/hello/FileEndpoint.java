@@ -101,7 +101,7 @@ public class FileEndpoint {
 	@ResponsePayload
 	public GetFileByPathResponse getFileByPath(
 			@RequestPayload GetFileByPathRequest request) {
-		System.out.println("in Endpoint");
+		//System.out.println("in Endpoint");
 		GetFileByPathResponse response = new GetFileByPathResponse();
 		response.setFile(FileRepository.getFileByPath(
 				request.getFilePath(),request.getUserid()));

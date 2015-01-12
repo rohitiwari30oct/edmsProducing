@@ -58,6 +58,7 @@ import java.util.NoSuchElementException;
 
 
 
+
 import org.activiti.engine.impl.persistence.entity.UserIdentityManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.JcrConstants;
@@ -101,7 +102,7 @@ public class FileRepository {
 
 	@PostConstruct
 	public void initData() {
-		System.out.println("only single time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ");
+		//System.out.println("only single time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ");
 		jcrsession=JcrRepositorySession.getSession();
 	}
 
@@ -114,7 +115,7 @@ public class FileRepository {
 		try {
 			 	/*	String[] wwws=jcrsession.getWorkspace().getAccessibleWorkspaceNames();
 				for (int i = 0; i < wwws.length; i++) {
-					System.out.println(wwws[i]);
+					//System.out.println(wwws[i]);
 				}	*/
 				//	registerNamespace(jcrsession, root);
 				// 	removeUser(jcrsession, userid);
@@ -150,7 +151,6 @@ public class FileRepository {
 		} catch (LoginException e) {
 			e.printStackTrace();
 		} catch (RepositoryException e) {
-			jcrsession.logout();
 			e.printStackTrace();
 		} 
 		FileList1.setFileListResult(Files);
@@ -241,15 +241,15 @@ public class FileRepository {
 			}	
 			}
 			
-			VersionHistory history = jcrsession.getWorkspace().getVersionManager().getVersionHistory(node.getPath());
+			/*VersionHistory history = jcrsession.getWorkspace().getVersionManager().getVersionHistory(node.getPath());
 			// To iterate over all versions
 			VersionIterator versions = history.getAllVersions();
-			System.out.println("versions of : "+node.getName());
+			//System.out.println("versions of : "+node.getName());
 			while (versions.hasNext()) {
 			  Version version = versions.nextVersion();
-			  System.out.println(version.getCreated().getTime());
-			  System.out.println(version.getPath());
-			}
+			  //System.out.println(version.getCreated().getTime());
+			  //System.out.println(version.getPath());
+			}*/
 			/*node.checkout();
 			Version mySpecificVersion = history.getVersion("1.0");
 			jcrsession.getWorkspace().getVersionManager().restore(node.getParent().getPath()+"/new6",mySpecificVersion, true);
@@ -439,7 +439,7 @@ public class FileRepository {
 				// project/spring-tool-suite-3.6.0.RELEASE-e4.4-win32-x86_64/sts-bundle/sts-3.6.0.RELEASE/repository.xml'));
 				// IOUtils.copy(in, out);
 				String mimeType = tika.detect(iss);
-				System.out.println(mimeType);
+				//System.out.println(mimeType);
 			} catch (Exception e) {
 				System.err.println(e);
 			}
@@ -453,10 +453,13 @@ public class FileRepository {
 			lastModified.setTimeInMillis(lastModified.getTimeInMillis());   
 			resNode.setProperty("jcr:lastModified", lastModified);   
 			jcrsession.save(); 
-			
+			jcrsession.getWorkspace().getVersionManager().checkin(file.getPath());
+			jcrsession.getWorkspace().getVersionManager().checkout(file.getPath());
+			root.setProperty(Config.EDMS_NO_OF_DOCUMENTS, Integer.parseInt(root.getProperty(Config.EDMS_NO_OF_DOCUMENTS).getString())+1);
+			jcrsession.save();
 			file1=	setProperties(file, file1,userid);
 			}else{
-				System.out.println("you have not permission to add child node");
+				//System.out.println("you have not permission to add child node");
 			}}
 		} catch (LoginException e) {
 			e.printStackTrace();
@@ -557,7 +560,7 @@ public class FileRepository {
 			for (int i = 0; i < actualUsers.length; i++) {
 				newUser+=actualUsers[i].getString()+",";
 			}
-			System.out.println(newUser.contains(user));
+			//System.out.println(newUser.contains(user));
 			if(!newUser.contains(user))
 			{
 
@@ -573,7 +576,7 @@ public class FileRepository {
 				for (int i = 0; i < actualUsers.length; i++) {
 					newUser+=actualUsers[i].getString()+",";
 				}
-				System.out.println(newUser.contains(user));
+				//System.out.println(newUser.contains(user));
 				if(!newUser.contains(user))
 				{
 
@@ -588,7 +591,7 @@ public class FileRepository {
 				for (int i = 0; i < actualUsers.length; i++) {
 					newUser+=actualUsers[i].getString()+",";
 				}
-				System.out.println(newUser.contains(user));
+				//System.out.println(newUser.contains(user));
 				if(!newUser.contains(user))
 				{
 
@@ -603,7 +606,7 @@ public class FileRepository {
 				for (int i = 0; i < actualUsers.length; i++) {
 					newUser+=actualUsers[i].getString()+",";
 				}
-				System.out.println(newUser.contains(user));
+				//System.out.println(newUser.contains(user));
 				if(!newUser.contains(user))
 				{
 					newUser+=user+",";
@@ -618,7 +621,7 @@ public class FileRepository {
 		for (int i = 0; i < actualUsers.length; i++) {
 			newUser+=actualUsers[i].getString()+",";
 		}
-		System.out.println(newUser.contains(user));
+		//System.out.println(newUser.contains(user));
 		if(newUser.contains(user))
 			{
 			newUser=newUser.replace(user, "");
@@ -631,7 +634,7 @@ public class FileRepository {
 		for (int i = 0; i < actualUsers.length; i++) {
 			newUser+=actualUsers[i].getString()+",";
 		}
-		System.out.println(newUser.contains(user));
+		//System.out.println(newUser.contains(user));
 		if(newUser.contains(user))
 			{
 			newUser=newUser.replace(user, "");
@@ -645,7 +648,7 @@ public class FileRepository {
 		for (int i = 0; i < actualUsers.length; i++) {
 			newUser+=actualUsers[i].getString()+",";
 		}
-		System.out.println(newUser.contains(user));
+		//System.out.println(newUser.contains(user));
 		if(newUser.contains(user))
 			{
 			newUser=newUser.replace(user, "");
@@ -658,7 +661,7 @@ public class FileRepository {
 		for (int i = 0; i < actualUsers.length; i++) {
 			newUser+=actualUsers[i].getString()+",";
 		}
-		System.out.println(newUser.contains(user));
+		//System.out.println(newUser.contains(user));
 		if(newUser.contains(user))
 			{
 			newUser=newUser.replace(user, "");
@@ -673,7 +676,7 @@ public class FileRepository {
 			for (int i = 0; i < actualUsers.length; i++) {
 				newUser+=actualUsers[i].getString()+",";
 			}
-			System.out.println(newUser.contains(user));
+			//System.out.println(newUser.contains(user));
 			if(newUser.contains(user))
 				{
 				newUser=newUser.replace(user, "");
@@ -689,7 +692,7 @@ public class FileRepository {
 				for (int i = 0; i < actualUsers.length; i++) {
 					newUser+=actualUsers[i].getString()+",";
 				}
-				System.out.println(newUser.contains(user));
+				//System.out.println(newUser.contains(user));
 				if(newUser.contains(user))
 					{
 					newUser=newUser.replace(user, "");
@@ -705,7 +708,7 @@ public class FileRepository {
 				for (int i = 0; i < actualUsers.length; i++) {
 					newUser+=actualUsers[i].getString()+",";
 				}
-				System.out.println(newUser.contains(user));
+				//System.out.println(newUser.contains(user));
 				if(newUser.contains(user))
 					{
 					newUser=newUser.replace(user, "");
@@ -720,7 +723,7 @@ public class FileRepository {
 	for (int i = 0; i < actualUsers.length; i++) {
 		newUser+=actualUsers[i].getString()+",";
 	}
-	System.out.println(newUser.contains(user));
+	//System.out.println(newUser.contains(user));
 	if(!newUser.contains(user))
 	{
 		newUser+=user+",";
@@ -733,7 +736,7 @@ public class FileRepository {
 	for (int i = 0; i < actualUsers.length; i++) {
 		newUser+=actualUsers[i].getString()+",";
 	}
-	System.out.println(newUser.contains(user));
+	//System.out.println(newUser.contains(user));
 	if(!newUser.contains(user))
 	{
 		newUser+=user+",";
@@ -747,7 +750,7 @@ case "gd":
 		for (int i = 0; i < actualUsers.length; i++) {
 			newUser+=actualUsers[i].getString()+",";
 		}
-		System.out.println(newUser.contains(user));
+		//System.out.println(newUser.contains(user));
 		if(!newUser.contains(user))
 		{
 			newUser+=user+",";
@@ -761,7 +764,7 @@ case "gs":
 		for (int i = 0; i < actualUsers.length; i++) {
 			newUser+=actualUsers[i].getString()+",";
 		}
-		System.out.println(newUser.contains(user));
+		//System.out.println(newUser.contains(user));
 		if(!newUser.contains(user))
 		{
 			newUser+=user+",";
@@ -776,7 +779,7 @@ case "ngr":
 	for (int i = 0; i < actualUsers.length; i++) {
 		newUser+=actualUsers[i].getString()+",";
 	}
-	System.out.println(newUser.contains(user));
+	//System.out.println(newUser.contains(user));
 	if(newUser.contains(user))
 		{
 		newUser=newUser.replace(user, "");
@@ -791,7 +794,7 @@ case "ngw":{
 	for (int i = 0; i < actualUsers.length; i++) {
 		newUser+=actualUsers[i].getString()+",";
 	}
-	System.out.println(newUser.contains(user));
+	//System.out.println(newUser.contains(user));
 	if(newUser.contains(user))
 		{
 		newUser=newUser.replace(user, "");
@@ -807,7 +810,7 @@ case "ngd":
 		for (int i = 0; i < actualUsers.length; i++) {
 			newUser+=actualUsers[i].getString()+",";
 		}
-		System.out.println(newUser.contains(user));
+		//System.out.println(newUser.contains(user));
 		if(newUser.contains(user))
 			{
 			newUser=newUser.replace(user, "");
@@ -823,7 +826,7 @@ case "ngs":
 		for (int i = 0; i < actualUsers.length; i++) {
 			newUser+=actualUsers[i].getString()+",";
 		}
-		System.out.println(newUser.contains(user));
+		//System.out.println(newUser.contains(user));
 		if(newUser.contains(user))
 			{
 			newUser=newUser.replace(user, "");
@@ -857,9 +860,9 @@ case "ngs":
 			}
 			
 			if(root.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
-						System.out.println(":before assigning permissions like "+value +" to user : "+user+" on "+root.getName());
+						//System.out.println(":before assigning permissions like "+value +" to user : "+user+" on "+root.getName());
 						assignSinglePermissionRecursion(root, userid, user, value);
-						System.out.println(":value contains n "+value.contains("n"));
+						//System.out.println(":value contains n "+value.contains("n"));
 						if(!value.contains("n")&&value.contains("r")){
 							
 						Workspace ws=jcrsession.getWorkspace();
@@ -868,7 +871,7 @@ case "ngs":
 						ws.clone(ws.getName(), root.getPath(), "/"+user+"/"+root.getName() , false);
 						}
 						else{
-						System.out.println("already exist");	
+						//System.out.println("already exist");	
 						}}
 						else{
 							if(value.contains("r")){
@@ -925,7 +928,7 @@ case "ngs":
 							ws.clone(ws.getName(), root.getPath(), "/"+user+"/"+root.getName() , false);
 						}
 						else{
-						System.out.println("already exist");	
+						//System.out.println("already exist");	
 						}
 						}
 				}
@@ -962,7 +965,7 @@ case "ngs":
 				root = root.getNode(FilePath.substring(1));
 			}
 			//Workspace ws = jcrsession.getWorkspace();
-			System.out
+			//System.out
 					.println(repository.OPTION_SHAREABLE_NODES_SUPPORTED
 							+ " shareable or not  "
 							+ root.getPath().toString()
@@ -1071,13 +1074,13 @@ case "ngs":
 		/* Privilege[] privileges = aMgr
 				.getSupportedPrivileges(root.getPath());
 		for (int i = 0; i < privileges.length; i++) {
-			System.out.println(privileges[i]);
+			//System.out.println(privileges[i]);
 		}*/
 
 		// get now applied privileges on a node 
 		Privilege[]	privileges = aMgr.getPrivileges(root.getPath());
 		for (int i = 0; i < privileges.length; i++) {
-			System.out.println(privileges[i]);
+			//System.out.println(privileges[i]);
 			permissions+=privileges[i];
 		}
 		} catch (RepositoryException e) {
@@ -1100,13 +1103,13 @@ case "ngs":
 			/*Privilege[] privileges = aMgr
 					.getSupportedPrivileges(path);
 			for (int i = 0; i < privileges.length; i++) {
-				System.out.println(privileges[i]);
+				//System.out.println(privileges[i]);
 			}*/
 
 			// get now applied privileges on a node 
 			/*privileges = aMgr.getPrivileges(path);
 			for (int i = 0; i < privileges.length; i++) {
-				System.out.println(privileges[i]);
+				//System.out.println(privileges[i]);
 			}*/
 			String[] percol=permission.split(",");
 			// create a privilege set with jcr:all
@@ -1130,7 +1133,7 @@ case "ngs":
 			}
 			/*	Group grp = ((Group) js.getUserManager().getAuthorizable(
 					"top-management"));
-				System.out.println("group path is : " + grp.getID()
+				//System.out.println("group path is : " + grp.getID()
 					+ " user id is : " + user.getID());
 			*/
 			// Group group=(Group)
@@ -1145,17 +1148,17 @@ case "ngs":
 			aMgr.setPolicy(path, acl);
 			// and the session must be saved for the changes to be applied
 
-			System.out.println("before set policy on : "+path+" to user : "+userid);
+			//System.out.println("before set policy on : "+path+" to user : "+userid);
 			for (int i = 0; i < setprivilege.length; i++) {
-				System.out.println(setprivilege[i]);
+				//System.out.println(setprivilege[i]);
 			}
 			
 			jcrsession.save();
 			jcrsession.refresh(true);
 			setprivilege = aMgr.getPrivileges(path);
-			System.out.println("after set policy on : "+path+" to user : "+userid);
+			//System.out.println("after set policy on : "+path+" to user : "+userid);
 			for (int i = 0; i < setprivilege.length; i++) {
-				System.out.println(setprivilege[i]);
+				//System.out.println(setprivilege[i]);
 			}
 			
 		} catch (RepositoryException e1) {
@@ -1166,33 +1169,33 @@ case "ngs":
 
 	public static void registerNamespace(Session jcrsession, Node root) {
 		try {
-			//System.out.println("root is : " + root);
+			////System.out.println("root is : " + root);
 			Workspace ws = jcrsession.getWorkspace();
-			System.out.println("workspace is : " + ws.getName());
+			//System.out.println("workspace is : " + ws.getName());
 			NamespaceRegistry nr;
 			nr = ws.getNamespaceRegistry();
-			System.out.println("namespace registry is : "
-					+ nr.getPrefixes().length);
+			//System.out.println("namespace registry is : "
+				//	+ nr.getPrefixes().length);
 			for (String str : nr.getPrefixes()) {
-				System.out.println(str);
+				//System.out.println(str);
 			}
 			for (String str : nr.getURIs()) {
-				System.out.println(str);
+				//System.out.println(str);
 			}
 			for (NodeTypeIterator iterator = ws.getNodeTypeManager()
 					.getAllNodeTypes(); iterator.hasNext();) {
 				NodeType nodeType = (NodeType) iterator.next();
-				System.out.println(nodeType.getName());
+				//System.out.println(nodeType.getName());
 			}
 			nr.registerNamespace("edms", "http://www.edms.com/1.0");
-			System.out.println("in repository");
+			//System.out.println("in repository");
 			InputStream is = ClassLoader.class
 					.getResourceAsStream("/edms/module/jcr/CustomNodes.cnd");
-			System.out.println("Input Stream is : " + is);
+			//System.out.println("Input Stream is : " + is);
 			Reader cnd = new InputStreamReader(is);
 			NodeType[] nodeTypes;
 			nodeTypes = CndImporter.registerNodeTypes(cnd, jcrsession,false);
-			System.out.println(nodeTypes.length);
+			//System.out.println(nodeTypes.length);
 		} catch (RepositoryException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -1217,7 +1220,7 @@ case "ngs":
 			 userid,"redhat".toCharArray()));*/
 			 /*String[] wwws=		jcrsession.getWorkspace().getAccessibleWorkspaceNames();
 				for (int i = 0; i < wwws.length; i++) {
-					System.out.println(wwws[i]);
+					//System.out.println(wwws[i]);
 				}	*/
 				root = jcrsession.getRootNode();
 				root=root.getNode(userid);
@@ -1236,7 +1239,7 @@ case "ngs":
 					for (int i = 0; i < actualUsers.length; i++) {
 						newUser+=actualUsers[i].getString()+",";
 					}
-					System.out.println("for node : "+node.getPath().toString()+" newUser contains "+node.getProperty(Config.EDMS_AUTHOR).getString()+" is "+newUser.contains(userid));
+					//System.out.println("for node : "+node.getPath().toString()+" newUser contains "+node.getProperty(Config.EDMS_AUTHOR).getString()+" is "+newUser.contains(userid));
 					if(newUser.contains(userid))
 					{
 					File File = new File();
@@ -1278,7 +1281,7 @@ case "ngs":
 					for (int i = 0; i < actualUsers.length; i++) {
 						newUser+=actualUsers[i].getString()+",";
 					}
-					System.out.println("for node : "+node.getPath().toString()+" newUser contains "+node.getProperty(Config.EDMS_AUTHOR).getString()+" is "+newUser.contains(userid));
+					//System.out.println("for node : "+node.getPath().toString()+" newUser contains "+node.getProperty(Config.EDMS_AUTHOR).getString()+" is "+newUser.contains(userid));
 					if(newUser.contains(userid))
 					{
 					File File = new File();
@@ -1322,7 +1325,7 @@ case "ngs":
 				}
 				if(recycle){
 */
-					System.out.println("recycled nodes are "+node.getPath());
+					//System.out.println("recycled nodes are "+node.getPath());
 					if(node.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
 						File File = new File();
 						File=setProperties(node,File,userid);
@@ -1377,9 +1380,9 @@ case "ngs":
 		jcrsession.save();
 		root.remove();
 		jcrsession.save();
-		int no_of_Files=Integer.parseInt(parent.getProperty(Config.EDMS_NO_OF_FOLDERS).getString());
+		int no_of_Files=Integer.parseInt(parent.getProperty(Config.EDMS_NO_OF_DOCUMENTS).getString());
 		if(no_of_Files>0){
-		parent.setProperty(Config.EDMS_NO_OF_FOLDERS,no_of_Files-1);
+		parent.setProperty(Config.EDMS_NO_OF_DOCUMENTS,no_of_Files-1);
 		}
 		jcrsession.save();
 		/*	if(root.hasNodes()){
@@ -1427,7 +1430,7 @@ case "ngs":
 		try{
 			String parents=root.getProperty(Config.EDMS_RESTORATION_PATH).getString().substring(1);
 			parents=parents.substring(0,parents.lastIndexOf("/"));
-			System.out.println("parent is "+parents);
+			//System.out.println("parent is "+parents);
 			Node jcrRoot=jcrsession.getRootNode();
 			Node parent;
 		if(jcrRoot.hasNode(parents)){
@@ -1436,13 +1439,13 @@ case "ngs":
 			parent=createFileRecursionWhenNotFound(parents,userid);
 		}
 		//root.setProperty(Config.EDMS_RECYCLE_DOC, false);
-		System.out.println(root.getPath()+" source to : "+root.getProperty(Config.EDMS_RESTORATION_PATH).getString());
+		//System.out.println(root.getPath()+" source to : "+root.getProperty(Config.EDMS_RESTORATION_PATH).getString());
 		root.getSession().getWorkspace().copy(root.getPath(), root.getProperty(Config.EDMS_RESTORATION_PATH).getString());
 		jcrsession.save();
 		root.remove();
 		jcrsession.save();
-		int no_of_Files=Integer.parseInt(parent.getProperty(Config.EDMS_NO_OF_FOLDERS).getString());
-		parent.setProperty(Config.EDMS_NO_OF_FOLDERS,no_of_Files+1);
+		int no_of_Files=Integer.parseInt(parent.getProperty(Config.EDMS_NO_OF_DOCUMENTS).getString());
+		parent.setProperty(Config.EDMS_NO_OF_DOCUMENTS,no_of_Files+1);
 		jcrsession.save();
 		/*	if(root.hasNodes()){
 			for (NodeIterator nit = root.getNodes(); nit.hasNext();) {
@@ -1458,7 +1461,7 @@ case "ngs":
 		Node file = null;
 		try {
 			Node root = jcrsession.getRootNode();
-			System.out.println("in File creation recursion "+FileName.substring(0,FileName.lastIndexOf("/")+1));
+			//System.out.println("in File creation recursion "+FileName.substring(0,FileName.lastIndexOf("/")+1));
 			String parent=FileName.substring(0,FileName.lastIndexOf("/"));
 			if(root.hasNode(parent)){
 				root=root.getNode(parent);
@@ -1500,7 +1503,7 @@ case "ngs":
 		try {
 			
 			Node forVer=jcrsession.getRootNode().getNode(oldFilePath.substring(1));
-			System.out.println(forVer.getProperty(Config.EDMS_AUTHOR).getString());
+			//System.out.println(forVer.getProperty(Config.EDMS_AUTHOR).getString());
 			if(forVer.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
 			forVer.checkin();
 			jcrsession.move(oldFilePath, oldFilePath.substring(0,oldFilePath.lastIndexOf("/")) + "/" + newFilePath);

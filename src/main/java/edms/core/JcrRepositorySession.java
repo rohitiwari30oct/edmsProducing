@@ -1,15 +1,26 @@
 package edms.core;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Date;
 
 import javax.annotation.PostConstruct;
 import javax.jcr.LoginException;
+import javax.jcr.NamespaceRegistry;
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
+import javax.jcr.Workspace;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.NodeTypeIterator;
+
 import org.apache.jackrabbit.JcrConstants;
+import org.apache.jackrabbit.commons.cnd.CndImporter;
+import org.apache.jackrabbit.commons.cnd.ParseException;
 import org.apache.jackrabbit.core.TransientRepository;
 
 public class JcrRepositorySession {
@@ -26,8 +37,11 @@ public class JcrRepositorySession {
 		try {
 			jcrsession = repository.login(new SimpleCredentials("admin",
 					"admin".toCharArray()));
-		//	createFolder("santosh@avi-oil.com");
-		//	createFolder("sanjay@avi-oil.com/trash");
+/*			registerNamespace(jcrsession, jcrsession.getRootNode());
+			createFolder("santosh@avi-oil.com");
+			createFolder("santosh@avi-oil.com/trash");
+			createFolder("sanjay@avi-oil.com");
+			createFolder("sanjay@avi-oil.com/trash");*/
 		//	createFolder("sanjay@avi-oil.com/sharedByOthers");
 		//	createFolder("sanjay@avi-oil.com/sharedCalendersByOthers");
 		} catch (RepositoryException e) {
@@ -67,5 +81,43 @@ public class JcrRepositorySession {
 			e.printStackTrace();
 		}
 		return folder;
+	}
+	public static void registerNamespace(Session jcrsession, Node root) {
+		try {
+			////System.out.println("root is : " + root);
+			Workspace ws = jcrsession.getWorkspace();
+			//System.out.println("workspace is : " + ws.getName());
+			NamespaceRegistry nr;
+			nr = ws.getNamespaceRegistry();
+			//System.out.println("namespace registry is : "
+				//	+ nr.getPrefixes().length);
+			for (String str : nr.getPrefixes()) {
+				//System.out.println(str);
+			}
+			for (String str : nr.getURIs()) {
+				//System.out.println(str);
+			}
+			for (NodeTypeIterator iterator = ws.getNodeTypeManager()
+					.getAllNodeTypes(); iterator.hasNext();) {
+				NodeType nodeType = (NodeType) iterator.next();
+				//System.out.println(nodeType.getName());
+			}
+			nr.registerNamespace("edms", "http://www.edms.com/1.0");
+			//System.out.println("in repository");
+			InputStream is = ClassLoader.class
+					.getResourceAsStream("/edms/module/jcr/CustomNodes.cnd");
+			//System.out.println("Input Stream is : " + is);
+			Reader cnd = new InputStreamReader(is);
+			NodeType[] nodeTypes;
+			nodeTypes = CndImporter.registerNodeTypes(cnd, jcrsession,false);
+			//System.out.println(nodeTypes.length);
+		} catch (RepositoryException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ParseException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 }
