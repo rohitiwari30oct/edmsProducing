@@ -319,6 +319,8 @@ public class FileRepository {
 				newUsers+=actualUsers[i].getString()+",";
 			}
 			if(newUsers.contains(userid)||root.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)||(root.getName().equals(userid)&&(root.getProperty(Config.EDMS_AUTHOR).getString()).equals(Config.JCR_USERNAME))){
+				jcrsession.getWorkspace().getVersionManager().checkin(root.getPath());
+				jcrsession.getWorkspace().getVersionManager().checkout(root.getPath());
 				
 			file = root.addNode(fileName, Config.EDMS_DOCUMENT);
 			
@@ -453,8 +455,6 @@ public class FileRepository {
 			lastModified.setTimeInMillis(lastModified.getTimeInMillis());   
 			resNode.setProperty("jcr:lastModified", lastModified);   
 			jcrsession.save(); 
-			jcrsession.getWorkspace().getVersionManager().checkin(file.getPath());
-			jcrsession.getWorkspace().getVersionManager().checkout(file.getPath());
 			root.setProperty(Config.EDMS_NO_OF_DOCUMENTS, Integer.parseInt(root.getProperty(Config.EDMS_NO_OF_DOCUMENTS).getString())+1);
 			jcrsession.save();
 			file1=	setProperties(file, file1,userid);

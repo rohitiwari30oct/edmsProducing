@@ -236,8 +236,10 @@ public class FolderRepository {
 			  VersionDetail versionDetail=new VersionDetail();
 			  versionDetail.setCreatedBy(userid);
 			  versionDetail.setCreationDate(version.getCreated().getTime().toString());
-			  versionDetail.setDetails(version.getIdentifier());
-			  versionDetail.setVersionName(version.getName());
+			  String[] details=history.getVersionLabels(version);
+			  if(details.length>0){
+			  versionDetail.setDetails(details[0]);
+			  }  versionDetail.setVersionName(version.getName());
 			  versionDetail.setVersionLabel(version.getParent().getName());
 			  folder.getVersionsHistory().add(versionDetail);
 			}
@@ -297,6 +299,7 @@ public class FolderRepository {
 			if (parentFolder.length() > 1) {
 				root = root.getNode(parentFolder.substring(1));
 			}
+			
 			if(root.hasProperty(Config.USERS_WRITE)){
 			Value[] actualUsers = root.getProperty(Config.USERS_WRITE).getValues();
 			
@@ -306,7 +309,10 @@ public class FolderRepository {
 				newUsers+=actualUsers[i].getString()+",";
 			}
 			if(newUsers.contains(userid)||root.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)||(root.getName().equals(userid)&&(root.getProperty(Config.EDMS_AUTHOR).getString()).equals(Config.JCR_USERNAME))){
-				
+
+			Version version=	jcrsession.getWorkspace().getVersionManager().checkin(root.getPath());
+			jcrsession.getWorkspace().getVersionManager().getVersionHistory(root.getPath()).addVersionLabel(version.getName(), "new child named "+folderName+" added", true);
+			jcrsession.getWorkspace().getVersionManager().checkout(root.getPath());
 			folder = root.addNode(folderName, Config.EDMS_FOLDER);
 			
 			if(root.hasProperty(Config.USERS_READ)&&(!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin"))){
@@ -414,9 +420,8 @@ public class FolderRepository {
 			folder.addMixin(JcrConstants.MIX_VERSIONABLE);
 			
 			jcrsession.save();
-			jcrsession.getWorkspace().getVersionManager().checkin(root.getPath());
 			root.setProperty(Config.EDMS_NO_OF_FOLDERS, Integer.parseInt(root.getProperty(Config.EDMS_NO_OF_FOLDERS).getString())+1);
-			jcrsession.getWorkspace().getVersionManager().checkout(root.getPath());
+		
 			
 			jcrsession.save();
 			folder1=	setProperties(folder, folder1,userid);
