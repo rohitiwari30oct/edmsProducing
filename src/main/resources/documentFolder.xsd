@@ -100,7 +100,7 @@
 			<xs:element name="no_of_folders" type="xs:string" />
 			<xs:element name="no_of_documents" type="xs:string" />
 			<xs:element name="recycle" type="xs:boolean" />
-			<xs:element minOccurs="0" maxOccurs="unbounded" name="versionsHistory" type="tns:versionDetail" />
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="folderVersionsHistory" type="tns:folderVersionDetail" />
 			<xs:element minOccurs="0" maxOccurs="unbounded" name="user_read"
 				type="xs:string" />
 			<xs:element minOccurs="0" maxOccurs="unbounded" name="user_write"
@@ -121,7 +121,7 @@
 	</xs:complexType>
 
 
-	<xs:complexType name="versionDetail">
+	<xs:complexType name="folderVersionDetail">
 		<xs:sequence>
 			<xs:element name="versionName" type="xs:string" />
 			<xs:element name="createdBy" type="xs:string" />

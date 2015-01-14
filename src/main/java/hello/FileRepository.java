@@ -59,6 +59,8 @@ import java.util.NoSuchElementException;
 
 
 
+
+
 import org.activiti.engine.impl.persistence.entity.UserIdentityManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.JcrConstants;
@@ -82,9 +84,9 @@ import org.apache.tika.metadata.Office;
 import com.edms.file.ArrayOfFiles;
 import com.edms.file.File;
 import com.edms.file.FileListReturn;
+import com.edms.file.FileVersionDetail;
 import com.edms.file.RenameFileRes;
 
-import org.neo4j.cypher.internal.compiler.v2_0.untilMatched;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -164,7 +166,13 @@ public class FileRepository {
 		file.setFileName(node.getName());
 		file.setFilePath(node.getPath());
 		file.setParentFile(node.getParent().getName());
-
+		
+		if(node.hasProperty("jcr:content")){
+		Node ntResourceNode = node.getNode("jcr:content");
+		InputStream is = ntResourceNode.getProperty("jcr:data").getBinary().getStream();
+		file.setFileContent(is.toString());
+		}
+		
 		if(node.hasProperty(Config.EDMS_AUTHOR))
 		file.setCreatedBy(node.getProperty(Config.EDMS_AUTHOR).getString());
 		if(node.hasProperty(Config.EDMS_RECYCLE_DOC))
@@ -241,20 +249,23 @@ public class FileRepository {
 			}	
 			}
 			
-			/*VersionHistory history = jcrsession.getWorkspace().getVersionManager().getVersionHistory(node.getPath());
+			/*VersionHistory history = jcrsession.getWorkspace().getVersionManager().getVersionHistory(node.getNode(JcrConstants.JCR_CONTENT).getPath());
 			// To iterate over all versions
 			VersionIterator versions = history.getAllVersions();
-			//System.out.println("versions of : "+node.getName());
 			while (versions.hasNext()) {
 			  Version version = versions.nextVersion();
-			  //System.out.println(version.getCreated().getTime());
-			  //System.out.println(version.getPath());
+			  FileVersionDetail versionDetail=new FileVersionDetail();
+			  versionDetail.setCreatedBy(userid);
+			  versionDetail.setCreationDate(version.getCreated().getTime().toString());
+			  String[] details=history.getVersionLabels(version);
+			  if(details.length>0){
+			  versionDetail.setDetails(details[0]);
+			  }  
+			  versionDetail.setVersionName(version.getName());
+			  versionDetail.setVersionLabel(version.getParent().getName());
+			  file.getFileVersionsHistory().add(versionDetail);
 			}*/
-			/*node.checkout();
-			Version mySpecificVersion = history.getVersion("1.0");
-			jcrsession.getWorkspace().getVersionManager().restore(node.getParent().getPath()+"/new6",mySpecificVersion, true);
-			node.checkin();*/
-		} catch (RepositoryException e) {
+			} catch (RepositoryException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -267,8 +278,8 @@ public class FileRepository {
 		//Session jcrsession = null;
 		boolean flag = false;
 		try {
-		/*jcrsession = repository.login(new SimpleCredentials("admin",
-					"admin".toCharArray()));*/
+		/*jcrsession = repository.login(new SimpleCredentials(Config.EDMS_ADMIN,
+					Config.EDMS_ADMIN.toCharArray()));*/
 			/* jcrsession = repository.login(new SimpleCredentials(
 			 userid,"redhat".toCharArray()));*/
 			/*
@@ -298,13 +309,13 @@ public class FileRepository {
 		Node file = null;
 		File file1 = new File();
 		try {
-			/*jcrsession = repository.login(new SimpleCredentials("admin",
-					"admin".toCharArray()));*/
+			/*jcrsession = repository.login(new SimpleCredentials(Config.EDMS_ADMIN,
+					Config.EDMS_ADMIN.toCharArray()));*/
 			/*jcrsession = repository.login(new SimpleCredentials(
 			 userid,"redhat".toCharArray()));*/
 		
 			Node root = jcrsession.getRootNode();
-			/*if(userid!="admin"){
+			/*if(userid!=Config.EDMS_ADMIN){
 			root=root.getNode(userid);
 			}*/
 			if (parentFile.length() > 1) {
@@ -319,12 +330,14 @@ public class FileRepository {
 				newUsers+=actualUsers[i].getString()+",";
 			}
 			if(newUsers.contains(userid)||root.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)||(root.getName().equals(userid)&&(root.getProperty(Config.EDMS_AUTHOR).getString()).equals(Config.JCR_USERNAME))){
-				jcrsession.getWorkspace().getVersionManager().checkin(root.getPath());
+				jcrsession.save();
+				Version version=	jcrsession.getWorkspace().getVersionManager().checkin(root.getPath());
+				jcrsession.getWorkspace().getVersionManager().getVersionHistory(root.getPath()).addVersionLabel(version.getName(), "new child named "+fileName+" added", true);
 				jcrsession.getWorkspace().getVersionManager().checkout(root.getPath());
-				
+					
 			file = root.addNode(fileName, Config.EDMS_DOCUMENT);
 			
-			if(root.hasProperty(Config.USERS_READ)&&(!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin"))){
+			if(root.hasProperty(Config.USERS_READ)&&(!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN))){
 				Value[] actualUser = root.getProperty(Config.USERS_READ).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -334,7 +347,7 @@ public class FileRepository {
 			}else{
 				file.setProperty(Config.USERS_READ, new String[]{});
 			}
-			if(root.hasProperty(Config.USERS_WRITE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin")){
+			if(root.hasProperty(Config.USERS_WRITE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN)){
 				Value[] actualUser = root.getProperty(Config.USERS_WRITE).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -345,7 +358,7 @@ public class FileRepository {
 				file.setProperty(Config.USERS_WRITE, new String[]{});
 			}
 
-			if(root.hasProperty(Config.USERS_DELETE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin")){
+			if(root.hasProperty(Config.USERS_DELETE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN)){
 				Value[] actualUser = root.getProperty(Config.USERS_DELETE).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -356,7 +369,7 @@ public class FileRepository {
 				file.setProperty(Config.USERS_DELETE, new String[]{});
 			}
 
-			if(root.hasProperty(Config.USERS_SECURITY)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin")){
+			if(root.hasProperty(Config.USERS_SECURITY)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN)){
 				Value[] actualUser = root.getProperty(Config.USERS_SECURITY).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -367,7 +380,7 @@ public class FileRepository {
 				file.setProperty(Config.USERS_SECURITY, new String[]{});
 			}
 
-			if(root.hasProperty(Config.GROUPS_READ)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin")){
+			if(root.hasProperty(Config.GROUPS_READ)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN)){
 				Value[] actualUser = root.getProperty(Config.GROUPS_READ).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -378,7 +391,7 @@ public class FileRepository {
 				file.setProperty(Config.GROUPS_READ, new String[]{});
 			}
 
-			if(root.hasProperty(Config.GROUPS_WRITE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin")){
+			if(root.hasProperty(Config.GROUPS_WRITE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN)){
 				Value[] actualUser = root.getProperty(Config.GROUPS_WRITE).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -389,7 +402,7 @@ public class FileRepository {
 				file.setProperty(Config.GROUPS_WRITE, new String[]{});
 			}
 
-			if(root.hasProperty(Config.GROUPS_DELETE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin")){
+			if(root.hasProperty(Config.GROUPS_DELETE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN)){
 				Value[] actualUser = root.getProperty(Config.GROUPS_DELETE).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -400,7 +413,7 @@ public class FileRepository {
 				file.setProperty(Config.GROUPS_DELETE, new String[]{});
 			}
 
-			if(root.hasProperty(Config.GROUPS_SECURITY)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin")){
+			if(root.hasProperty(Config.GROUPS_SECURITY)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN)){
 				Value[] actualUser = root.getProperty(Config.GROUPS_SECURITY).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -417,7 +430,7 @@ public class FileRepository {
 			file.setProperty(Config.USERS_DELETE,new String[]{userid});
 			file.setProperty(Config.USERS_SECURITY,new String[]{userid});*/
 			file.setProperty(Config.EDMS_KEYWORDS, keywords.split(","));
-			if(root.getProperty(Config.EDMS_AUTHOR).getString().equals("admin")){
+			if(root.getProperty(Config.EDMS_AUTHOR).getString().equals(Config.EDMS_ADMIN)){
 
 				file.setProperty(Config.EDMS_AUTHOR,userid);
 					
@@ -448,7 +461,7 @@ public class FileRepository {
 			ValueFactory valueFactory = jcrsession.getValueFactory();   
 			Binary myBinary = valueFactory.createBinary(iss);            
 			file.addMixin("mix:referenceable");   
-			Node resNode = file.addNode("jcr:content", "nt:resource");   
+			Node resNode = file.addNode("edms:content", "edms:resource");   
 			resNode.setProperty("jcr:mimeType", "");   
 			resNode.setProperty("jcr:data", myBinary);   
 			Calendar lastModified = Calendar.getInstance();   
@@ -476,13 +489,13 @@ public class FileRepository {
 		//Session jcrsession = null;
 		File File1 = new File();
 		try {
-		/*	jcrsession = repository.login(new SimpleCredentials("admin",
-					"admin".toCharArray()));*/
+		/*	jcrsession = repository.login(new SimpleCredentials(Config.EDMS_ADMIN,
+					Config.EDMS_ADMIN.toCharArray()));*/
 			/* jcrsession = repository.login(new SimpleCredentials(
 			 userid,"redhat".toCharArray()));*/
 		
 			Node root = jcrsession.getRootNode();
-			/*if(userid!="admin"){
+			/*if(userid!=Config.EDMS_ADMIN){
 				root=root.getNode(userid);
 				}*/
 			if (FilePath.length() > 1) {
@@ -870,7 +883,7 @@ case "ngs":
 						if(!rty.hasNode(user+"/"+root.getName())){
 						ws.clone(ws.getName(), root.getPath(), "/"+user+"/"+root.getName() , false);
 						}
-						else{
+						else{ 
 						//System.out.println("already exist");	
 						}}
 						else{
@@ -904,8 +917,8 @@ case "ngs":
 		//File File1 = new File();
 		//Session jcrsession=null;
 		try {
-			/*jcrsession = repository.login(new SimpleCredentials("admin",
-					"admin".toCharArray()));*/
+			/*jcrsession = repository.login(new SimpleCredentials(Config.EDMS_ADMIN,
+					Config.EDMS_ADMIN.toCharArray()));*/
 			/* jcrsession = repository.login(new SimpleCredentials(
 			 userid,"redhat".toCharArray()));*/
 		
@@ -958,7 +971,7 @@ case "ngs":
 		
 		try {
 			Node root = jcrsession.getRootNode();
-			if(userid!="admin"){
+			if(userid!=Config.EDMS_ADMIN){
 				root=root.getNode(userid);
 				}
 				if (FilePath.length() > 1) {
@@ -1214,8 +1227,8 @@ case "ngs":
 		Repository	repository =  new TransientRepository();
 	//	Session jcrsession = null;
 		try {
-			/*	jcrsession = repository.login(new SimpleCredentials("admin",
-					"admin".toCharArray()));*/
+			/*	jcrsession = repository.login(new SimpleCredentials(Config.EDMS_ADMIN,
+					Config.EDMS_ADMIN.toCharArray()));*/
 			/* jcrsession = repository.login(new SimpleCredentials(
 			 userid,"redhat".toCharArray()));*/
 			 /*String[] wwws=		jcrsession.getWorkspace().getAccessibleWorkspaceNames();

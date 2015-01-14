@@ -39,17 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-
-
-
-
-
-
-
-
-
-
-
 import org.activiti.engine.impl.persistence.entity.UserIdentityManager;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.api.JackrabbitSession;
@@ -72,8 +61,8 @@ import com.edms.file.File;
 import com.edms.folder.ArrayOfFolders;
 import com.edms.folder.Folder;
 import com.edms.folder.FolderListReturn;
+import com.edms.folder.FolderVersionDetail;
 import com.edms.folder.RenameFolderRes;
-import com.edms.folder.VersionDetail;
 
 import org.neo4j.cypher.internal.compiler.v2_0.untilMatched;
 import org.springframework.stereotype.Component;
@@ -233,7 +222,7 @@ public class FolderRepository {
 			VersionIterator versions = history.getAllVersions();
 			while (versions.hasNext()) {
 			  Version version = versions.nextVersion();
-			  VersionDetail versionDetail=new VersionDetail();
+			  FolderVersionDetail versionDetail=new FolderVersionDetail();
 			  versionDetail.setCreatedBy(userid);
 			  versionDetail.setCreationDate(version.getCreated().getTime().toString());
 			  String[] details=history.getVersionLabels(version);
@@ -241,7 +230,7 @@ public class FolderRepository {
 			  versionDetail.setDetails(details[0]);
 			  }  versionDetail.setVersionName(version.getName());
 			  versionDetail.setVersionLabel(version.getParent().getName());
-			  folder.getVersionsHistory().add(versionDetail);
+			  folder.getFolderVersionsHistory().add(versionDetail);
 			}
 		} catch (RepositoryException e) {
 			// TODO Auto-generated catch block
@@ -256,8 +245,8 @@ public class FolderRepository {
 		//Session jcrsession = null;
 		boolean flag = false;
 		try {
-		/*jcrsession = repository.login(new SimpleCredentials("admin",
-					"admin".toCharArray()));*/
+		/*jcrsession = repository.login(new SimpleCredentials(Config.EDMS_ADMIN,
+					Config.EDMS_ADMIN.toCharArray()));*/
 			/* jcrsession = repository.login(new SimpleCredentials(
 			 userid,"redhat".toCharArray()));*/
 			/*
@@ -287,13 +276,13 @@ public class FolderRepository {
 		Node folder = null;
 		Folder folder1 = new Folder();
 		try {
-			/*jcrsession = repository.login(new SimpleCredentials("admin",
-					"admin".toCharArray()));*/
+			/*jcrsession = repository.login(new SimpleCredentials(Config.EDMS_ADMIN,
+					Config.EDMS_ADMIN.toCharArray()));*/
 			/*jcrsession = repository.login(new SimpleCredentials(
 			 userid,"redhat".toCharArray()));*/
 		
 			Node root = jcrsession.getRootNode();
-			/*if(userid!="admin"){
+			/*if(userid!=Config.EDMS_ADMIN){
 			root=root.getNode(userid);
 			}*/
 			if (parentFolder.length() > 1) {
@@ -315,7 +304,7 @@ public class FolderRepository {
 			jcrsession.getWorkspace().getVersionManager().checkout(root.getPath());
 			folder = root.addNode(folderName, Config.EDMS_FOLDER);
 			
-			if(root.hasProperty(Config.USERS_READ)&&(!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin"))){
+			if(root.hasProperty(Config.USERS_READ)&&(!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN))){
 				Value[] actualUser = root.getProperty(Config.USERS_READ).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -325,7 +314,7 @@ public class FolderRepository {
 			}else{
 				folder.setProperty(Config.USERS_READ, new String[]{});
 			}
-			if(root.hasProperty(Config.USERS_WRITE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin")){
+			if(root.hasProperty(Config.USERS_WRITE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN)){
 				Value[] actualUser = root.getProperty(Config.USERS_WRITE).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -335,7 +324,7 @@ public class FolderRepository {
 			}else{
 				folder.setProperty(Config.USERS_WRITE, new String[]{});
 			}
-			if(root.hasProperty(Config.USERS_DELETE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin")){
+			if(root.hasProperty(Config.USERS_DELETE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN)){
 				Value[] actualUser = root.getProperty(Config.USERS_DELETE).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -345,7 +334,7 @@ public class FolderRepository {
 			}else{
 				folder.setProperty(Config.USERS_DELETE, new String[]{});
 			}
-			if(root.hasProperty(Config.USERS_SECURITY)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin")){
+			if(root.hasProperty(Config.USERS_SECURITY)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN)){
 				Value[] actualUser = root.getProperty(Config.USERS_SECURITY).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -356,7 +345,7 @@ public class FolderRepository {
 				folder.setProperty(Config.USERS_SECURITY, new String[]{});
 			}
 
-			if(root.hasProperty(Config.GROUPS_READ)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin")){
+			if(root.hasProperty(Config.GROUPS_READ)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN)){
 				Value[] actualUser = root.getProperty(Config.GROUPS_READ).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -367,7 +356,7 @@ public class FolderRepository {
 				folder.setProperty(Config.GROUPS_READ, new String[]{});
 			}
 
-			if(root.hasProperty(Config.GROUPS_WRITE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin")){
+			if(root.hasProperty(Config.GROUPS_WRITE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN)){
 				Value[] actualUser = root.getProperty(Config.GROUPS_WRITE).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -378,7 +367,7 @@ public class FolderRepository {
 				folder.setProperty(Config.GROUPS_WRITE, new String[]{});
 			}
 
-			if(root.hasProperty(Config.GROUPS_DELETE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin")){
+			if(root.hasProperty(Config.GROUPS_DELETE)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN)){
 				Value[] actualUser = root.getProperty(Config.GROUPS_DELETE).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -389,7 +378,7 @@ public class FolderRepository {
 				folder.setProperty(Config.GROUPS_DELETE, new String[]{});
 			}
 
-			if(root.hasProperty(Config.GROUPS_SECURITY)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals("admin")){
+			if(root.hasProperty(Config.GROUPS_SECURITY)&&!root.getProperty(Config.EDMS_AUTHOR).toString().equals(Config.EDMS_ADMIN)){
 				Value[] actualUser = root.getProperty(Config.GROUPS_SECURITY).getValues();
 				String newUser="";
 				for (int i = 0; i < actualUser.length; i++) {
@@ -404,7 +393,7 @@ public class FolderRepository {
 			folder.setProperty(Config.USERS_DELETE,new String[]{userid});
 			folder.setProperty(Config.USERS_SECURITY,new String[]{userid});*/
 			folder.setProperty(Config.EDMS_KEYWORDS, keywords.split(","));
-			if(root.getProperty(Config.EDMS_AUTHOR).getString().equals("admin")){
+			if(root.getProperty(Config.EDMS_AUTHOR).getString().equals(Config.EDMS_ADMIN)){
 
 				folder.setProperty(Config.EDMS_AUTHOR,userid);
 					
@@ -444,13 +433,13 @@ public class FolderRepository {
 		Folder folder1 = new Folder();
 		File file1 = new File();
 		try {
-		/*	jcrsession = repository.login(new SimpleCredentials("admin",
-					"admin".toCharArray()));*/
+		/*	jcrsession = repository.login(new SimpleCredentials(Config.EDMS_ADMIN,
+					Config.EDMS_ADMIN.toCharArray()));*/
 			/* jcrsession = repository.login(new SimpleCredentials(
 			 userid,"redhat".toCharArray()));*/
 		
 			Node root = jcrsession.getRootNode();
-			/*if(userid!="admin"){
+			/*if(userid!=Config.EDMS_ADMIN){
 				root=root.getNode(userid);
 				}*/
 			if (folderPath.length() > 1) {
@@ -875,8 +864,8 @@ case "ngs":
 		//Folder folder1 = new Folder();
 		//Session jcrsession=null;
 		try {
-			/*jcrsession = repository.login(new SimpleCredentials("admin",
-					"admin".toCharArray()));*/
+			/*jcrsession = repository.login(new SimpleCredentials(Config.EDMS_ADMIN,
+					Config.EDMS_ADMIN.toCharArray()));*/
 			/* jcrsession = repository.login(new SimpleCredentials(
 			 userid,"redhat".toCharArray()));*/
 		
@@ -929,7 +918,7 @@ case "ngs":
 		
 		try {
 			Node root = jcrsession.getRootNode();
-			if(userid!="admin"){
+			if(userid!=Config.EDMS_ADMIN){
 				root=root.getNode(userid);
 				}
 				if (folderPath.length() > 1) {
@@ -1148,8 +1137,8 @@ case "ngs":
 		Repository	repository =  new TransientRepository();
 	//	Session jcrsession = null;
 		try {
-			/*	jcrsession = repository.login(new SimpleCredentials("admin",
-					"admin".toCharArray()));*/
+			/*	jcrsession = repository.login(new SimpleCredentials(Config.EDMS_ADMIN,
+					Config.EDMS_ADMIN.toCharArray()));*/
 			/* jcrsession = repository.login(new SimpleCredentials(
 			 userid,"redhat".toCharArray()));*/
 			 /*String[] wwws=		jcrsession.getWorkspace().getAccessibleWorkspaceNames();
@@ -1467,17 +1456,21 @@ case "ngs":
 	public String restoreVersion(String folderPath, String versionName,String userid) {
 		String response="";
 		try {
+			jcrsession.save();
 			VersionManager versionManager=jcrsession.getWorkspace().getVersionManager();
 			Node forVer=jcrsession.getRootNode().getNode(folderPath.substring(1));
 			//System.out.println(forVer.getProperty(Config.EDMS_AUTHOR).getString());
 			if(forVer.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
-				Version version=versionManager.getVersionHistory(folderPath).getVersion(versionName);
-			
-			
-			versionManager.restore(version, true);
-			jcrsession.save();
-			versionManager.checkout(forVer.getPath());
-			response="success";
+				if(versionName!="jcr:rootVersion"){
+					Version version=versionManager.getVersionHistory(folderPath).getVersion(versionName);
+					System.out.println("version is : "+version.getFrozenNode().getPath());
+					versionManager.restore(new Version[]{version}, true);
+					response="success";
+				}else{
+					versionManager.getVersionHistory(folderPath).getRootVersion();
+					response="success";
+				}
+				
 		}else
 		{
 			   response="Access Denied";
