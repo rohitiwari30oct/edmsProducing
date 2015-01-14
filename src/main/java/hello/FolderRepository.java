@@ -1431,11 +1431,13 @@ case "ngs":
 			Node forVer=jcrsession.getRootNode().getNode(oldfolderPath.substring(1));
 			//System.out.println(forVer.getProperty(Config.EDMS_AUTHOR).getString());
 			if(forVer.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
-			jcrsession.getWorkspace().getVersionManager().checkin(forVer.getPath());
+
+				Version version=	jcrsession.getWorkspace().getVersionManager().checkin(forVer.getPath());
+				jcrsession.getWorkspace().getVersionManager().getVersionHistory(forVer.getPath()).addVersionLabel(version.getName(), "renamed from "+oldfolderPath+" to"+newFolderPath, true);
+				jcrsession.getWorkspace().getVersionManager().checkout(forVer.getPath());
+				
 			jcrsession.move(oldfolderPath, oldfolderPath.substring(0,oldfolderPath.lastIndexOf("/")) + "/" + newFolderPath);
 			jcrsession.save();	
-			
-			jcrsession.getWorkspace().getVersionManager().checkout(forVer.getPath());
 			
 			response.setResponse("Success");
 			response.setSuccess(true);
