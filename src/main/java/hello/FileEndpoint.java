@@ -12,6 +12,8 @@ import com.edms.file.GetSharedFilesByPathRequest;
 import com.edms.file.GetSharedFilesByPathResponse;
 import com.edms.file.GetSharedFilesRequest;
 import com.edms.file.GetSharedFilesResponse;
+import com.edms.file.GetVCFFileRequest;
+import com.edms.file.GetVCFFileResponse;
 import com.edms.file.RecycleFileRequest;
 import com.edms.file.RecycleFileResponse;
 import com.edms.file.RenameFileRequest;
@@ -146,4 +148,15 @@ public class FileEndpoint {
 		response.setRenameFileRes(FileRepository.renameFile(request.getOldName(),request.getNewName(),request.getUserid()));
 		return response;
 	}
+	
+
+	
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "getVCFFileRequest")
+	@ResponsePayload
+	public GetVCFFileResponse getContactFileAtt(@RequestPayload GetVCFFileRequest request) {
+		GetVCFFileResponse response = new GetVCFFileResponse();
+		response.setGetVCFFilesByParentFile(FileRepository.getVCFFileAtt(request.getFilePath(), request.getUserid()));
+		return response;
+	}
+	
 }

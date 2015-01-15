@@ -1299,7 +1299,7 @@ case "ngs":
 		//root.setProperty(Config.EDMS_RECYCLE_DOC, true);
 		root.setProperty(Config.EDMS_RESTORATION_PATH, root.getPath());
 		jcrsession.save();
-		jcrsession.getWorkspace().copy(root.getPath(), "/"+userid+"/trash/"+root.getName());
+		jcrsession.getWorkspace().clone(jcrsession.getWorkspace().getName(),root.getPath(), "/"+userid+"/trash/"+root.getName(),false);
 		jcrsession.save();
 		root.setProperty(Config.USERS_READ, new String[]{});
 		//root.removeShare();
@@ -1433,7 +1433,7 @@ case "ngs":
 			if(forVer.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
 
 				Version version=	jcrsession.getWorkspace().getVersionManager().checkin(forVer.getPath());
-				jcrsession.getWorkspace().getVersionManager().getVersionHistory(forVer.getPath()).addVersionLabel(version.getName(), "renamed from "+oldfolderPath+" to"+newFolderPath, true);
+				jcrsession.getWorkspace().getVersionManager().getVersionHistory(forVer.getPath()).addVersionLabel(version.getName(), "renamed from "+oldfolderPath.substring(oldfolderPath.lastIndexOf("/")+1)+" to"+newFolderPath, true);
 				jcrsession.getWorkspace().getVersionManager().checkout(forVer.getPath());
 				
 			jcrsession.move(oldfolderPath, oldfolderPath.substring(0,oldfolderPath.lastIndexOf("/")) + "/" + newFolderPath);
@@ -1447,6 +1447,7 @@ case "ngs":
 			   response.setResponse("Access Denied");
 			   response.setSuccess(false);	
 		}}
+		
 		catch (RepositoryException e) {
 			   response.setResponse("Access Denied");
 			   response.setSuccess(false);

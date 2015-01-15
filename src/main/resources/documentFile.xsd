@@ -263,4 +263,53 @@
 		</xs:sequence>
 	</xs:complexType>
 
+
+
+
+
+<xs:element name="getVCFFileRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FilePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+</xs:element>
+
+
+	<xs:element name="getVCFFileResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element minOccurs="0" maxOccurs="1"
+					name="GetVCFFilesByParentFile" type="tns:VCFFileListReturn" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="VCFFileListReturn">
+		<xs:sequence>
+			<xs:element minOccurs="1" maxOccurs="1" name="VCFSuccess"
+				type="xs:boolean" />
+			<xs:element minOccurs="0" maxOccurs="1" name="VCFFileListResult"
+				type="tns:ArrayOfVCFFiles" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfVCFFiles">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="VCFFileList"
+				nillable="true" type="tns:VCFFileAtt" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="VCFFileAtt">
+		<xs:sequence>
+			<xs:element name="ContactEmail" type="xs:string" />
+			<xs:element name="ContactPhoto" type="xs:string" />
+			<xs:element name="ContactName" type="xs:string" />
+			<xs:element name="ContactPhone" type="xs:string" />
+			<xs:element name="ContactAddress" type="xs:string"/> 
+			<xs:element name="ContactDept" type="xs:string"/> 
+			</xs:sequence>
+	</xs:complexType>
+
+
+
 </xs:schema>

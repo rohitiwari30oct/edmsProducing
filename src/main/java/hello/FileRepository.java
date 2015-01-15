@@ -61,6 +61,9 @@ import java.util.NoSuchElementException;
 
 
 
+
+
+
 import org.activiti.engine.impl.persistence.entity.UserIdentityManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.JcrConstants;
@@ -82,16 +85,23 @@ import org.apache.tika.Tika;
 import org.apache.tika.metadata.Office;
 
 import com.edms.file.ArrayOfFiles;
+import com.edms.file.ArrayOfVCFFiles;
 import com.edms.file.File;
 import com.edms.file.FileListReturn;
 import com.edms.file.FileVersionDetail;
 import com.edms.file.RenameFileRes;
+import com.edms.file.VCFFileAtt;
+import com.edms.file.VCFFileListReturn;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import edms.core.Config;
 import edms.core.JcrRepositorySession;
+import ezvcard.*;
+import ezvcard.io.text.VCardReader;
+import ezvcard.property.*;
+
 
 @Component
 public class FileRepository {
@@ -146,7 +156,8 @@ public class FileRepository {
 					{
 					File File = new File();
 					File=setProperties(node,File,userid);
-					Files.getFileList().add(File);}
+					Files.getFileList().add(File);
+					}
 				}
 					//}
 			}
@@ -463,7 +474,7 @@ public class FileRepository {
 			file.addMixin("mix:referenceable");   
 			Node resNode = file.addNode("edms:content", "edms:resource");   
 			resNode.setProperty("jcr:mimeType", "");   
-			resNode.setProperty("jcr:data", myBinary);   
+			resNode.setProperty("jcr:data", myBinary); 
 			Calendar lastModified = Calendar.getInstance();   
 			lastModified.setTimeInMillis(lastModified.getTimeInMillis());   
 			resNode.setProperty("jcr:lastModified", lastModified);   
@@ -1538,5 +1549,220 @@ case "ngs":
 		}
 		return response;
 	}
+	
+	
+	
+
+	/* vfc*/
+	public VCFFileListReturn getVCFFileAtt(String fdrname, String userid)
+	{
+		Assert.notNull(fdrname);
+		VCFFileListReturn FileList1 =new VCFFileListReturn();
+		ArrayOfVCFFiles Files =new ArrayOfVCFFiles();
+		Node root = null;
+		boolean status=true;
+		try {
+				root = jcrsession.getRootNode();
+				if (fdrname.length() > 1) {
+					if (!root.hasNode(userid)) {
+						//root=JcrRepositorySession.createFile(userid);
+						//JcrRepositorySession.createFile(userid+"/trash");
+					} else {
+						root = root.getNode(fdrname.substring(1));
+					}
+				}
+		for (NodeIterator nit = root.getNodes(); nit.hasNext();) {
+			Node node = nit.nextNode();
+		
+				if (Config.EDMS_DOCUMENT.equals(node.getPrimaryNodeType().getName())) {
+				if(node.getProperty(Config.EDMS_AUTHOR).getString().equals(userid))
+				{
+				VCFFileAtt vcfflatt= new VCFFileAtt();
+					Node ntResourceNode = node.getNode("edms:content");
+					InputStream is = (InputStream)ntResourceNode.getProperty("jcr:data").getBinary().getStream();
+					Tika tika = new Tika();
+					// FileOutputStream out = null;
+					try {
+						// out = new FileOutputStream(new File('D:/edms
+						// project/spring-tool-suite-3.6.0.RELEASE-e4.4-win32-x86_64/sts-bundle/sts-3.6.0.RELEASE/repository.xml'));
+						// IOUtils.copy(in, out);
+						String mimeType = tika.detect(is);
+						System.out.println(mimeType);
+					} catch (Exception e) {
+						System.err.println(e);
+					}
+					String photo="";
+					 String name="";
+	        		 String email="";
+	        		 int email_cnt=0;
+	        		 String phone="";
+	        		 int phone_cnt=0;
+	        		 String dept="Dept";
+	        		 String addr="";
+	        		 int addr_cnt=0;
+
+        		 	 java.io.File iss=new java.io.File("D:/rohit.vcf");
+        		 	 	InputStream isss=new FileInputStream(iss);
+	        		 VCardReader vcardReader = new VCardReader(IOUtils.toString(is));
+	        		 System.out.println(is);
+	        		 System.out.println(isss);
+	        		 VCard vcard = Ezvcard.parse(IOUtils.toString(is)).first();
+	        		FormattedName fn=vcard.getFormattedName();
+	        		name=fn.getValue(); 
+	        			 List<Email> elst=	vcard.getEmails();
+	        			
+	        			 for(Email em: elst)
+	        			 {
+	        				
+	        				 if(email_cnt==0)
+	        				 {
+	        					 email =em.getValue();
+	        				 }
+	        				 email_cnt++;
+	        				
+	        				 System.out.println("**************email type="+em.getTypes()+": email="+em.getValue());
+	        			 }
+	        			 
+	        			 List<Telephone> moblst=	vcard.getTelephoneNumbers();
+	        			 for(Telephone tel: moblst)
+	        			 {
+	        				 if(phone_cnt==0)
+	        				 {
+	        					 phone=tel.getText(); 
+	        				 }
+	        				 phone_cnt++;
+	        			 }
+	        			 
+	        			 
+	        			 List<Address> addre= vcard.getAddresses();
+	        			 for(Address ad: addre)
+	        			 {
+	        				 if(addr_cnt==0)
+	        				 {
+	        					if(ad.getStreetAddress()!=null && !(ad.getStreetAddress().equals("")))
+	        					{
+	        						if(addr.equals("") || addr==null)
+	        						{
+	        							addr=ad.getStreetAddress();
+	        						}
+	        						else
+	        						{
+	        							addr=addr+", "+ad.getStreetAddress();
+	        						}
+	        					}
+	        					if(ad.getLocality()!=null && !(ad.getLocality().equals("")))
+	        					{
+	        						if(addr.equals("") || addr==null)
+	        						{
+	        							addr=ad.getLocality();
+	        						}
+	        						else
+	        						{
+	        							addr=addr+", "+ad.getLocality();
+	        						}
+	        					}
+	        					if(ad.getRegion()!=null && !(ad.getRegion().equals("")))
+	        					{
+	        						if(addr.equals("") || addr==null)
+	        						{
+	        							addr=ad.getRegion();
+	        						}
+	        						else
+	        						{
+	        							addr=addr+", "+ad.getRegion();
+	        						}
+	        					}
+	        					if(ad.getCountry()!=null && !(ad.getCountry().equals("")))
+	        					{
+	        						if(addr.equals("") || addr==null)
+	        						{
+	        							addr=ad.getCountry();
+	        						}
+	        						else
+	        						{
+	        							addr=addr+", "+ad.getCountry();
+	        						}
+	        					}
+	        					if(ad.getPostalCode()!=null && !(ad.getPostalCode().equals("")))
+	        					{
+	        						if(addr.equals("") || addr==null)
+	        						{
+	        							addr=ad.getPostalCode();
+	        						}
+	        						else
+	        						{
+	        							addr=addr+", "+ad.getPostalCode();
+	        						}
+	        					}
+	        					
+	        				 }
+	        				 addr_cnt++;
+	        				 
+	        			
+	        				 
+	        				 if(email_cnt>1)
+	        				 {
+	        					 email_cnt--;
+	        					 email=email+"(+"+email_cnt+")";
+	        				 }
+	        				 if(phone_cnt>1)
+	        				 {
+	        					 System.out.println("*************name="+name+"--- contact="+phone_cnt);
+	        					 phone_cnt--;
+	        					 phone=phone+"(+"+phone_cnt+")";
+	        				 }
+	        				 if(addr_cnt>1)
+	        				 {
+	        					 addr_cnt--;
+	        					 addr=addr+"(+"+addr_cnt+")";
+	        				 }
+	        				 
+	        				 
+	        				// System.out.println("Address:"+ad.getCountry()+" type:"+ad.getTypes());
+	        				// System.out.println("Address:"+ad.getStreetAddress()+" type:"+ad.getTypes());
+	        			 }
+	        			 
+	        			
+	        		
+	        			// System.out.println(vcard.getFormattedName().getValue());
+	        			// System.out.println(vcard.getStructuredName().getFamily());
+	        			// System.out.println("--------------------------------");
+	        			
+	        			vcardReader.close();
+					
+					
+	        			vcfflatt.setContactAddress(addr);
+	        			vcfflatt.setContactDept(dept);
+	        			vcfflatt.setContactEmail(email);
+	        			vcfflatt.setContactName(name);
+	        			vcfflatt.setContactPhone(phone);
+	        			vcfflatt.setContactPhoto(photo);
+					
+	        			Files.getVCFFileList().add(vcfflatt);
+					
+				
+				}
+			}
+			
+		}
+	} catch (LoginException e) {
+		status=false;
+		e.printStackTrace();
+	} catch (RepositoryException e) {
+		status=false;
+		e.printStackTrace();
+	} 
+		catch (IOException e) {
+			status=false;
+			e.printStackTrace();
+		} 
+	FileList1.setVCFFileListResult(Files);
+	FileList1.setVCFSuccess(status);
+	return FileList1;
+	}
+	
+	
+	
+	
 	
 }
