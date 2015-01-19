@@ -85,44 +85,20 @@ public class FolderRepository {
 		Assert.notNull(name);
 		FolderListReturn folderList1 = new FolderListReturn();
 		ArrayOfFolders folders = new ArrayOfFolders();
-		Node root = null;
-		
 		try {
-			 	/*	String[] wwws=jcrsession.getWorkspace().getAccessibleWorkspaceNames();
-				for (int i = 0; i < wwws.length; i++) {
-					//System.out.println(wwws[i]);
-				}	*/
+					javax.jcr.query.QueryManager queryManager;
+					queryManager = jcrsession.getWorkspace().getQueryManager();
+					String expression = "select * from [edms:folder] AS s WHERE ISCHILDNODE(s,'"+name+"') and [edms:author]='"+userid+"' ORDER BY [NAME(s),DESC]";
+					//expression = "select * from [edms:folder] AS s WHERE NAME like ['%san%']";
+				    javax.jcr.query.Query query = queryManager.createQuery(expression, javax.jcr.query.Query.JCR_SQL2);
+				    javax.jcr.query.QueryResult result = query.execute();
 					
-				// 	removeUser(jcrsession, userid);
-				//	createUser(userid, "redhat", jcrsession, root);
-			 	//	setPolicy(jcrsession, root, userid,root.getPath(),  Privilege.JCR_ALL);
-				//	Workspace ws=jcrsession.getWorkspace();
-				//	ws.createWorkspace(userid);
-			
-					root = jcrsession.getRootNode();
-					if (name.length() > 1) {
-						if (!root.hasNode(userid)) {
-							root=JcrRepositorySession.createFolder(userid);
-							JcrRepositorySession.createFolder(userid+"/trash");
-						} else {
-							root = root.getNode(name.substring(1));
-						}
-					}
-			for (NodeIterator nit = root.getNodes(); nit.hasNext();) {
-				Node node = nit.nextNode();
-			/*	boolean recycle=false;
-				if(node.hasProperty(Config.EDMS_RECYCLE_DOC)){
-				recycle=node.getProperty(Config.EDMS_RECYCLE_DOC).getBoolean();
-				}if(!recycle){*/
-					if (Config.EDMS_FOLDER.equals(node.getPrimaryNodeType().getName())) {
-					if(node.getProperty(Config.EDMS_AUTHOR).getString().equals(userid))
-					{
+			for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
+					Node node = nit.nextNode();
 					Folder folder = new Folder();
 					folder=setProperties(node,folder,userid);
-					folders.getFolderList().add(folder);}
-				}
-					//}
-			}
+					folders.getFolderList().add(folder);
+					}
 		} catch (LoginException e) {
 			e.printStackTrace();
 		} catch (RepositoryException e) {
@@ -145,7 +121,6 @@ public class FolderRepository {
 		folder.setCreatedBy(node.getProperty(Config.EDMS_AUTHOR).getString());
 		if(node.hasProperty(Config.EDMS_RECYCLE_DOC))
 		folder.setRecycle(node.getProperty(Config.EDMS_RECYCLE_DOC).getBoolean());
-
 		if(node.hasProperty(Config.EDMS_KEYWORDS)){
 		Value[] actualUsers = node.getProperty(Config.EDMS_KEYWORDS).getValues();
 		for (int i = 0; i < actualUsers.length; i++) {
@@ -298,7 +273,7 @@ public class FolderRepository {
 				newUsers+=actualUsers[i].getString()+",";
 			}
 			if(newUsers.contains(userid)||root.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)||(root.getName().equals(userid)&&(root.getProperty(Config.EDMS_AUTHOR).getString()).equals(Config.JCR_USERNAME))){
-
+				System.out.println(root.getPath());
 			Version version=	jcrsession.getWorkspace().getVersionManager().checkin(root.getPath());
 			jcrsession.getWorkspace().getVersionManager().getVersionHistory(root.getPath()).addVersionLabel(version.getName(), "new child named "+folderName+" added", true);
 			jcrsession.getWorkspace().getVersionManager().checkout(root.getPath());

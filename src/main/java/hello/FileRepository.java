@@ -19,6 +19,10 @@ import javax.jcr.ValueFormatException;
 import javax.jcr.Workspace;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeIterator;
+import javax.jcr.query.Row;
+import javax.jcr.query.RowIterator;
+import javax.jcr.query.qom.FullTextSearch;
+import javax.jcr.query.qom.QueryObjectModelFactory;
 import javax.jcr.security.AccessControlEntry;
 import javax.jcr.security.AccessControlException;
 import javax.jcr.security.AccessControlList;
@@ -31,6 +35,7 @@ import javax.jcr.version.VersionIterator;
 import javax.print.attribute.standard.MediaSize.NA;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -43,6 +48,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
+
+
+
+
+
+
 
 
 
@@ -90,6 +102,7 @@ import com.edms.file.File;
 import com.edms.file.FileListReturn;
 import com.edms.file.FileVersionDetail;
 import com.edms.file.RenameFileRes;
+import com.edms.file.SortByPropertyRes;
 import com.edms.file.VCFFileAtt;
 import com.edms.file.VCFFileListReturn;
 
@@ -123,7 +136,7 @@ public class FileRepository {
 		FileListReturn FileList1 = new FileListReturn();
 		ArrayOfFiles Files = new ArrayOfFiles();
 		Node root = null;
-		
+		sortByProperty("", "", userid);
 		try {
 			 	/*	String[] wwws=jcrsession.getWorkspace().getAccessibleWorkspaceNames();
 				for (int i = 0; i < wwws.length; i++) {
@@ -136,7 +149,7 @@ public class FileRepository {
 				//	Workspace ws=jcrsession.getWorkspace();
 				//	ws.createWorkspace(userid);
 			
-					root = jcrsession.getRootNode();
+					/*root = jcrsession.getRootNode();
 					if (name.length() > 1) {
 						if (!root.hasNode(userid)) {
 							//root=JcrRepositorySession.createFile(userid);
@@ -145,20 +158,33 @@ public class FileRepository {
 							root = root.getNode(name.substring(1));
 						}
 					}
-			for (NodeIterator nit = root.getNodes(); nit.hasNext();) {
-				Node node = nit.nextNode();
+						root=jcrsession.getRootNode();
+					*/   javax.jcr.query.QueryManager queryManager;
+							queryManager = jcrsession.getWorkspace().getQueryManager();
+							String expression = "select * from [edms:document] AS s WHERE ISDESCENDANTNODE(s,'"+name+"') AND ISCHILDNODE(s,'"+name+"') ORDER BY [NAME(s),DESC]";
+							expression = "select * from [edms:document] AS s WHERE ISCHILDNODE(s,'"+name+"') ORDER BY [NAME(s),DESC]";
+							expression = "select * from [edms:document] AS s WHERE ISCHILDNODE(s,'"+name+"') and [edms:author]='"+userid+"' ORDER BY [NAME(s),DESC]";
+						    javax.jcr.query.Query query = queryManager.createQuery(expression, javax.jcr.query.Query.JCR_SQL2);
+				        
+				        //query.setLimit(10);
+				       // query.setOffset(0);
+				        // Execute the query and get the results ...
+				        javax.jcr.query.QueryResult result = query.execute();
+					    
+			for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
+				Node node=nit.nextNode();
 			/*	boolean recycle=false;
 				if(node.hasProperty(Config.EDMS_RECYCLE_DOC)){
 				recycle=node.getProperty(Config.EDMS_RECYCLE_DOC).getBoolean();
 				}if(!recycle){*/
-					if (Config.EDMS_DOCUMENT.equals(node.getPrimaryNodeType().getName())) {
-					if(node.getProperty(Config.EDMS_AUTHOR).getString().equals(userid))
-					{
+					//if (node.getParent().isSame(root)) {
+					//if(node.getProperty(Config.EDMS_AUTHOR).getString().equals(userid))
+					//{
 					File File = new File();
 					File=setProperties(node,File,userid);
 					Files.getFileList().add(File);
-					}
-				}
+					//}
+				//}
 					//}
 			}
 		} catch (LoginException e) {
@@ -447,7 +473,7 @@ public class FileRepository {
 					
 			}else{
 			file.setProperty(Config.EDMS_AUTHOR,root.getProperty(Config.EDMS_AUTHOR).getString());
-			}file.setProperty(Config.EDMS_DESCRIPTION, description);
+			}file.setProperty(Config.EDMS_DESCRIPTION, is);
 			file.setProperty(Config.EDMS_CREATIONDATE, (new Date()).toString());
 			file.setProperty(Config.EDMS_MODIFICATIONDATE, (new Date()).toString());
 			file.setProperty(Config.EDMS_RECYCLE_DOC, false);
@@ -458,17 +484,22 @@ public class FileRepository {
 			
 			
 			InputStream iss=IOUtils.toInputStream(is);
-			Tika tika = new Tika();
-			// FileOutputStream out = null;
-			try {
+			VCard vcard = Ezvcard.parse(is).first();
+			/*	 String destFilePath = "D:/newfile30.vcf";
+	             //OutputStream output = response.getOutputStream();
+	             FileOutputStream output = new FileOutputStream(destFilePath);
+	             byte[] buffer = new byte[4096];
+
+	             int byteRead;
+
+	             while ((byteRead = iss.read(buffer)) != -1) {
+	                output.write(buffer, 0, byteRead);
+	             }
+	             output.close();*/
+			
 				// out = new FileOutputStream(new File('D:/edms
 				// project/spring-tool-suite-3.6.0.RELEASE-e4.4-win32-x86_64/sts-bundle/sts-3.6.0.RELEASE/repository.xml'));
 				// IOUtils.copy(in, out);
-				String mimeType = tika.detect(iss);
-				//System.out.println(mimeType);
-			} catch (Exception e) {
-				System.err.println(e);
-			}
 			ValueFactory valueFactory = jcrsession.getValueFactory();   
 			Binary myBinary = valueFactory.createBinary(iss);            
 			file.addMixin("mix:referenceable");   
@@ -1579,18 +1610,8 @@ case "ngs":
 				{
 				VCFFileAtt vcfflatt= new VCFFileAtt();
 					Node ntResourceNode = node.getNode("edms:content");
-					InputStream is = (InputStream)ntResourceNode.getProperty("jcr:data").getBinary().getStream();
-					Tika tika = new Tika();
-					// FileOutputStream out = null;
-					try {
-						// out = new FileOutputStream(new File('D:/edms
-						// project/spring-tool-suite-3.6.0.RELEASE-e4.4-win32-x86_64/sts-bundle/sts-3.6.0.RELEASE/repository.xml'));
-						// IOUtils.copy(in, out);
-						String mimeType = tika.detect(is);
-						System.out.println(mimeType);
-					} catch (Exception e) {
-						System.err.println(e);
-					}
+					InputStream is = ntResourceNode.getProperty("jcr:data").getBinary().getStream();
+				//	InputStream fs=(FileInputStream)IOUtils.toInputStream(node.getProperty(Config.EDMS_DESCRIPTION).getString());		
 					String photo="";
 					 String name="";
 	        		 String email="";
@@ -1600,13 +1621,22 @@ case "ngs":
 	        		 String dept="Dept";
 	        		 String addr="";
 	        		 int addr_cnt=0;
+	        		 Tika tika = new Tika();
+					//   String destFilePath = "D:/newfile223.vcf";
+			              //OutputStream output = response.getOutputStream();
+			        //      FileOutputStream output = new FileOutputStream(destFilePath);
+			          /*    byte[] buffer = new byte[4096];
 
-        		 	 java.io.File iss=new java.io.File("D:/rohit.vcf");
-        		 	 	InputStream isss=new FileInputStream(iss);
-	        		 VCardReader vcardReader = new VCardReader(IOUtils.toString(is));
-	        		 System.out.println(is);
-	        		 System.out.println(isss);
-	        		 VCard vcard = Ezvcard.parse(IOUtils.toString(is)).first();
+			              int byteRead;
+
+			              while ((byteRead = is.read(buffer)) != -1) {
+			                 output.write(buffer, 0, byteRead);
+			              }
+			              output.close();*/
+	        		 //InputStream fs=new FileInputStream(new java.io.File("D:/newfile223.vcf"));
+	        		 VCardReader vcardReader = new VCardReader(is);
+	        		// System.out.println(is);
+	        		 VCard vcard = Ezvcard.parse(is).first();
 	        		FormattedName fn=vcard.getFormattedName();
 	        		name=fn.getValue(); 
 	        			 List<Email> elst=	vcard.getEmails();
@@ -1759,6 +1789,41 @@ case "ngs":
 	FileList1.setVCFFileListResult(Files);
 	FileList1.setVCFSuccess(status);
 	return FileList1;
+	}
+
+	public SortByPropertyRes sortByProperty(String path, String propertyName, String userid) {
+		
+				SortByPropertyRes sortByProperty=new SortByPropertyRes();
+				// Obtain the query manager for the session via the workspace ...
+		        javax.jcr.query.QueryManager queryManager;
+				try {
+					queryManager = jcrsession.getWorkspace().getQueryManager();
+				
+
+		        // Create a query object ...
+			        String expression = "select * from [edms:folder] AS s WHERE ISDESCENDANTNODE(s,'/sanjay@avi-oil.com/Contacts') ";
+			        expression = "select * from [edms:folder] AS s WHERE NAME() = 'sanjay1' ";
+			      //  expression = "select * from [edms:document] WHERE NAME() like '%.png' ";
+			        //expression="SELECT p.* FROM [nt:base] AS p WHERE p.[jcr:lastModified] >= CAST('2015-01-01T00:00:00.000Z' AS DATE) AND p.[jcr:lastModified] <= CAST('2015-12-31T23:59:59.999Z' AS DATE)";
+					        // expression = "select * from [edms:folder] where [jcr:path] like '%santosh%'";
+			         
+		        javax.jcr.query.Query query = queryManager.createQuery(expression, javax.jcr.query.Query.JCR_SQL2);
+		        
+		        //query.setLimit(10);
+		       // query.setOffset(0);
+		        // Execute the query and get the results ...
+		        javax.jcr.query.QueryResult result = query.execute();
+		     //   System.out.println(result.getNodes());
+		        for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
+					Node node = nit.nextNode();
+				System.out.println("node name is : "+node.getName() +" and path is : "+node.getPath()+" modification date is : "+node.getProperty(Config.EDMS_MODIFICATIONDATE).getString());	
+		        
+		        }
+				} catch (RepositoryException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		return null;
 	}
 	
 	

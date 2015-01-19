@@ -44,6 +44,11 @@ public class JcrRepositorySession {
 			createFolder("sanjay@avi-oil.com/trash");*/
 		//	createFolder("sanjay@avi-oil.com/sharedByOthers");
 		//	createFolder("sanjay@avi-oil.com/sharedCalendersByOthers");
+//		 	removeUser(jcrsession, userid);
+						//	createUser(userid, "redhat", jcrsession, root);
+					 	//	setPolicy(jcrsession, root, userid,root.getPath(),  Privilege.JCR_ALL);
+						//	Workspace ws=jcrsession.getWorkspace();
+						//	ws.createWorkspace(userid);
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 			return null;

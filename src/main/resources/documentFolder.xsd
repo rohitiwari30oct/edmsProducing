@@ -309,6 +309,24 @@
 		</xs:complexType>
 	</xs:element>
 
+	<xs:element name="recentlyModifiedRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folderPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="recentlyModifiedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="recentlyModifiedFiles" type="tns:FolderListReturn" />
+				<xs:element name="recentlyModifiedFolders" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
 
 
 	<xs:element name="renameFolderRequest">

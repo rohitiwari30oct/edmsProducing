@@ -22,6 +22,8 @@ import com.edms.file.RestoreFileRequest;
 import com.edms.file.RestoreFileResponse;
 import com.edms.file.ShareFileByPathRequest;
 import com.edms.file.ShareFileByPathResponse;
+import com.edms.file.SortByPropertyRequest;
+import com.edms.file.SortByPropertyResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
@@ -146,6 +148,14 @@ public class FileEndpoint {
 			@RequestPayload RenameFileRequest request) {
 		RenameFileResponse response = new RenameFileResponse();
 		response.setRenameFileRes(FileRepository.renameFile(request.getOldName(),request.getNewName(),request.getUserid()));
+		return response;
+	}
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "sortByPropertyRequest")
+	@ResponsePayload
+	public SortByPropertyResponse sortByPropertyRequest(
+			@RequestPayload SortByPropertyRequest request) {
+		SortByPropertyResponse response = new SortByPropertyResponse();
+		response.setSortByPropertyRes(FileRepository.sortByProperty(request.getPath(),request.getPropertyName(),request.getUserid()));
 		return response;
 	}
 	
