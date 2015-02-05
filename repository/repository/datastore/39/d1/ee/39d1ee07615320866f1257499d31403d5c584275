@@ -1,0 +1,1214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title> EDMS DESIGN </title>
+<script src="js/jquery-1.7.2.min.js" type="application/javascript" ></script>
+<script src="js/left_event.js" type="application/javascript"></script>
+<script src="js/jquery_popup.js"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+$(document).ready(function(){
+	$("#tabs li").click(function() {
+		//	First remove class "active" from currently active tab
+		$("#tabs li").removeClass('active');
+
+		//	Now add class "active" to the selected/clicked tab
+		$(this).addClass("active");
+
+		//	Hide all tab content
+		$(".tab_content").hide();
+
+		//	Here we get the href value of the selected tab
+		var selected_tab = $(this).find("a").attr("href");
+
+		//	Show the selected tab content
+		$(selected_tab).fadeIn();
+
+		//	At the end, we add return false so that the click on the link is not executed
+		return false;
+	});
+});
+/* ]]> */
+</script>
+<script type="text/javascript">
+
+$(document).ready(function() {
+
+	$(".tab_content_1").hide();
+	$(".tab_content_1:first").show(); 
+
+	$("ul.tabs li").click(function() {
+		$("ul.tabs li").removeClass("active");
+		$(this).addClass("active");
+		$(".tab_content_1").hide();
+		var activeTab = $(this).attr("rel"); 
+		$("#"+activeTab).fadeIn(); 
+	});
+});
+
+</script>
+<!-------/// DISABLE RIGHT CLICK ------------>
+<!--<script type="text/javascript" src="js/milonic_src.js"></script>
+<script type="text/javascript" src="js/mmenudom.js"></script>
+<script type="text/javascript" src="js/menu_data.js"></script>
+<script type="text/javascript" src="js/contextmenu.js"></script>
+<!-----------/// DISABLE RIGHT CLICK END -------->
+<link href="css/style.css" type="text/css" rel="stylesheet"/>
+<link rel="stylesheet" href="css/jquery_popup.css" />
+</head>
+      <body>
+              <div class="main_div">
+                        <!----// HEADER --->
+                        <div class="main_header">
+                                  <div class="header">
+                                       <div class="logo_space">
+                                          <!---/// LOGO --->
+                                           <img src="images/logo.png" />
+                                            <!---//LOGO END -->
+                                     </div>
+                                    <!--------// SEARCH HERE --------->
+                                    <div class="search_main">  
+                                    <div class="search_main_div">
+                                          <div class="search_icon"> <img src="images/search.png" /> </div>
+                                          <div class="serach_top" onclick="tab_search()"> </div>
+                                          <div class="clear"></div>
+                                    </div>
+                                    <div class="search_box_details"> 
+                          <!-------Tab Content Here -------------->
+                         <div id="tabs_wrapper">
+                                <div id="tabs_container">
+                                        <ul id="tabs">
+                                              <li class="active"><a href="#tab1">BASIC</a></li>
+                                              <li><a class="icon_accept" href="#tab2">ADVANCED</a></li>
+                                              <li><a href="#tab3">RECENT SEARCH</a></li>
+                                        </ul>
+                               </div>
+                         <div id="tabs_content_container">
+                                      <div id="tab1" class="tab_content" style="display: block;"> 
+                                      <!-------------// Tab Content Started Here ----------------->
+                                              <ul>
+                                                      <li>GROUP</li>
+                                                      <li>
+                                                        <select>
+                                                          <option> Group 1</option>
+                                                          <option> Group 2</option>
+                                                          <option> Group 3</option>
+                                                        </select>
+                                                      </li>
+                                                      <li>USER</li>
+                                                      <li>
+                                                        <input  type="text" />
+                                                      </li>
+                                                      <li>TITLE</li>
+                                                      <li>
+                                                        <input  type="text" />
+                                                      </li>
+                                                      <li>KEYWORDS</li>
+                                                      <li>
+                                                        <input  type="text" />
+                                                      </li>
+                                                      <li>DATE</li>
+                                                      <li></li>
+                                                      <li>LAST MONTH</li>
+                                                      <li>
+                                                        <select>
+                                                          <option> Group 1</option>
+                                                          <option> Group 2</option>
+                                                          <option> Group 3</option>
+                                                        </select>
+                                                      </li>
+                                                      <li>
+                                                        <div class="search_icon_tab"> <img src="images/search.png" /> </div>
+                                                      </li>
+                                              </ul>
+                                      <!--------------/// Tab End Here ---------------------------> 
+                                    </div>
+                                      <div id="tab2" class="tab_content"> 
+                                            <!-----------TABN CONTENT STARED HERE ---------------->
+                                         <ul>
+                                                    <li>FOLDER</li>
+                                                    <li>
+                                                      <input  type="text" />
+                                                    </li>
+                                                    <li>TYPE</li>
+                                                    <li>
+                                                      <input type="checkbox" />
+                                                      <label>DOCUMENT</label>
+                                                      <input type="checkbox" />
+                                                      <label>FOLDER</label>
+                                                      </li>
+                                                      <div class="claer"></div>
+                                                    <li>FILE TYPE</li>
+                                                    <li>
+                                                      <select>
+                                                        <option>Select File Type</option>
+                                                        <option>.PDF</option>
+                                                        <option>.DOC</option>
+                                                        <option>.EXE</option>
+                                                        <option>.EXECl</option>
+                                                      </select>
+                                                    </li>
+                                                    <li>NOTES</li>
+                                                    <li>
+                                                      <input  type="text" />
+                                                    </li>
+                                                    <li>
+                                                      <div class="search_icon_tab"> <img src="images/search.png" /> </div>
+                                                    </li>
+                                        </ul>
+                                            <!------------TAB CONTENT END HERE ----------------------> 
+                              </div>
+                                       <div id="tab3" class="tab_content">
+                                <p>Suspendisse blandit velit eget erat suscipit in malesuada odio venenatis.</p>
+                              </div>
+                        </div>
+        </div>
+        <!------------------Tab Content End Here ------------------> 
+      </div>
+                                     <div class="clear"></div>
+                                  </div>
+                                    <!---------/// SEARCH END HERE ---------->
+                                    <div class="user_deatils">
+                                          <div class="user_details_left"> Welcome : <strong>Hariom Srivastava</strong>
+                                          <div class="claer"></div> 
+                                    </div>
+                                    <div class="user_images"> </div>
+                                    <!----/// TOP PROFILE STARTED HERE ----------->
+                                    <div class="uparrowdiv">
+                                        <div class="login_photo">
+                                          <div class="change_photo">Change photo</div>
+                                        </div>
+                                        <div class="right_box"> 
+                                              <div class="info_1">
+                                              <strong>Hariom Srivastava</strong> 
+                                              <span>hariom15791@gmail.com</span>
+                                              </div>
+                                              <img src="images/Progress_Bar.png" />
+                                              <div class="claer"></div>
+                                              <div class="bottom_info">
+                                                   <div class="full_profile">View profile</div>
+                                                   <div class="sign_out">Sign out</div> </div>
+                                                   <div class="clear"></div>
+                                              </div>
+                                       </div>
+                                       <div class="claer"></div>
+                                  </div>
+                                  <!----------/// TOP PROFILE END HERE ------------->
+                                  <!---------/// SEARCH PANNEL STARTED HERE ---------->
+                                  
+      <!-------------/// HEADER MENU SECTON END HERE -----------------> 
+                          </div>
+                                  <!-----------/// SEARCH PANNEL END HERE ------->
+                                  <!--------/// MENU STARTED HERE -------->
+                                  <!----------/// MENU STARTED HERE ------------>
+                                   <div class="menu_right">
+                                        <ul>
+                                                 <li>
+                                                    <a href="index.html" title="Home" ><div class="home"></div> Home<div class="claer"></div></a> 
+                                                 </li>
+                                                 <li> 
+                                                    <a href="#" title="Download"><div class="download"></div>Download</a>
+                                                 </li>
+                                                 <li class="add_folder "> 
+                                                    <a href="#" title="Create"><div class="create"></div> CREATE</a> 
+                                                 </li>
+                                                 <li class="folder_icon_1"> 
+                                                    <a href="#" title="Upload"><div class="upload"></div>UPLOAD</a>
+                                                 </li>
+                                                 <li > 
+                                                    <a href="#" title="Create"><div class="create_doc"></div>CREATE</a>
+                                                 </li>
+                                                 <li> 
+                                                   <a href="#" title="Edit"><div class="edit"></div>Edit</a> 
+                                                 </li>
+                                                 <li> 
+                                                   <a href="#" title="Update"><div class="update"></div>UPDATE</a> 
+                                                 </li>
+                                                <li class="delete_folder"> 
+                                                   <a href="#" title="Delete"><div class="delet"></div>DELETE</a> 
+                                                </li>
+                                                <li rel="tab22">
+                                                    <a href="statice.html" title="Delete"><div class="graph_user_1"></div>STATISTICS</a>
+                                                </li>
+                                                <li>
+                                                   <a href="calender.html" title="Delete"><div class="calender_user_1" ></div>CALENDAR</a>
+                                                </li>
+                                                <li>
+                                                   <a href="form.html" title="Delete"><div class="contact_user_1"></div>WORK FLOW </a>
+                                                </li>
+                                                <li>
+                                                   <a href="shared.html" title="Shared"><div class="create_view"></div>SHARED</a>
+                                                </li>
+                                                <li>
+                                                   <a href="recently.html" title="Recently Accessed"><div class="recent_open"></div>RECENTLY</a>
+                                                </li>
+                                                <li>
+                                                   <a href="trash.html" title="Trash"><div class="my_doc"></div>RECYCLE</a>
+                                                </li>
+                                      </ul>
+                                   </div>
+                                  <!------------// MENU END HERE ---------->
+    
+                         <!-------/// SEARCH BOX PANNEL STARTED HERE ----------->
+                         </div>
+                        <!---/// HEADER END -->
+                        <!---/// LEFT --->
+                         <div class="left">
+                              <div class="left-pane document_page_left_height new_cheat">
+                                <!---------/// LEFT PART TOP STARTED HERE ---------->
+                                      <div class="left_top_part">
+                                            <div class="left_sub_menu">
+                                               <ul>
+                                                        <li class="file_system tab_header" onClick="tab_left()"> <a href="index.html" >MY DOCUMENT</a>
+                                                        </li>
+                                                        <div class="content_left content_left_block">
+                                                                <ul>
+                                                                          <li>
+                                                                            <div class="folder"></div>
+                                                                            <span>Sales Department</span>
+                                                                          </li>
+                                                                          <li>
+                                                                            <div class="folder"></div>
+                                                                            <span>Marketing</span>
+                                                                          </li>
+                                                                          <li>
+                                                                            <div class="folder"></div>
+                                                                            <span>HR</span>
+                                                                          </li>
+                                                                          <li>
+                                                                            <div class="folder"></div>
+                                                                            <span>IT Department</span>
+                                                                          </li>
+                                                                          <li>
+                                                                            <div class="folder"></div>
+                                                                            <span>Advertisment</span>
+                                                                          </li>
+                                                                          <li>
+                                                                            <div class="folder"></div>
+                                                                            <span>Purchasess</span>
+                                                                          </li>
+                                                                          <li>
+                                                                            <div class="folder"></div>
+                                                                            <span>CEO</span>
+                                                                          </li>
+                                                                          <li>
+                                                                            <div class="subfolder_sign"></div><div class="folder"></div>
+                                                                            <span>Invoice</span>
+                                                                                    <div class="subfolder_onhover mydocument_subfolder">
+                                                                                          <ul>
+                                                                                            <li><div class="folder"></div><span>1111</span></li>
+                                                                                            <li><div class="folder"></div><span>Purchases Order</span></li>
+                                                                                            <li><div class="folder"></div><span>Purchases Order</span></li>
+                                                                                            <li><div class="folder"></div><span>Purchases Order</span></li>
+                                                                                            <li><div class="folder"></div><span>Purchases Order</span></li>
+                                                                                            <li><div class="folder"></div><span>Purchases Order</span></li>
+                                                                                            <li><div class="folder"></div><span>Purchases Order</span></li>
+                                                                                            <li><div class="folder"></div><span>Purchases Order</span></li>
+                                                                                            <li><div class="folder"></div><span>Purchases Order</span></li>
+                                                                                          </ul>
+                                                                                    </div>
+                                                                          </li>
+                                                                          <li>
+                                                                            <div class="folder"></div>
+                                                                            <span>Purchases Order</span>
+                                                                          </li>
+                                                                          <li>
+                                                                            <div class="folder"></div>
+                                                                            <span>Presentation</span>
+                                                                          </li>
+                                                                          <li>
+                                                                            <div class="folder"></div>
+                                                                            <span>Video</span>
+                                                                          </li>
+                                                                          <li>
+                                                                            <div class="folder"></div>
+                                                                            <span>Word Document</span>
+                                                                          </li>
+                                                                </ul>
+                                                        </div>
+                                                        <div class="content_left"> </div>
+                                             </ul>
+                                  </div>
+                                      </div>
+                                 <!------------/// LEFT PART TOP END HERE ------------>
+                                 <!------------/// LEFT PART BOTTOM END HERE ------->
+                                      <div class="left_bottom_part">
+                                      
+                                          <!---------/// CHAT HEADING STARTED HERE ---------->
+                                                <div class="chat_heading_main">
+                                                          <div class="chat_h_left">
+                                                                 <img src="images/photo.jpg" class="h_name" />
+                                                                  <div class="chat_h_name">Hariom Srivastava</div>
+                                                                  <div class="h_drop"><img src="images/down_mail.png" /></div>
+                                                          </div>
+                                                            <div class="chat_h_right">
+                                                                  <img src="images/search_1.jpg" />
+                                                          </div>
+                                                        <div class="clear"></div>  
+                                                </div>
+                                          <!------------/// CHAT HEADING END HERE ----------->
+                                          <!--------/// CHAT BOTTOM STARTED HERE ------->
+                                                <div class="chat_bottom_main">
+                                                
+                                                                        <div class="chat_inner_content">
+                                                                                         <!---------------/// FIRST ROW STARTED HERE --------->
+                                                                                         <div class="cheat_row">
+                                                                                              <div class="small_images"> <img src="images/blank_man.jpg" />
+                                                                                               </div>
+                                                                                                <div class="contact_information">
+                                                                                                <p><strong>Jonathan Smith</strong><br>
+                                                                                                  Work for fun</p>
+                                                                                              </div>
+                                                                                              <div class="online_file"> <img src="images/online_file.png">
+                                                                                               </div>
+                                                                                        </div>
+                                                                                    
+                                                                                               <!---------------/// FIRST ROW STARTED HERE --------->
+                                                                                            <div class="cheat_row">
+                                                                                              <div class="small_images"> <img src="images/blank_man.jpg" /> 
+                                                                                              </div>
+                                                                                              <div class="contact_information">
+                                                                                                <p><strong>Jonathan Smith</strong><br>
+                                                                                                  Work for fun</p>
+                                                                                              </div>
+                                                                                                    <div class="online_file"> <img src="images/online_file.png">
+                                                                                               </div>
+                                                                                        </div>
+                                                                                         <!--------------/// FIRST ROW END HERE --------------->
+                                                                                               <!---------------/// FIRST ROW STARTED HERE --------->
+                                                                                         <div class="cheat_row">
+                                                                                                    <div class="small_images"> <img src="images/blank_man.jpg" />
+                                                                                               </div>
+                                                                                              <div class="contact_information">
+                                                                                                <p><strong>Jonathan Smith</strong><br>
+                                                                                                  Work for fun</p>
+                                                                                              </div>
+                                                                                               <div class="online_file"> <img src="images/online_file.png"> 
+                                                                                              </div>
+                                                                                        </div>
+                                                                                         <!--------------/// FIRST ROW END HERE --------------->
+                                                                                               <!---------------/// FIRST ROW STARTED HERE --------->
+                                                                                           <div class="cheat_row">
+                                                                                               <div class="small_images"> <img src="images/blank_man.jpg" /> 
+                                                                                              </div>
+                                                                                                     <div class="contact_information">
+                                                                                                <p><strong>Jonathan Smith</strong><br>
+                                                                                                  Work for fun</p>
+                                                                                              </div>
+                                                                                              <div class="online_file"> <img src="images/online_file.png"> 
+                                                                                              </div>
+                                                                                        </div>
+                                                                                         <!--------------/// FIRST ROW END HERE --------------->
+                                                                                               <!---------------/// FIRST ROW STARTED HERE --------->
+                                                                                         <div class="cheat_row">
+                                                                                              <div class="small_images"> <img src="images/blank_man.jpg" /> 
+                                                                                              </div>
+                                                                                              <div class="contact_information">
+                                                                                                <p><strong>Jonathan Smith</strong><br>
+                                                                                                  Work for fun</p>
+                                                                                              </div>
+                                                                                              <div class="online_file"> <img src="images/online_file.png">
+                                                                                               </div>
+                                                                                        </div>
+                                                                                         <!--------------/// FIRST ROW END HERE --------------->
+                                                                                               <!---------------/// FIRST ROW STARTED HERE --------->
+                                                                                               <div class="cheat_row">
+                                                                                              <div class="small_images"> <img src="images/blank_man.jpg" />
+                                                                                               </div>
+                                                                                              <div class="contact_information">
+                                                                                                <p><strong>Jonathan Smith</strong><br>
+                                                                                                  Work for fun</p>
+                                                                                              </div>
+                                                                                              <div class="online_file"> <img src="images/online_file.png">
+                                                                                               </div>
+                                                                                        </div>
+                                                                                         <!--------------/// FIRST ROW END HERE --------------->
+                                                                                               <!---------------/// FIRST ROW STARTED HERE --------->
+                                                                                        <div class="cheat_row">
+                                                                                              <div class="small_images"> <img src="images/blank_man.jpg" />
+                                                                                               </div>
+                                                                                              <div class="contact_information">
+                                                                                                <p><strong>Jonathan Smith</strong><br>
+                                                                                                  Work for fun</p>
+                                                                                              </div>
+                                                                                              <div class="online_file"> <img src="images/online_file.png"> 
+                                                                                              </div>
+                                                                                        </div>
+                                                                                         <!--------------/// FIRST ROW END HERE --------------->
+                                                                                               <!---------------/// FIRST ROW STARTED HERE --------->
+                                                                                         <div class="cheat_row">
+                                                                                              <div class="small_images"> 
+                                                                                              <img src="images/blank_man.jpg" /> </div>
+                                                                                              <div class="contact_information">
+                                                                                                <p><strong>Jonathan Smith</strong><br>
+                                                                                                  Work for fun</p>
+                                                                                              </div>
+                                                                                              <div class="online_file"> <img src="images/online_file.png"> 
+                                                                                              </div>
+                                                                                        </div>
+                                                                                         <!--------------/// FIRST ROW END HERE --------------->
+                                                                                         
+                                                                                         
+                                                                                         
+                                                   </div>
+                                                                                         
+                                                  </div>
+                                                  
+                                              <div class="all_chat_option">
+                                                                <div class="chat_search_11">
+                                                                                              
+                                                                                                 <div class="chat_downarrow">
+                                                                                                                   <!--------------//// Chat Down Main Page ------------->
+                                                                                                                   <div class="chat_down_main">
+                                                                                                                              <div class="chat_down_top">
+                                                                                                                                <div class="chat_down_left">
+                                                                                                                                    <img src="images/photo.jpg" />
+                                                                                                                                </div>
+                                                                                                                                <div class="chat_down_right">
+                                                                                                                                    Hariom Srivastava
+                                                                                                                                    <span>hari@silvereye.co
+                                                                                                                                    </span>
+                                                                                                                                </div>
+                                                                                                                                <div class="clear"></div>
+                                                                                                                               </div>
+                                                                                                                           <div class="clear"></div>
+                                                                                                                                  <ul>
+                                                                                                                                <li class="chat_status_menu"><a href="#" >Chat Status </a></li>
+                                                                                                                                <li class="invites_menu"><a href="#">Invites</a></li>
+                                                                                                                                <li class="blocked_menu"><a href="#">Blocked People </a></li>
+                                                                                                                                <li class="share_your_menu"><a href="#"> Share your status </a></li>
+                                                                                                                           </ul>
+                                                                                                                           <div class="clear"></div>
+                                                                                                                           <div class="chat_out">
+                                                                                                                           Sign out of Chat</div>
+                                                                                                                    </div>
+                                                                                                                  <!------------------/// Chat Down Menu End ------------->
+                                                                                                           
+                                                                                                                  </div>
+                                                                                                                 
+                                                                                           <div class="chat_down_submenu">
+                                                                                                                  <!-------------// Chat Status box Stared here----------->
+                                                                                                                              <div class="chat_status">  
+                                                                                                                       <!--------///Chat Haeding ---->
+                                                                                                                           <div class="chat_subheading">
+                                                                                                                          <div class="chat_main_menu">
+                                                                                   <img src="images/portlet-remove-icon.png"/></div>
+                                                                                                                          <p>Chat Status </p>
+                                                                                                                          <div class="clear"></div>
+                                                                                                                        </div>
+                                                                                                                       <!-----------/// Chat Heading End Here ----->
+                                                        
+                                                                                                                       <!----------/// Chat Status Content ------->
+                                                                                                                           <div class="chat_status_content">
+                                                                                                                             
+                                                                                                                                       <ul>
+                                                                                                                              <li><input type="radio" /><span>Online</span> <div class="online"></div></li>
+                                                                                                                              <li><input type="radio" /><span>Offline</span> <div class="offline"></div></li>
+                                                                                                                              <li><input type="radio" /><span>Busy</span> <div class="busy"></div></li>
+                                                                                                                              <li><input type="radio" /><span>Away</span> <div class="away"></div></li>
+                                                                                                                            </ul>
+                                                                                                                             
+                                                                                                                       
+                                                                                                                       </div>
+                                                                                                                       <!-----------/// Chat Status  End Here ----->
+                                                                                                                     </div>
+                                                                                                                  <!-------------/// Chat Status Box End Here--------->
+                                                                                                                   <!-------------// Invites box Stared here----------->
+                                                                                                                               <div class="Blocked_status">  
+                                                                                                                       <!--------///Chat Haeding ---->
+                                                                                                                                      <div class="chat_subheading">
+                                                                                                                                <div class="chat_main_menu">
+                                                                                                                          <img src="images/portlet-remove-icon.png"/></div>
+                                                                                                                           <p>Invites </p>
+                                                                                                                          <div class="clear"></div>
+                                                                                                                        </div>
+                                                                                                                        <!-----------/// Chat Heading End Here ----->
+                                                                                                                       <!----------/// Chat Status Content ------->
+                                                                                                                                      <div class="chat_status_content">
+                                                                                                                            <!----------/// Main ROW Content ---------->
+                                                                                                                            <div class="chat_row_content">
+                                                                                                                         <!-----------/// INVITE ROW FIRST STARED HERE ---------->
+                                                                                                                                  <div class="invite_row">
+                                                                                                                         <!---------------/// INVITE LEFT PART -------->
+                                                                                                                                <div class="invite_left">
+                                                                                                                         Rohit Tiwari</div>
+                                                                                                                         <!--------------/// INVITE LEFT END HERE -------->
+                                                                                                                         <!---------------/// INVITE RIGHT PART -------->
+                                                                                                                                <div class="invite_right">
+                                                                                                                         <a href="#">Unblock</a>
+                                                                                                                         </div>
+                                                                                                                         <!--------------/// INVITE RIGHT END HERE -------->
+                                                                                                                         <div class="clear"></div>
+                                                                                                                         </div>
+                                                                                                                         <!-------------/// INVITE Row END HERE -------------->
+                                                                                                                            <!-----------/// INVITE ROW FIRST STARED HERE ---------->
+                                                                                                                              <div class="invite_row">
+                                                                                                                         <!---------------/// INVITE LEFT PART -------->
+                                                                                                                         <div class="invite_left">Rohit Tiwari</div>
+                                                                                                                         <!--------------/// INVITE LEFT END HERE -------->
+                                                                                                                         <!---------------/// INVITE RIGHT PART -------->
+                                                                                                                         <div class="invite_right">
+                                                                                                                         <a href="#">Unblock</a>
+                                                                                                                         </div>
+                                                                                                                         <!--------------/// INVITE RIGHT END HERE -------->
+                                                                                                                         <div class="clear"></div>
+                                                                                                                         </div>
+                                                                                                                         <!-------------/// INVITE Row END HERE -------------->
+                                                                                                                            <!-----------/// INVITE ROW FIRST STARED HERE ---------->
+                                                                                                                          <div class="invite_row">
+                                                                                                                         <!---------------/// INVITE LEFT PART -------->
+                                                                                                                         <div class="invite_left">
+                                                                                                                         Rohit Tiwari</div>
+                                                                                                                         <!--------------/// INVITE LEFT END HERE -------->
+                                                                                                                         <!---------------/// INVITE RIGHT PART -------->
+                                                                                                                         <div class="invite_right">
+                                                                                                                         <a href="#">Unblock</a>
+                                                                                                                         </div>
+                                                                                                                         <!--------------/// INVITE RIGHT END HERE -------->
+                                                                                                                         <div class="clear"></div>
+                                                                                                                         </div>
+                                                                                                                         <!-------------/// INVITE Row END HERE -------------->
+                                                                                                                            <!-----------/// INVITE ROW FIRST STARED HERE ---------->
+                                                                                                                                 <div class="invite_row">
+                                                                                                                         <!---------------/// INVITE LEFT PART -------->
+                                                                                                                         <div class="invite_left">
+                                                                                                                         Rohit Tiwari</div>
+                                                                                                                         <!--------------/// INVITE LEFT END HERE -------->
+                                                                                                                         <!---------------/// INVITE RIGHT PART -------->
+                                                                                                                         <div class="invite_right">
+                                                                                                                         <a href="#">Unblock</a>
+                                                                                                                         </div>
+                                                                                                                         <!--------------/// INVITE RIGHT END HERE -------->
+                                                                                                                         <div class="clear"></div>
+                                                                                                                         </div>
+                                                                                                                         <!-------------/// INVITE Row END HERE -------------->
+                                                                                                                </div>
+                                                                                                                       <!----------/// Main Row Content End Here ---------->
+                                                                                                                       <div class="clear"></div>
+                                                                                                                       </div>
+                                                                                                                       <!-----------/// Chat Status  End Here ----->
+                                                                                                                       <div class="clear"></div>
+                                                                                                                     </div>
+                                                                                                                  <!-------------/// Invites Box End Here--------->
+                                                                                                                      <!-------------// Blocked People  box Stared here----------->
+                                                                                                                                    <div class="Invites_status">  
+                                                                                                           <!--------///Chat Haeding ---->
+                                                                                                                                        <div class="chat_subheading">
+                                                                                                                          <div class="chat_main_menu">
+                                                                                                                          <img src= "images/portlet-remove-icon.png"/></div>
+                                                                                                                          <p>Blocked People</p>
+                                                                                                                          <div class="clear"></div>
+                                                                                                                        </div>
+                                                                                                          <!-----------/// Chat Heading End Here ----->
+                                                                                                           <!----------/// Chat Status Content ------->
+                                                                                                                                       <div class="chat_status_content">
+                                                                                                                               <!----------/// Main ROW Content ---------->
+                                                                                                                            <div class="chat_row_content">
+                                                                                                                         <!-----------/// INVITE ROW FIRST STARED HERE ---------->
+                                                                                                                                        <div class="invite_row">
+                                                                                                                         <!---------------/// INVITE LEFT PART -------->
+                                                                                                                         <div class="invite_left">
+                                                                                                                         Rohit Tiwari</div>
+                                                                                                                         <!--------------/// INVITE LEFT END HERE -------->
+                                                                                                                         <!---------------/// INVITE RIGHT PART -------->
+                                                                                                                         <div class="invite_right">
+                                                                                                                         <a href="#">Unblock</a>
+                                                                                                                         </div>
+                                                                                                                         <!--------------/// INVITE RIGHT END HERE -------->
+                                                                                                                         <div class="clear"></div>
+                                                                                                                         </div>
+                                                                                                                         <!-------------/// INVITE Row END HERE -------------->
+                                                                                                                            <!-----------/// INVITE ROW FIRST STARED HERE ---------->
+                                                                                                                                            <div class="invite_row">
+                                                                                                                         <!---------------/// INVITE LEFT PART -------->
+                                                                                                                         <div class="invite_left">
+                                                                                                                         Rohit Tiwari</div>
+                                                                                                                         <!--------------/// INVITE LEFT END HERE -------->
+                                                                                                                         <!---------------/// INVITE RIGHT PART -------->
+                                                                                                                         <div class="invite_right">
+                                                                                                                         <a href="#">Unblock</a>
+                                                                                                                         </div>
+                                                                                                                         <!--------------/// INVITE RIGHT END HERE -------->
+                                                                                                                         <div class="clear"></div>
+                                                                                                                         </div>
+                                                                                                                         <!-------------/// INVITE Row END HERE -------------->
+                                                                                                                            <!-----------/// INVITE ROW FIRST STARED HERE ---------->
+                                                                                                                                       <div class="invite_row">
+                                                                                                                         <!---------------/// INVITE LEFT PART -------->
+                                                                                                                         <div class="invite_left">
+                                                                                                                         Rohit Tiwari</div>
+                                                                                                                         <!--------------/// INVITE LEFT END HERE -------->
+                                                                                                                         <!---------------/// INVITE RIGHT PART -------->
+                                                                                                                         <div class="invite_right">
+                                                                                                                         <a href="#">Unblock</a>
+                                                                                                                         </div>
+                                                                                                                         <!--------------/// INVITE RIGHT END HERE -------->
+                                                                                                                         <div class="clear"></div>
+                                                                                                                         </div>
+                                                                                                                         <!-------------/// INVITE Row END HERE -------------->
+                                                                                                                            <!-----------/// INVITE ROW FIRST STARED HERE ---------->
+                                                                                                                                             <div class="invite_row">
+                                                                                                                         <!---------------/// INVITE LEFT PART -------->
+                                                                    
+                                                                                                                         <div class="invite_left">
+                                                                                                                         Rohit Tiwari</div>
+                                                                                                                         <!--------------/// INVITE LEFT END HERE -------->
+                                                                                                                         <!---------------/// INVITE RIGHT PART -------->
+                                                                                                                         <div class="invite_right">
+                                                                                                                         <a href="#">Unblock</a>
+                                                                                                                         </div>
+                                                                                                                         <!--------------/// INVITE RIGHT END HERE -------->
+                                                                                                                         <div class="clear"></div>
+                                                                                                                         </div>
+                                                                                                                         <!-------------/// INVITE Row END HERE -------------->
+                                                                                                                             </div>
+                                                                                                                       <!----------/// Main Row Content End Here ---------->
+                                                                                                                       </div>
+                                                                                                           <!-----------/// Chat Status  End Here ----->
+                                                                                                                            </div>
+                                                                                                                  <!-------------/// Blocked People  Box End Here--------->
+                                                                                                                    <!-------------// Blocked People  box Stared here----------->
+                                                                                                                                     <div class="Share_status">  
+                                                                                                                       <!--------///Chat Haeding ---->
+                                                                                                                       <div class="chat_subheading">
+                                                                                                                          <div class="chat_main_menu">
+                                                                                                                          <img src="images/portlet-remove-icon.png"/></div>
+                                                                                                                          <p> Share your status </p>
+                                                                                                                          <div class="clear"></div>
+                                                                                                                        </div>
+                                                                                                                       <!-----------/// Chat Heading End Here ----->
+                                                                                                                       <!----------/// Chat Status Content ------->
+                                                                                                                      <div class="chat_status_content">
+                                                                                                                            
+                                                                                                                       
+                                                                                                                       <!----------/// Chat --------->
+                                                                                                                         <!----------/// Main ROW Content ---------->
+                                                                                                               <div class="chat_row_content">
+                                                                                                                         <!-----------/// INVITE ROW FIRST STARED HERE ---------->
+                                                                                                                          <div class="invite_row">
+                                                                                                                         <!---------------/// INVITE LEFT PART --------> 
+                                                                                                                              <div class="invite_left">
+                                                                                                                         Rohit Tiwari</div>
+                                                                                                                         <!--------------/// INVITE LEFT END HERE -------->
+                                                                                                                         <!---------------/// INVITE RIGHT PART -------->
+                                                                                                                                 <div class="invite_right">
+                                                                                                                         <a href="#">Unblock</a>
+                                                                                                                         </div>
+                                                                                                                         <!--------------/// INVITE RIGHT END HERE -------->
+                                                                                                                         <div class="clear"></div>
+                                                                                                                         </div>
+                                                                                                                         <!-------------/// INVITE Row END HERE -------------->
+                                                                                                                            <!-----------/// INVITE ROW FIRST STARED HERE ---------->
+                                                                                                                             <div class="invite_row">
+                                                                                                                         <!---------------/// INVITE LEFT PART -------->
+                                                                                                                                 <div class="invite_left">
+                                                                                                                         Rohit Tiwari</div>
+                                                                                                                         <!--------------/// INVITE LEFT END HERE -------->
+                                                                                                                         <!---------------/// INVITE RIGHT PART -------->
+                                                                                                                                 <div class="invite_right">
+                                                                                                                         <a href="#">Unblock</a>
+                                                                                                                         </div>
+                                                                                                                         <!--------------/// INVITE RIGHT END HERE -------->
+                                                                                                                         <div class="clear"></div>
+                                                                                                                         </div>
+                                                                                                                         <!-------------/// INVITE Row END HERE -------------->
+                                                                                                                            <!-----------/// INVITE ROW FIRST STARED HERE ---------->
+                                                                                                                            <div class="invite_row">
+                                                                                                                         <!---------------/// INVITE LEFT PART -------->
+                                                                                                                             <div class="invite_left">
+                                                                                                                         Rohit Tiwari</div>
+                                                                                                                         <!--------------/// INVITE LEFT END HERE -------->
+                                                                                                                         <!---------------/// INVITE RIGHT PART -------->
+                                                                                                                             <div class="invite_right">
+                                                                                                                         <a href="#">Unblock</a>
+                                                                                                                         </div>
+                                                                                                                         <!--------------/// INVITE RIGHT END HERE -------->
+                                                                                                                         <div class="clear"></div>
+                                                                                                                         </div>
+                                                                                                                         <!-------------/// INVITE Row END HERE -------------->
+                                                                                                                            <!-----------/// INVITE ROW FIRST STARED HERE ---------->
+                                                                                                                        <div class="invite_row">
+                                                                                                                         <!---------------/// INVITE LEFT PART -------->
+                                                                                                                         <div class="invite_left">
+                                                                                                                         Rohit Tiwari</div>
+                                                                    
+                                                                                                                         <!--------------/// INVITE LEFT END HERE -------->
+                                                                                                                         <!---------------/// INVITE RIGHT PART -------->
+                                                                                                                           <div class="invite_right">
+                                                                                                                         <a href="#">Unblock</a>
+                                                                                                                         </div>
+                                                                                                                         <!--------------/// INVITE RIGHT END HERE -------->
+                                                                                                                         <div class="clear"></div>
+                                                                                                                         </div>
+                                                                                                                         <!-------------/// INVITE Row END HERE -------------->
+                                                                                                                </div>
+                                                                                                                       <!----------/// Main Row Content End Here ---------->
+                                                                                                                       <!----------/// Chat End -------->
+                                                                                               </div>
+                                                                                                                       <!-----------/// Chat Status  End Here ----->
+                                                                                                                 </div>
+                                                                                                                  <!-------------/// Blocked People  Box End Here--------->
+                                                                                                                  </div>
+                                                                                                                  <!---------------//// Chat Down Sub Menu ---------->
+                                                                                                             
+                                                                                                                   </div>
+                                                                                                
+                                                                                               <div class="chat_search">
+                                                                                                 <div class="heading_caht">
+                                                                                                        <input type="text" placeholder="Search for people" />
+                                                                                                  </div>
+                                                                                                                           
+                                                                                                  <div class="chat_search_content">
+                                                                                                            <div class="cheat_row_11">
+                                                                                                                       <div class="small_images"> 
+                                                                                                               <img src="images/blank_man.jpg">
+                                                                                                               </div>
+                                                                                                                   <div class="contact_information">
+                                                                                                                <p><strong>Jonathan Smith</strong><br>
+                                                                                                                  Work for fun</p>
+                                                                                                                </div>
+                                                                                                                       <div class="online_file">
+                                                                                                                 <img src="images/online_file.png"> 
+                                                                                                                 </div>
+                                                                                                             </div>
+
+                                                                                                           <div class="cheat_row_11">
+                                                                                                        <div class="small_images"> 
+                                                                                                        <img src="images/blank_man.jpg"> 
+                                                                                                        </div>
+                                                                                                        <div class="contact_information">
+                                                                                                              <p><strong>Jonathan Smith</strong><br>
+                                                                                                          Work for fun</p>
+                                                                                                          </div>
+                                                                                                        <div class="online_file"> 
+                                                                                                        <img src="images/online_file.png">
+                                                                                                         </div>
+                                                                                                </div>
+ 
+                                                                                                               <div class="cheat_row_11">
+                                                                                                   <div class="small_images">
+                                                                                                   <img src="images/blank_man.jpg"> 
+                                                                                                   </div>
+                                                                                                      <div class="contact_information">
+                                                                                                   <p><strong>Jonathan Smith</strong><br>
+                                                                                                    Work for fun</p>
+                                                                                                    </div>
+                                                                                                    <div class="online_file">
+                                                                                                    <img src="images/online_file.png"> 
+                                                                                                    </div>
+                                                                                               
+                                                                                               </div>
+
+                                                                                                               <div class="cheat_row_11">
+                                                                                               <div class="small_images">
+                                                                                             <img src="images/blank_man.jpg"> 
+                                                                                             </div>
+                                                                                             <div class="contact_information">
+                                                                                           <p><strong>Jonathan Smith</strong><br>
+                                                                                            Work for fun</p>
+                                                                                           </div>
+                                                                                              <div class="online_file"> 
+                                                                                        <img src="images/online_file.png"> 
+                                                                                        </div>
+                                                                                       </div>
+                                                                                              
+                                                                                                              <div class="cheat_row_11">
+                                                                                                   <div class="small_images"> 
+                                                                                                   <img src="images/blank_man.jpg"> 
+                                                                                                   </div>
+                                                                                                     <div class="contact_information">
+                                                                                                    <p><strong>Jonathan Smith</strong><br>
+                                                                                                     Work for fun</p>
+                                                                                                    </div>
+                                                                                                       <div class="online_file"> 
+                                                                                                 <img src="images/online_file.png"> 
+                                                                                                 </div>
+                                                                                              </div>
+             
+                                                                                                                <div class="cheat_row_11">
+                                                                                                          <div class="small_images"> 
+                                                                                                          <img src="images/blank_man.jpg"> 
+                                                                                                          </div>
+                                                                                                            <div class="contact_information">
+                                                                                                         <p><strong>Jonathan Smith</strong><br>
+                                                                                                          Work for fun</p>
+                                                                                                         </div>
+                                                                                                            <div class="online_file"> 
+                                                                                                   <img src="images/online_file.png"> 
+                                                                                                   </div>
+                                                                                                   </div>
+                                                                                                           <div class="cheat_row_11">
+                                                                                                              <div class="small_images">
+                                                                                                            <img src="images/blank_man.jpg"> 
+                                                                                                            </div>
+                                                                                                            <div class="contact_information">
+                                                                                                                  <p><strong>Jonathan Smith</strong><br>
+                                                                                                             Work for fun</p>
+                                                                                                             </div>
+                                                                                                            <div class="online_file"> 
+                                                                                                         <img src="images/online_file.png">
+                                                                                                          </div>
+                                                                                                         </div>
+                                                                                                             <div class="cheat_row_11">
+                                                                                                             <div class="small_images"> 
+                                                                                                             <img src="images/blank_man.jpg">
+                                                                                                              </div>
+                                                                                                               <div class="contact_information">
+                                                                                                                <p><strong>Jonathan Smith</strong><br>
+                                                                                                                Work for fun</p>
+                                                                                                                </div>
+                                                                                                              <div class="online_file"> 
+                                                                                                             <img src="images/online_file.png">
+                                                                                                              </div>
+                                                                                                           </div>
+          
+                                                                                                           <div class="cheat_row_11">
+                                                                                                            <div class="small_images"> 
+                                                                                                            <img src="images/blank_man.jpg"> 
+                                                                                                            </div>
+                                                                                                              <div class="contact_information">
+                                                                                                             <p><strong>Jonathan Smith</strong><br>
+                                                                                                              Work for fun</p>
+                                                                                                             </div>
+                                                                                                         <div class="online_file"> 
+                                                                                                             <img src="images/online_file.png"> </div>
+                                                                                                         </div>
+
+                                                                                                             <div class="cheat_row_11">
+                                                                                                             <div class="small_images"> 
+                                                                                                             <img src="images/blank_man.jpg">
+                                                                                                              </div>
+                                                                                                            <div class="contact_information">
+                                                                                                           <p><strong>Jonathan Smith</strong><br>
+                                                                                                           Work for fun</p>
+                                                                                                         </div>
+                                                                                                              <div class="online_file"> 
+                                                                                                         <img src="images/online_file.png"> 
+                                                                                                         </div>
+                                                                                                         </div>
+                                                                                                           
+                                                                                                              <div class="cheat_row_11">
+                                                                                                             <div class="small_images">
+                                                                                                              <img src="images/blank_man.jpg">
+                                                                                                              </div>
+                                                                                                                 <div class="contact_information">
+                                                                                                             <p><strong>Jonathan Smith</strong><br>
+                                                                                                             Work for fun</p>
+                                                                                                           </div>
+                                                                                                                <div class="online_file">
+                                                                                                          <img src="images/online_file.png"> 
+                                                                                                          </div>
+                                                                                                          </div>
+                                                                                                                             
+                                                                                                                <div class="cheat_row_11">
+                                                                                                              <div class="small_images">
+                                                                                                              <img src="images/blank_man.jpg"> 
+                                                                                                              </div>
+                                                                                                               <div class="contact_information">
+                                                                                                                        <p><strong>Jonathan Smith</strong><br>
+                                                                                                                        Work for fun</p>
+                                                                                                              </div>
+                                                                                                                  <div class="online_file"> 
+                                                                                                             <img src="images/online_file.png"> 
+                                                                                                             </div>
+                                                                                                          </div>
+                                                                                                                               
+                                                                                                            <div class="cheat_row_11">
+                                                                                                               <div class="small_images"> 
+                                                                                                               <img src="images/blank_man.jpg"> 
+                                                                                                               </div>
+                                                                                                                <div class="contact_information">
+                                                                                                                 <p><strong>Jonathan Smith</strong><br>
+                                                                                                                       Work for fun</p>
+                                                                                                           </div>
+                                                                                                             <div class="online_file"> 
+                                                                                                            <img src="images/online_file.png"> 
+                                                                                                            </div>
+                                                                                                          </div>
+                                                                                                                                
+                                                                                                             <div class="cheat_row_11">
+                                                                                                              <div class="small_images">
+                                                                                                              <img src="images/blank_man.jpg"> 
+                                                                                                              </div>
+                                                                                                              <div class="contact_information">
+                                                                                                               <p><strong>Jonathan Smith</strong><br>
+                                                                                                                  Work for fun</p>
+                                                                                                              </div>
+                                                                                                                 <div class="online_file">
+                                                                                                              <img src="images/online_file.png"> 
+                                                                                                              </div>
+                                                                                                           </div>
+   
+                                                                                                          <div class="cheat_row_11">
+                                                                                                                     <div class="small_images"> 
+                                                                                                                     <img src="images/blank_man.jpg">
+                                                                                                                      </div>
+                                                                                                                   <div class="contact_information">
+                                                                                                                    <p><strong>Jonathan Smith</strong><br>
+                                                                                                                      Work for fun</p>
+                                                                                                                  </div>
+                                                                                                                      <div class="online_file">
+                                                                                                               <img src="images/online_file.png"> 
+                                                                                                               </div>
+                                                                                                           </div>
+                                                                                                                               
+                                                                                                                <div class="cheat_row_11">
+                                                                                                                   <div class="small_images">
+                                                                                                                    <img src="images/blank_man.jpg">
+                                                                                                                     </div>
+                                                                                                                           <div class="contact_information">
+                                                                                                                       <p><strong>Jonathan Smith</strong><br>
+                                                                                                                         Work for fun</p>
+                                                                                                                      </div>
+                                                                                                                   <div class="online_file"> 
+                                                                                                            <img src="images/online_file.png">
+                                                                                                             </div>
+                                                                                                            </div>
+                                                                                                                                
+                                                                                                             <div class="cheat_row_11">
+                                                                                                                 <div class="small_images">
+                                                                                                                  <img src="images/blank_man.jpg">
+                                                                                                                   </div>
+                                                                                                                  <div class="contact_information">
+                                                                                                                   <p><strong>Jonathan Smith</strong><br>
+                                                                                                                      Work for fun</p>
+                                                                                                              </div>
+                                                                                                                <div class="online_file"> 
+                                                                                                            <img src="images/online_file.png"> 
+                                                                                                            </div>
+                                                                                                         </div>
+                                                                                                                            
+                                                                                                             <div class="cheat_row_11">
+                                                                                                         <div class="small_images"> 
+                                                                                                         <img src="images/blank_man.jpg">
+                                                                                                          </div>
+                                                                                                         <div class="contact_information">
+                                                                                                          <p><strong>Jonathan Smith</strong><br>
+                                                                                                           Work for fun</p>
+                                                                                                        </div>
+                                                                                                            <div class="online_file"> 
+                                                                                                    <img src="images/online_file.png">
+                                                                                                     </div>
+                                                                                                    </div>
+        
+                                                                                                      </div>
+                                                                                          </div>
+                                                                                                       
+                                                                                            
+                                                                                            <div class="chat_info_1 arrow-left">
+                                                                                                                         <div class="chat_info_left">
+                                                                                                                            <p class="name_1">
+                                                                                                                            Hariom Srivastava</p>
+                                                                                                                            <span>hari@silvereye.co</span>
+                                                                                                                            <p class="com">
+                                                                                                                            Opportunities don't happen,you                                                                                                                             create them..</p>
+                                                                                                                         </div>
+                                                                                                                      <div class="chat_info_right">
+                                                                                                                            <img src="images/photo_1.jpg" />
+                                                                                                                         </div>
+                                                                                                                  <div class="clear"></div>
+                                                                                                                    <div class="bottom_option">
+                                                                                                                            <!-------/// Bottom _Left_part--->
+                                                                                                                              <div class="left_bottom">
+                                                                                                                                  <ul>  
+                                                                                                                                     <li><a href="#">Add to contacts</a></li>
+                                                                                                                                     <li><a href="#">Emails</a></li>
+                                                                                                                                  </ul>
+                                                                                                                              </div>
+           
+                                                                                                                                 <div class="right_bottom">
+                                                                                                                                    <ul>
+                                                                                                                                       <li class="chat_mail"><a href="#"></a></li>
+                                                                                                                                       <li class="contact_mail"><a href="#"></a></li>
+                                                                                                                                       <li><a href="#"></a></li>
+                                                                              
+                                                                                                                                    </ul>
+                                                                                                                             
+                                                                                                                             </div>
+                                                                                                                         </div>
+                                                                                                                    
+                                                                                                                </div>
+
+                                                                                              
+                                                                </div>
+                                                                <div class="chat_info arrow-left">
+                                                                                                 <div class="chat_info_left">
+                                                                                                      <p class="name_1">Hariom Srivastava</p>
+                                                                                                       <span>hari@silvereye.co</span>
+                                                                                                        <p class="com">Opportunities don't happen,you
+                                                                                                         create them..</p>
+                                                                                                    </div>
+                                                                                               <div class="chat_info_right">
+                                                                                                  <img src="images/photo_1.jpg" />
+                                                                                               </div>
+                                                                                               <div class="clear"></div>
+                                                                                                  <div class="bottom_option">
+                                                                                                                            
+                                                                                                    <div class="left_bottom">
+                                                                                                                                  <ul>  
+                                                                                                                                     <li><a href="#">Contact info</a></li>
+                                                                                                                                     <li><a href="#">Emails</a></li>
+                                                                                                                                  </ul>
+                                                                                                    </div>
+                                                                                                                           
+                                                                                                    <div class="right_bottom">
+                                                                                                                                    <ul>
+                                                                                                                                       <li class="chat_mail"><a href="#"></a></li>
+                                                                                                                                       <li class="contact_mail"><a href="#"></a></li>
+                                                                                                                                       <li><a href="#"></a></li>
+                                                                              
+                                                                                                                                    </ul>
+                                                                                                                             
+                                                                                                                             </div>
+   
+                                                                                              </div>
+                                                                                                                    
+                                                                                           </div>
+                                                                              
+                                                                 <div class="chat_sign_box">
+                                                                                                                     <div class="chat_sign_images">
+                                                                                                                       <img src="images/chat-4-xxl.png" />
+                                                                                                                         </div>
+                                                                                                                   <div class="chat_sign_1_box">Sign in</div>
+                                                                                                                </div>
+                                                                  
+                                                                                              
+ </div>    
+                                     </div>
+                                           <!------------/// CHAT BOTTOM END HERE ---------->
+                                         <div class="clear"></div>          
+                             </div>
+                                      
+                                 <!-----------//// LEFT PART BOTTOM END HERE ---------->
+                       
+                        <!---// LEFT END --->
+                        <!---// RIGHT --->
+                        <div class="right other_pages">
+                                 <div class="strip_details">
+                                <div class="home_heading_11"></div>
+                                <span>Location</span><span> > </span>
+                                <div class="path">Document</div>
+                                <div class="claer"></div>
+                              </div>
+                                 <!-------/// DOCUMENT VIEW BOTTOM PART STARTED HERE --------->
+                                 <!--------/// MAIN DOCUMENT CONTENT STARTED HERE -------->
+                                 <div class="main_document_content">
+                                            <div class="document_view_inner">
+                                                <!-----------/// DOCUMENT VIEW LEFT PART ------------->
+                                                  <div class="document_right">
+                                               <div class="docu_pre_heading">
+              <div class="doc_pdf"></div>
+              COMPANY_MAIN_DOCUMENT.PDF
+              <div class="full_scren_view">
+                <div class="full_screen_icon"></div>
+                </div>
+            </div>
+                                                   <div class="document_option">
+              <div class="preview">Prev</div>
+              <span>Page 1 to 10</span>
+              <div class="next_doc">Next</div>
+              <span>Jump to Page</span>
+              <input type="text">
+            </div>
+                                             <img src="images/pdf_imges.png">
+                                       </div>
+                                                <!--------------/// DOCUMENT LEFT PART ----------------> 
+                                                <!--------------/// DOCUMENT RIGHT VIEW ------------->
+                                                     <div class="document_left"> 
+                                                     <div class="document_action"> 
+                                                 <!----------/// Document_Action_Haeding --------->
+                                                        <div class="document_heading"> DOCUMENT ACTION </div>
+                                                 <!-------------/// Document Action Haeding End --->
+                                                        <ul>
+                      <li class="download_document">Download</li>
+                      <li class="edit_document">Edit Metadata</li>
+                      <li class="asign_document">Assign Workflow</li>
+                      <li class="copy_to_document">Copy To</li>
+                      <li class="move_to_document">Move To</li>
+                       <li class="delete_document">Delete</li>
+                      <li class="delete_document_1">Save</li>
+                  </ul>
+                                                         
+                                                     </div>
+                                                     
+                                                     <div class="mata_data"> 
+                                                        <div class="document_heading"> METADATA </div>
+                                                        <ul>
+                    <li><div class="meta_name">Name</div>: </li>
+                    <li><div class="meta_name">Content</div>: </li>
+                    <li><div class="document_sub_heading">Document</div></li>
+                    <li><div class="meta_name">Title</div>: </li>
+                    <li><div class="meta_name">Description</div>: </li>
+                    <li><div class="document_sub_heading">Marketing Meeting</div></li>
+                    <li><div class="meta_name">Size</div>: </li>
+                    <li><div class="meta_name">Creator</div>: </li>
+                    <li><div class="meta_name">Creator on</div>: </li>
+                    <li><div class="meta_name">Modifier</div>: </li>
+                    <li><div class="meta_name">Modified on</div>: </li>
+                </ul>
+                                                     </div>
+                                                     
+                                                </div>
+                                                <!-------------/// DOCUMENT RIGHT VIEW---------------->
+                                                
+                              
+                                                <div class="clear"></div>
+                                          </div>
+                                 </div>
+                                 <!------------/// MAIN DOCUMENT CONTENT END HERE ---------->
+                        </div>
+                        <!----// RIGHT END HERE -->
+              <!------/// FOOTER STARTED HERE ------>
+              
+              <!-----------/// FOOTER STARTED HERE ------>
+                                                            </div>
+               <!----------// ALL POP UP STARTED HERE ---------->
+                                                                     <!---------------//// ADD GROUP USER POP UP ----------->
+              <div id="contactdiv_6">
+                    <form class="form" action="#" id="contact">
+                          <h3>Add New Documents</h3>
+                          <p>File Name: <span>*</span></p>
+                          <input type="file" class="custom-file-input attachment_file">
+                           <div class="claer"></div>
+                           <input type="checkbox" class="form_bottom_space" /><label>Notify to users</label>
+                           <div class="clear"></div>
+                          <input type="button" id="send" value="Add"/>
+                          <input type="button" id="cancel" value="Cancel"/>
+                          <br/>
+                    </form>
+              </div>
+              <!-----------------/// ADD GROUP POP UP  END HERE ----------> 
+                                    
+              <!---------------//// ADD GROUP USER POP UP ----------->
+              <div id="contactdiv_66">
+                    <form class="form" action="#" id="contact">
+                          <h3>Create Folder</h3>
+                            <p >Please enter a new Folder name <span>*</span></p>
+                          <input type="text" id="name" />
+                           <br/>
+                           <div class="clear"></div>
+                          <input type="button" id="send" value="Create"/>
+                          <input type="button" id="cancel" value="Cancel"/>
+                          <br/>
+                    </form>
+              </div>
+              <!-----------------/// ADD GROUP POP UP  END HERE ----------> 
+                                      
+              <!---------------//// Delete USER POP UP ----------->
+              <div id="contactdiv_77">
+                    <form class="form" action="#" id="contact">
+                          <h3>  Confirmation </h3>
+                           <p class="form_bottom_space">Do you really want to delete this folder ?</p>
+                           <div class="clear"></div>
+                          <input type="button" id="send" value="Delete"/>
+                          <input type="button" id="cancel" value="Cancel"/>
+                    </form>
+              </div>
+              <!-----------------/// DELETE POP UP  END HERE ----------> 
+                                    
+                                                             
+               <!----------/// MID CONTENT END HERE ------------>
+              <!----------------/// ALL POP UP END HERE ----------->
+    </body>
+</html>

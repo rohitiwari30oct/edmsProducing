@@ -76,35 +76,6 @@
         </LoginModule>
     </Security>
 
-<!-- <Security appName="Jackrabbit">
-<SecurityManager class="org.apache.jackrabbit.core.DefaultSecurityManager" workspaceName="default">
- -->
-                               <!--
-                              workspace access:
-                                class: FQN of class implementing the WorkspaceAccessManager interface
-                                -->
-                              <!--  <WorkspaceAccessManager class="org.apache.jackrabbit.core.UserPerWorkspaceSecurityManager"/> 
-                               -->  <!-- <param name="config" value="${rep.home}/security.xml"/> -->
-               
-           <!--      <WorkspaceAccessManager class="org.apache.jackrabbit.core.security.simple.SimpleWorkspaceAccessManager"/>
-       
-                </SecurityManager>
-
-                <AccessManager class="org.apache.jackrabbit.core.security.DefaultAccessManager"> -->
-                               <!-- <param name="config" value="${rep.home}/access.xml"/> -->
-                <!-- </AccessManager> -->
-
-            
-       <!--  <LoginModule class="com.sun.security.auth.module.LdapLoginModule">
-          <param name="userProvider" value="ldap://192.168.1.199:389/dc=avi-oil,dc=com"/>
-          <param name="debug" value="true"/>
-          <param name="useFirstPass" value="false"/>
-          <param name="tryFirstPass" value="false"/>
-          <param name="useSSL" value="false"/>
-          <param name="userFilter" value="(|(cn={USERNAME})(uid={USERNAME}))"/>
-        </LoginModule> 
-
-</Security>  -->
     <!--
         location of workspaces root directory and name of default workspace
     -->
@@ -178,8 +149,9 @@
         (/jcr:system tree, contains mainly versions)
     -->
     <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
+    <param name="onWorkspaceInconsistency" value="log"/>
         <param name="path" value="${rep.home}/repository/index"/>
-        <param name="supportHighlighting" value="true"/>
+        <param name="supportHighlighting" value="true"/>      
     </SearchIndex>
 
     <!--

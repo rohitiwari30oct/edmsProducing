@@ -49,7 +49,12 @@
 - edms:permissions (String)
 - edms:description (String)
 - edms:recycle (String)
+- edms:recycled (date)
 - edms:restorationPath (String)
+- edms:owner (String)
+- edms:downloadDate (String)
+- edms:accessDate (String)
+- edms:size (long)
 - edms:keywords (string) multiple
 - edms:categories (reference) multiple
 + edms:content (edms:resource) primary
@@ -57,6 +62,7 @@
 [edms:folder] > nt:folder, mix:referenceable, mix:lockable, mix:accessControlled
 - edms:author (string)
 - edms:name (string)
+- edms:title (String)
 - edms:description (String)
 - edms:created (String)
 - edms:modified (String)
@@ -64,7 +70,11 @@
 - edms:no_of_folders (string)
 - edms:no_of_documents (string)
 - edms:recycle (String)
+- edms:recycled (date)
 - edms:restorationPath (String)
+- edms:owner (String)
+- edms:downloadDate (String)
+- edms:accessDate (String)
 - edms:keywords (string) multiple
 - edms:categories (reference) multiple
 

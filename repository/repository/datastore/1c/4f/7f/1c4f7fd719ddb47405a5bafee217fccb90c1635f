@@ -1,0 +1,17 @@
+BEGIN:VCARD
+VERSION:4.0
+KIND:individual
+LANG:en-US
+NOTE:
+N:Tiwari;Rohit ;;;
+FN:Rohit Tiwari
+TITLE:SWER
+ORG:SIS;Department
+ADR;LABEL="245/215 bhara, Alambag, Lucknow, 223001";TYPE=home:;;245/215 bha
+ ra\, Alambag\, Lucknow\, 223001;;;;
+TEL;TYPE=work:5222568978
+TEL;TYPE=cell:9965874584
+EMAIL;TYPE=work:rohit@silvereye.co
+URL:rohittiwari.com
+PRODID:ez-vcard 0.9.6
+END:VCARD

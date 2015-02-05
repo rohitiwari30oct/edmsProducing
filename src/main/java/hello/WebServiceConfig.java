@@ -144,40 +144,19 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 		return new ServletRegistrationBean(servlet, "/ws/*");
 	}
 
-	@Bean(name="documentFolder")
-	public DefaultWsdl11Definition defaultWsdlDefinition(XsdSchema documentFolderSchema){
+	@Bean(name="documentModule")
+	public DefaultWsdl11Definition defaultWsdlDefinition(XsdSchema documentModuleSchema){
 		DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
-		wsdl11Definition.setPortTypeName("FolderPort");
+		wsdl11Definition.setPortTypeName("DocumentModulePort");
 		wsdl11Definition.setLocationUri("/ws");
-		wsdl11Definition.setTargetNamespace("http://edms.com/Folder");
-		wsdl11Definition.setSchema(documentFolderSchema);
+		wsdl11Definition.setTargetNamespace("http://edms.com/documentModule");
+		wsdl11Definition.setSchema(documentModuleSchema);
 		return wsdl11Definition;
 	}
 	@Bean
-	public XsdSchema documentFolderSchema() {
-		return new SimpleXsdSchema(new ClassPathResource("documentFolder.xsd"));
+	public XsdSchema documentModuleSchema() {
+		return new SimpleXsdSchema(new ClassPathResource("documentModule.xsd"));
 	}
-	
-	
-	
-	
-	
-	@Bean(name="documentFile")
-	public DefaultWsdl11Definition defaultFileWsdlDefinition(XsdSchema documentFileSchema){
-		DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
-		wsdl11Definition.setPortTypeName("FilePort");
-		wsdl11Definition.setLocationUri("/ws");
-		wsdl11Definition.setTargetNamespace("http://edms.com/File");
-		wsdl11Definition.setSchema(documentFileSchema);
-		return wsdl11Definition;
-	}
-	@Bean
-	public XsdSchema documentFileSchema() {
-		return new SimpleXsdSchema(new ClassPathResource("documentFile.xsd"));
-	}
-	
-
-	
 	
 	@Bean(name="workflow")
 	public DefaultWsdl11Definition defaultWsdlWorkflowDefinition(XsdSchema workflowSchema){

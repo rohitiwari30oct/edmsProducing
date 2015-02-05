@@ -1,0 +1,15 @@
+BEGIN:VCARD
+VERSION:4.0
+KIND:individual
+LANG:en-US
+NOTE:
+N:Prakash;Surya ;;;
+FN:Surya Prakash
+TITLE:ER
+ORG:MMA;Department
+ADR;LABEL="212/80 Sec 10, Obara, Sonbhadra, 224555";TYPE=home:;;212/80 Sec 
+ 10\, Obara\, Sonbhadra\, 224555;;;;
+TEL;TYPE=cell:9532167076
+EMAIL;TYPE=work:surya@makemyapp.com
+PRODID:ez-vcard 0.9.6
+END:VCARD

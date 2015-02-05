@@ -1,8 +1,0 @@
-BEGIN:VCARD
-VERSION:3.0
-FN:Herr Steve Jobs
-N:Jobs;Steve;;Herr;
-EMAIL;TYPE=INTERNET:jobs@apple.tv
-TEL;TYPE=WORK:32784328478
-ADR;TYPE=WORK:;;ApfelstraÃŸe 24;Berlin;;1337;Deutschland
-END:VCARD

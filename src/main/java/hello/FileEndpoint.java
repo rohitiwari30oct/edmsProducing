@@ -1,29 +1,31 @@
 package hello;
 
-import com.edms.file.CreateFileRequest;
-import com.edms.file.CreateFileResponse;
-import com.edms.file.DeleteFileRequest;
-import com.edms.file.DeleteFileResponse;
-import com.edms.file.GetFileByPathRequest;
-import com.edms.file.GetFileByPathResponse;
-import com.edms.file.GetFileRequest;
-import com.edms.file.GetFileResponse;
-import com.edms.file.GetSharedFilesByPathRequest;
-import com.edms.file.GetSharedFilesByPathResponse;
-import com.edms.file.GetSharedFilesRequest;
-import com.edms.file.GetSharedFilesResponse;
-import com.edms.file.GetVCFFileRequest;
-import com.edms.file.GetVCFFileResponse;
-import com.edms.file.RecycleFileRequest;
-import com.edms.file.RecycleFileResponse;
-import com.edms.file.RenameFileRequest;
-import com.edms.file.RenameFileResponse;
-import com.edms.file.RestoreFileRequest;
-import com.edms.file.RestoreFileResponse;
-import com.edms.file.ShareFileByPathRequest;
-import com.edms.file.ShareFileByPathResponse;
-import com.edms.file.SortByPropertyRequest;
-import com.edms.file.SortByPropertyResponse;
+import com.edms.documentmodule.CreateFileRequest;
+import com.edms.documentmodule.CreateFileResponse;
+import com.edms.documentmodule.DeleteFileRequest;
+import com.edms.documentmodule.DeleteFileResponse;
+import com.edms.documentmodule.EditFileRequest;
+import com.edms.documentmodule.EditFileResponse;
+import com.edms.documentmodule.GetFileByPathRequest;
+import com.edms.documentmodule.GetFileByPathResponse;
+import com.edms.documentmodule.GetFileRequest;
+import com.edms.documentmodule.GetFileResponse;
+import com.edms.documentmodule.GetSharedFilesByPathRequest;
+import com.edms.documentmodule.GetSharedFilesByPathResponse;
+import com.edms.documentmodule.GetSharedFilesRequest;
+import com.edms.documentmodule.GetSharedFilesResponse;
+import com.edms.documentmodule.GetVCFFileRequest;
+import com.edms.documentmodule.GetVCFFileResponse;
+import com.edms.documentmodule.RecycleFileRequest;
+import com.edms.documentmodule.RecycleFileResponse;
+import com.edms.documentmodule.RenameFileRequest;
+import com.edms.documentmodule.RenameFileResponse;
+import com.edms.documentmodule.RestoreFileRequest;
+import com.edms.documentmodule.RestoreFileResponse;
+import com.edms.documentmodule.ShareFileByPathRequest;
+import com.edms.documentmodule.ShareFileByPathResponse;
+import com.edms.documentmodule.SortByPropertyRequest;
+import com.edms.documentmodule.SortByPropertyResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
@@ -33,7 +35,7 @@ import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
 @Endpoint
 public class FileEndpoint {
-	private static final String NAMESPACE_URI = "http://edms.com/File";
+	private static final String NAMESPACE_URI = "http://edms.com/documentModule";
 
 	private FileRepository FileRepository;
 
@@ -75,16 +77,24 @@ public class FileEndpoint {
 		return response;
 	}
 
-	
+
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "createFileRequest")
 	@ResponsePayload
 	public CreateFileResponse createFile(
 			@RequestPayload CreateFileRequest request) {
-		CreateFileResponse response = new CreateFileResponse();
-		response.setFile(FileRepository.createFile(
+		CreateFileResponse response = FileRepository.createFile(
 				request.getFileName(),request.getParentFile(),
-				request.getUserid(),request.getKeywords(),request.getNotes(),request.getFileContent()));
+				request.getUserid(),request.getKeywords(),request.getNotes(),request.getFileContent());
+		return response;
+	}
 
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "editFileRequest")
+	@ResponsePayload
+	public EditFileResponse editFileRequest(
+			@RequestPayload EditFileRequest request) {
+		EditFileResponse response = FileRepository.editFile(
+				request.getFileContent(),request.getFilePath(),
+				request.getUserid());
 		return response;
 	}
 	
@@ -118,14 +128,14 @@ public class FileEndpoint {
 				));
 		return response;
 	}*/
-	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "recycleFileRequest")
+	/*@PayloadRoot(namespace = NAMESPACE_URI, localPart = "recycleFileRequest")
 	@ResponsePayload
 	public RecycleFileResponse recycleFileRequest(
 			@RequestPayload RecycleFileRequest request) {
 		RecycleFileResponse response = new RecycleFileResponse();
 		response.setRecycleFileResponse(FileRepository.recycleFile(request.getFilePath(),request.getUserid()));
 		return response;
-	}
+	}*/
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "deleteFileRequest")
 	@ResponsePayload
 	public DeleteFileResponse deleteFileRequest(

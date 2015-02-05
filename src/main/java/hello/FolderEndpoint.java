@@ -1,33 +1,35 @@
 package hello;
 
-import com.edms.folder.AssignSinglePermissionRequest;
-import com.edms.folder.AssignSinglePermissionResponse;
-import com.edms.folder.CreateFolderRequest;
-import com.edms.folder.CreateFolderResponse;
-import com.edms.folder.DeleteFolderRequest;
-import com.edms.folder.DeleteFolderResponse;
-import com.edms.folder.GetFolderByPathRequest;
-import com.edms.folder.GetFolderByPathResponse;
-import com.edms.folder.GetFolderRequest;
-import com.edms.folder.GetFolderResponse;
-import com.edms.folder.GetRecycledDocsRequest;
-import com.edms.folder.GetRecycledDocsResponse;
-import com.edms.folder.GetSharedFoldersByPathRequest;
-import com.edms.folder.GetSharedFoldersByPathResponse;
-import com.edms.folder.GetSharedFoldersRequest;
-import com.edms.folder.GetSharedFoldersResponse;
-import com.edms.folder.HasChildRequest;
-import com.edms.folder.HasChildResponse;
-import com.edms.folder.RecycleFolderRequest;
-import com.edms.folder.RecycleFolderResponse;
-import com.edms.folder.RenameFolderRequest;
-import com.edms.folder.RenameFolderResponse;
-import com.edms.folder.RestoreFolderRequest;
-import com.edms.folder.RestoreFolderResponse;
-import com.edms.folder.RestoreVersionRequest;
-import com.edms.folder.RestoreVersionResponse;
-import com.edms.folder.ShareFolderByPathRequest;
-import com.edms.folder.ShareFolderByPathResponse;
+import com.edms.documentmodule.AssignSinglePermissionRequest;
+import com.edms.documentmodule.AssignSinglePermissionResponse;
+import com.edms.documentmodule.CreateFolderRequest;
+import com.edms.documentmodule.CreateFolderResponse;
+import com.edms.documentmodule.DeleteFolderRequest;
+import com.edms.documentmodule.DeleteFolderResponse;
+import com.edms.documentmodule.GetFolderByPathRequest;
+import com.edms.documentmodule.GetFolderByPathResponse;
+import com.edms.documentmodule.GetFolderRequest;
+import com.edms.documentmodule.GetFolderResponse;
+import com.edms.documentmodule.GetRecycledDocsRequest;
+import com.edms.documentmodule.GetRecycledDocsResponse;
+import com.edms.documentmodule.GetSharedFoldersByPathRequest;
+import com.edms.documentmodule.GetSharedFoldersByPathResponse;
+import com.edms.documentmodule.GetSharedFoldersRequest;
+import com.edms.documentmodule.GetSharedFoldersResponse;
+import com.edms.documentmodule.HasChildRequest;
+import com.edms.documentmodule.HasChildResponse;
+import com.edms.documentmodule.RecentlyModifiedRequest;
+import com.edms.documentmodule.RecentlyModifiedResponse;
+import com.edms.documentmodule.RecycleFolderRequest;
+import com.edms.documentmodule.RecycleFolderResponse;
+import com.edms.documentmodule.RenameFolderRequest;
+import com.edms.documentmodule.RenameFolderResponse;
+import com.edms.documentmodule.RestoreFolderRequest;
+import com.edms.documentmodule.RestoreFolderResponse;
+import com.edms.documentmodule.RestoreVersionRequest;
+import com.edms.documentmodule.RestoreVersionResponse;
+import com.edms.documentmodule.ShareFolderByPathRequest;
+import com.edms.documentmodule.ShareFolderByPathResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
@@ -37,7 +39,7 @@ import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
 @Endpoint
 public class FolderEndpoint {
-	private static final String NAMESPACE_URI = "http://edms.com/Folder";
+	private static final String NAMESPACE_URI = "http://edms.com/documentModule";
 
 	private FolderRepository folderRepository;
 
@@ -66,8 +68,8 @@ public class FolderEndpoint {
 	@ResponsePayload
 	public GetRecycledDocsResponse setGetRecycledDocs(@RequestPayload GetRecycledDocsRequest request) {
 		GetRecycledDocsResponse response = new GetRecycledDocsResponse();
-		response.setGetRecycledDocs(folderRepository
-				.listRecycledDoc(request.getUserid(),request.getPath()));
+		response=folderRepository
+				.listRecycledDoc(request.getUserid(),request.getPath());
 		return response;
 	}
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "getSharedFoldersByPathRequest")
@@ -108,6 +110,7 @@ public class FolderEndpoint {
 				request.getFolderPath(),request.getUserid()));
 		return response;
 	}
+	
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "shareFolderByPathRequest")
 	@ResponsePayload
 	public ShareFolderByPathResponse shareFolderByPath(
@@ -118,6 +121,7 @@ public class FolderEndpoint {
 				,request.getGrouppermissions()));
 		return response;
 	}
+	
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "assignSinglePermissionRequest")
 	@ResponsePayload
 	public AssignSinglePermissionResponse assignSinglePermissionRequest(
@@ -128,6 +132,7 @@ public class FolderEndpoint {
 				));
 		return response;
 	}
+	
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "recycleFolderRequest")
 	@ResponsePayload
 	public RecycleFolderResponse recycleFolderRequest(
@@ -136,6 +141,7 @@ public class FolderEndpoint {
 		response.setRecycleFolderResponse(folderRepository.recycleFolder(request.getFolderPath(),request.getUserid()));
 		return response;
 	}
+	
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "deleteFolderRequest")
 	@ResponsePayload
 	public DeleteFolderResponse deleteFolderRequest(
@@ -144,6 +150,7 @@ public class FolderEndpoint {
 		response.setDeleteFolderResponse(folderRepository.deleteFolder(request.getFolderPath(),request.getUserid()));
 		return response;
 	}
+	
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "restoreFolderRequest")
 	@ResponsePayload
 	public RestoreFolderResponse restoreFolderRequest(
@@ -172,4 +179,21 @@ public class FolderEndpoint {
 		}
 		return response;
 	}
+	
+
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "recentlyModifiedRequest")
+	@ResponsePayload
+	public RecentlyModifiedResponse recentlyModifiedRequest(
+			@RequestPayload RecentlyModifiedRequest request) {
+		RecentlyModifiedResponse response = new RecentlyModifiedResponse();
+		response=folderRepository.recentlyModified(request.getFolderPath(),request.getUserid());
+		return response;
+	}
+	
+	
+	
+	
+	
+	
+	
 }

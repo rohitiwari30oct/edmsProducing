@@ -55,9 +55,9 @@ import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.security.principal.EveryonePrincipal;
 import org.apache.tika.metadata.Office;
 
-import com.edms.folder.ArrayOfFolders;
-import com.edms.folder.Folder;
-import com.edms.folder.FolderListReturn;
+import com.edms.documentmodule.ArrayOfFolders;
+import com.edms.documentmodule.Folder;
+import com.edms.documentmodule.FolderListReturn;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;

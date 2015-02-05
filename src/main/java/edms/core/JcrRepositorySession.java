@@ -35,23 +35,35 @@ public class JcrRepositorySession {
 	public static Session getSession() {
 		Repository repository = new TransientRepository();
 		try {
-			jcrsession = repository.login(new SimpleCredentials("admin",
-					"admin".toCharArray()));
-/*			registerNamespace(jcrsession, jcrsession.getRootNode());
-			createFolder("santosh@avi-oil.com");
-			createFolder("santosh@avi-oil.com/trash");
-			createFolder("sanjay@avi-oil.com");
-			createFolder("sanjay@avi-oil.com/trash");*/
-		//	createFolder("sanjay@avi-oil.com/sharedByOthers");
-		//	createFolder("sanjay@avi-oil.com/sharedCalendersByOthers");
-//		 	removeUser(jcrsession, userid);
-						//	createUser(userid, "redhat", jcrsession, root);
-					 	//	setPolicy(jcrsession, root, userid,root.getPath(),  Privilege.JCR_ALL);
-						//	Workspace ws=jcrsession.getWorkspace();
-						//	ws.createWorkspace(userid);
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-			return null;
+			SimpleCredentials credential=new SimpleCredentials("admin",
+					"admin".toCharArray());
+			
+			jcrsession = repository.login(credential, "default");
+
+			//createFolder("santosh@avi-oil.com");
+			//createFolder("santosh@avi-oil.com/trash");
+			//jcrsession.getRootNode().getNode("santosh@avi-oil.com").remove();;
+			//jcrsession.getRootNode().getNode("santosh@avi-oil.com/trash").remove();
+			//jcrsession.save();
+			//registerNamespace(jcrsession, jcrsession.getRootNode());
+			//createFolder("santosh@avi-oil.com");
+			//createFolder("santosh@avi-oil.com/trash");
+			//createFolder("janak@avi-oil.com");
+			//createFolder("janak@avi-oil.com/trash");
+			//registerNamespace(jcrsession, jcrsession.getRootNode());
+			//createFolder("sanjay@avi-oil.com");
+			//createFolder("sanjay@avi-oil.com/trash");
+			//createFolder("sanjay@avi-oil.com/sharedByOthers");
+			//createFolder("sanjay@avi-oil.com/sharedCalendersByOthers");
+			//removeUser(jcrsession, userid);
+			//createUser(userid, "redhat", jcrsession, root);
+		 	//setPolicy(jcrsession, root, userid,root.getPath(),  Privilege.JCR_ALL);
+			//Workspace ws=jcrsession.getWorkspace();
+			//ws.createWorkspace(userid);
+			
+			} catch (RepositoryException e) {
+				e.printStackTrace();
+				return null;
 		}
 		return jcrsession;
 	}
@@ -71,9 +83,12 @@ public class JcrRepositorySession {
 			folder.setProperty(Config.GROUPS_SECURITY, new String[] { Config.EDMS_ADMIN });
 			folder.setProperty(Config.EDMS_KEYWORDS, "root,folder".split(","));
 			folder.setProperty(Config.EDMS_AUTHOR, "admin");
+			folder.setProperty(Config.EDMS_OWNER, "admin");
 			folder.setProperty(Config.EDMS_DESCRIPTION, "this is root folder");
 			folder.setProperty(Config.EDMS_CREATIONDATE,(new Date()).toString());
 			folder.setProperty(Config.EDMS_MODIFICATIONDATE,(new Date()).toString());
+			folder.setProperty(Config.EDMS_ACCESSDATE,(new Date()).toString());
+			folder.setProperty(Config.EDMS_DOWNLOADDATE,(new Date()).toString());
 			folder.setProperty(Config.EDMS_RECYCLE_DOC, false);
 			folder.setProperty(Config.EDMS_NO_OF_FOLDERS, 0);
 			folder.setProperty(Config.EDMS_NO_OF_DOCUMENTS, 0);

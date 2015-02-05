@@ -1,15 +1,15 @@
 /*package hello;
 
-import com.edms.folder.CreateFolderRequest;
-import com.edms.folder.CreateFolderResponse;
-import com.edms.folder.GetFolderByPathRequest;
-import com.edms.folder.GetFolderByPathResponse;
-import com.edms.folder.GetFolderRequest;
-import com.edms.folder.GetFolderResponse;
-import com.edms.folder.HasChildRequest;
-import com.edms.folder.HasChildResponse;
-import com.edms.folder.ShareFolderByPathRequest;
-import com.edms.folder.ShareFolderByPathResponse;
+import com.edms.documentmodule.CreateFolderRequest;
+import com.edms.documentmodule.CreateFolderResponse;
+import com.edms.documentmodule.GetFolderByPathRequest;
+import com.edms.documentmodule.GetFolderByPathResponse;
+import com.edms.documentmodule.GetFolderRequest;
+import com.edms.documentmodule.GetFolderResponse;
+import com.edms.documentmodule.HasChildRequest;
+import com.edms.documentmodule.HasChildResponse;
+import com.edms.documentmodule.ShareFolderByPathRequest;
+import com.edms.documentmodule.ShareFolderByPathResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;

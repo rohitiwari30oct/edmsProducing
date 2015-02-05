@@ -30,7 +30,9 @@ public class Config {
 	public static String JCR_PASSWORD="admin";
 	public static String JCR_SYSTEM="jcr:system";
 	public static final String EDMS_FOLDER = "edms:folder";
-	public static final String EDMS_FILE = "edms:file";
+	public static final String EDMS_NAME = "edms:name";
+	public static final String EDMS_TITLE = "edms:title";
+	public static final String EDMS_SIZE = "edms:size";
 	public static final String EDMS_DOCUMENT = "edms:document";
 	public static final String USERS_READ = "edms:authUsersRead";
 	public static final String USERS_WRITE = "edms:authUsersWrite";
@@ -48,7 +50,11 @@ public class Config {
 	public static final String EDMS_NO_OF_FOLDERS = "edms:no_of_folders";
 	public static final String EDMS_NO_OF_DOCUMENTS = "edms:no_of_documents";
 	public static final String EDMS_RECYCLE_DOC = "edms:recycle";
+	public static final String EDMS_CONTENT = "edms:content";
 	public static final String EDMS_RESTORATION_PATH = "edms:restorationPath";
+	public static final String EDMS_OWNER = "edms:owner";
+	public static final String EDMS_DOWNLOADDATE = "edms:downloadDate";
+	public static final String EDMS_ACCESSDATE = "edms:accessDate";
 	
 	public static void load(String userid,String password){
 		JCR_USERNAME=userid;

@@ -27,17 +27,22 @@ import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
 import javax.print.attribute.standard.MediaSize.NA;
 
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.security.Principal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
+import net.wimpi.telnetd.io.terminal.ansi;
 
 import org.activiti.engine.impl.persistence.entity.UserIdentityManager;
 import org.apache.jackrabbit.JcrConstants;
@@ -57,12 +62,16 @@ import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.security.principal.EveryonePrincipal;
 import org.apache.tika.metadata.Office;
 
-import com.edms.file.File;
-import com.edms.folder.ArrayOfFolders;
-import com.edms.folder.Folder;
-import com.edms.folder.FolderListReturn;
-import com.edms.folder.FolderVersionDetail;
-import com.edms.folder.RenameFolderRes;
+import com.edms.documentmodule.ArrayOfFiles;
+import com.edms.documentmodule.File;
+import com.edms.documentmodule.ArrayOfFolders;
+import com.edms.documentmodule.FilesAndFolders;
+import com.edms.documentmodule.Folder;
+import com.edms.documentmodule.FolderListReturn;
+import com.edms.documentmodule.FolderVersionDetail;
+import com.edms.documentmodule.GetRecycledDocsResponse;
+import com.edms.documentmodule.RecentlyModifiedResponse;
+import com.edms.documentmodule.RenameFolderRes;
 
 import org.neo4j.cypher.internal.compiler.v2_0.untilMatched;
 import org.springframework.stereotype.Component;
@@ -88,7 +97,7 @@ public class FolderRepository {
 		try {
 					javax.jcr.query.QueryManager queryManager;
 					queryManager = jcrsession.getWorkspace().getQueryManager();
-					String expression = "select * from [edms:folder] AS s WHERE ISCHILDNODE(s,'"+name+"') and [edms:author]='"+userid+"' ORDER BY [NAME(s),DESC]";
+					String expression = "select * from [edms:folder] AS s WHERE ISCHILDNODE(s,'"+name+"') and [edms:author]='"+userid+"' ORDER BY s.[jcr:created] ASC";
 					//expression = "select * from [edms:folder] AS s WHERE NAME like ['%san%']";
 				    javax.jcr.query.Query query = queryManager.createQuery(expression, javax.jcr.query.Query.JCR_SQL2);
 				    javax.jcr.query.QueryResult result = query.execute();
@@ -96,7 +105,7 @@ public class FolderRepository {
 			for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
 					Node node = nit.nextNode();
 					Folder folder = new Folder();
-					folder=setProperties(node,folder,userid);
+					folder=setGeneralFolderProperties(node,folder,userid);
 					folders.getFolderList().add(folder);
 					}
 		} catch (LoginException e) {
@@ -116,7 +125,9 @@ public class FolderRepository {
 		folder.setFolderName(node.getName());
 		folder.setFolderPath(node.getPath());
 		folder.setParentFolder(node.getParent().getName());
-
+		//if(node.hasProperty(Config.EDMS_NAME)){
+			//System.out.println("title of doc is : "+node.getProperty(Config.EDMS_NAME).getString());
+//		}
 		if(node.hasProperty(Config.EDMS_AUTHOR))
 		folder.setCreatedBy(node.getProperty(Config.EDMS_AUTHOR).getString());
 		if(node.hasProperty(Config.EDMS_RECYCLE_DOC))
@@ -273,8 +284,9 @@ public class FolderRepository {
 				newUsers+=actualUsers[i].getString()+",";
 			}
 			if(newUsers.contains(userid)||root.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)||(root.getName().equals(userid)&&(root.getProperty(Config.EDMS_AUTHOR).getString()).equals(Config.JCR_USERNAME))){
-				System.out.println(root.getPath());
-			Version version=	jcrsession.getWorkspace().getVersionManager().checkin(root.getPath());
+			System.out.println(root.getPath());
+			
+			Version version=jcrsession.getWorkspace().getVersionManager().checkin(root.getPath());
 			jcrsession.getWorkspace().getVersionManager().getVersionHistory(root.getPath()).addVersionLabel(version.getName(), "new child named "+folderName+" added", true);
 			jcrsession.getWorkspace().getVersionManager().checkout(root.getPath());
 			folder = root.addNode(folderName, Config.EDMS_FOLDER);
@@ -368,29 +380,40 @@ public class FolderRepository {
 			folder.setProperty(Config.USERS_DELETE,new String[]{userid});
 			folder.setProperty(Config.USERS_SECURITY,new String[]{userid});*/
 			folder.setProperty(Config.EDMS_KEYWORDS, keywords.split(","));
-			if(root.getProperty(Config.EDMS_AUTHOR).getString().equals(Config.EDMS_ADMIN)){
-
-				folder.setProperty(Config.EDMS_AUTHOR,userid);
-					
+			if(root.hasProperty(Config.EDMS_OWNER)){
+			folder.setProperty(Config.EDMS_OWNER,root.getProperty(Config.EDMS_OWNER).getString());
 			}else{
-			folder.setProperty(Config.EDMS_AUTHOR,root.getProperty(Config.EDMS_AUTHOR).getString());
-			}folder.setProperty(Config.EDMS_DESCRIPTION, description);
-			folder.setProperty(Config.EDMS_CREATIONDATE, (new Date()).toString());
-			folder.setProperty(Config.EDMS_MODIFICATIONDATE, (new Date()).toString());
+				folder.setProperty(Config.EDMS_OWNER,root.getProperty(Config.EDMS_AUTHOR).getString());
+			}
+				folder.setProperty(Config.EDMS_AUTHOR,userid);
+			
+			folder.setProperty(Config.EDMS_DESCRIPTION, description);
+			SimpleDateFormat format = new SimpleDateFormat(
+					"YYYY-MM-dd'T'HH:mm:ss.SSSZ");
+			folder.setProperty(Config.EDMS_CREATIONDATE,
+					(format.format(new Date())).toString().replace("+0530", "Z"));
+			folder.setProperty(Config.EDMS_MODIFICATIONDATE,
+					"");
+			folder.setProperty(Config.EDMS_ACCESSDATE,
+					"");
+			folder.setProperty(Config.EDMS_DOWNLOADDATE,
+					"");
 			folder.setProperty(Config.EDMS_RECYCLE_DOC, false);
 			folder.setProperty(Config.EDMS_NO_OF_FOLDERS, 0);
 			folder.setProperty(Config.EDMS_NO_OF_DOCUMENTS, 0);
 			folder.addMixin(JcrConstants.MIX_SHAREABLE);
 			folder.addMixin(JcrConstants.MIX_VERSIONABLE);
-			
+
+			//folder.setProperty(Config.EDMS_TITLE,folderName);
+			folder.setProperty(Config.EDMS_NAME,folderName);
 			jcrsession.save();
 			root.setProperty(Config.EDMS_NO_OF_FOLDERS, Integer.parseInt(root.getProperty(Config.EDMS_NO_OF_FOLDERS).getString())+1);
 		
 			
 			jcrsession.save();
-			folder1=	setProperties(folder, folder1,userid);
+			folder1=	setGeneralFolderProperties(folder, folder1,userid);
 			}else{
-				//System.out.println("you have not permission to add child node");
+				System.out.println("you have not permission to add child node");
 			}}
 		} catch (LoginException e) {
 			e.printStackTrace();
@@ -420,6 +443,14 @@ public class FolderRepository {
 			if (folderPath.length() > 1) {
 				root = root.getNode(folderPath.substring(1));
 			}
+			SimpleDateFormat format = new SimpleDateFormat(
+					"YYYY-MM-dd'T'HH:mm:ss.SSSZ");
+			//jcrsession.getWorkspace().getVersionManager().checkout(root.getPath());
+			root.setProperty(Config.EDMS_ACCESSDATE,
+					(format.format(new Date())).toString().replace("+0530", "Z"));
+			root.setProperty(Config.EDMS_DOWNLOADDATE,
+					(format.format(new Date())).toString().replace("+0530", "Z"));
+			jcrsession.save();
 			folder1.setFolderName(root.getName().toString());
 			folder1.setFolderPath(root.getPath().toString());
 			file1.setFileName(root.getName().toString());
@@ -429,8 +460,7 @@ public class FolderRepository {
 					if(root.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)||(root.getName().equals(userid)&&(root.getProperty(Config.EDMS_AUTHOR).getString()).equals(Config.JCR_USERNAME)))
 					{
 							setProperties(root, folder1,userid);
-
-						}
+					}
 			}}
 		} catch (LoginException e) {
 			// TODO Auto-generated catch block
@@ -1019,7 +1049,6 @@ case "ngs":
 			permissions+=privileges[i];
 		}
 		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return permissions;
@@ -1087,7 +1116,6 @@ case "ngs":
 			for (int i = 0; i < setprivilege.length; i++) {
 				//System.out.println(setprivilege[i]);
 			}
-			
 			jcrsession.save();
 			jcrsession.refresh(true);
 			setprivilege = aMgr.getPrivileges(path);
@@ -1095,7 +1123,6 @@ case "ngs":
 			for (int i = 0; i < setprivilege.length; i++) {
 				//System.out.println(setprivilege[i]);
 			}
-			
 		} catch (RepositoryException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -1108,26 +1135,11 @@ case "ngs":
 		FolderListReturn folderList1 = new FolderListReturn();
 		ArrayOfFolders folders = new ArrayOfFolders();
 		Node root = null;
-
-		Repository	repository =  new TransientRepository();
-	//	Session jcrsession = null;
 		try {
-			/*	jcrsession = repository.login(new SimpleCredentials(Config.EDMS_ADMIN,
-					Config.EDMS_ADMIN.toCharArray()));*/
-			/* jcrsession = repository.login(new SimpleCredentials(
-			 userid,"redhat".toCharArray()));*/
-			 /*String[] wwws=		jcrsession.getWorkspace().getAccessibleWorkspaceNames();
-				for (int i = 0; i < wwws.length; i++) {
-					//System.out.println(wwws[i]);
-				}	*/
 				root = jcrsession.getRootNode();
 				root=root.getNode(userid);
 			for (NodeIterator nit = root.getNodes(); nit.hasNext();) {
 				Node node = nit.nextNode();
-				/*boolean recycle=false;
-				if(node.hasProperty(Config.EDMS_RECYCLE_DOC)){
-				recycle=node.getProperty(Config.EDMS_RECYCLE_DOC).getBoolean();
-				}if(!recycle){*/
 				if(!node.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
 				if (Config.EDMS_FOLDER.equals(node.getPrimaryNodeType().getName())) {
 
@@ -1137,15 +1149,13 @@ case "ngs":
 					for (int i = 0; i < actualUsers.length; i++) {
 						newUser+=actualUsers[i].getString()+",";
 					}
-					//System.out.println("for node : "+node.getPath().toString()+" newUser contains "+node.getProperty(Config.EDMS_AUTHOR).getString()+" is "+newUser.contains(userid));
 					if(newUser.contains(userid))
 					{
 					Folder folder = new Folder();
-					folder=setProperties(node,folder,userid);
+					folder=setGeneralFolderProperties(node,folder,userid);
 					folders.getFolderList().add(folder);}
 				}}
 			}}
-			//}
 		} catch (LoginException e) {
 			e.printStackTrace();
 		} catch (RepositoryException e) {
@@ -1183,7 +1193,7 @@ case "ngs":
 					if(newUser.contains(userid))
 					{
 					Folder folder = new Folder();
-					folder=setProperties(node,folder,userid);
+					folder=setGeneralFolderProperties(node,folder,userid);
 					folders.getFolderList().add(folder);}
 				}}
 			}}
@@ -1201,37 +1211,48 @@ case "ngs":
 	}
 	
 
-	public FolderListReturn listRecycledDoc(String userid,String path) {
-		FolderListReturn folderList1 = new FolderListReturn();
-		ArrayOfFolders folders = new ArrayOfFolders();
-		folders=listRecycledDocRecursion(userid, "/"+userid+"/trash", folders);
-		folderList1.setFolderListResult(folders);
-		folderList1.setSuccess(true);
-		return folderList1;
+	public GetRecycledDocsResponse listRecycledDoc(String userid,String path) {
+		FilesAndFolders filesFolders = new FilesAndFolders();
+	
+		filesFolders=listRecycledDocRecursion(userid, path,filesFolders);
+		GetRecycledDocsResponse res=new GetRecycledDocsResponse();
+		res.setGetRecycledDocs(filesFolders);
+		
+		return res;
 	}
 
-	public ArrayOfFolders listRecycledDocRecursion(String userid,String path,ArrayOfFolders folders) {
+	public FilesAndFolders listRecycledDocRecursion(String userid,String path,FilesAndFolders filesFolders) {
+		
+		ArrayOfFiles files = new ArrayOfFiles();
+		ArrayOfFolders folders=new ArrayOfFolders();
 		Node root = null;
 		try {
 				root = jcrsession.getRootNode();
 				root = root.getNode(path.substring(1));
-			for (NodeIterator nit = root.getNodes(); nit.hasNext();) {
-				Node node = nit.nextNode();
-			/*	boolean recycle=false;
-				if(node.hasProperty(Config.EDMS_RECYCLE_DOC)){
-				recycle=node.getProperty(Config.EDMS_RECYCLE_DOC).getBoolean();
-				}
-				if(recycle){
-*/
-					//System.out.println("recycled nodes are "+node.getPath());
-					if(node.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
-						Folder folder = new Folder();
-						folder=setProperties(node,folder,userid);
-						folders.getFolderList().add(folder);
-					//}
-				/*}else if(node.hasNodes()){
-					listRecycledDocRecursion(userid,node.getPath().toString(),folders);
-				}*/}
+				javax.jcr.query.QueryManager queryManager;
+				queryManager = jcrsession.getWorkspace().getQueryManager();
+				String expression = "select * from [edms:folder] AS s WHERE ISDESCENDANTNODE(s,'"+path+"') and [edms:author]='"+userid+"'";
+				//expression = "select * from [edms:folder] AS s WHERE NAME like ['%san%']";
+			    javax.jcr.query.Query query = queryManager.createQuery(expression, javax.jcr.query.Query.JCR_SQL2);
+			    javax.jcr.query.QueryResult result = query.execute();
+				
+		for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
+					Node node = nit.nextNode();
+							Folder folder = new Folder();
+							folder=setGeneralFolderProperties(node,folder,userid);
+							folders.getFolderList().add(folder);
+					}
+		expression = "select * from [edms:document] AS s WHERE ISDESCENDANTNODE(s,'"+path+"') and [edms:author]='"+userid+"'";
+		//expression = "select * from [edms:folder] AS s WHERE NAME like ['%san%']";
+	    query = queryManager.createQuery(expression, javax.jcr.query.Query.JCR_SQL2);
+	    result = query.execute();
+		
+	    for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
+
+			Node node = nit.nextNode();
+					File file = new File();
+					file=new FileRepository().setGeneralFileProperties(node,file,userid);
+					files.getFileList().add(file);
 			}
 		} catch (LoginException e) {
 			e.printStackTrace();
@@ -1240,8 +1261,27 @@ case "ngs":
 		} finally {
 		//	jcrsession.logout();
 		}
-		return folders;
+		
+		filesFolders.setFilesList(files);
+		filesFolders.setFoldersList(folders);
+		return filesFolders;
 	}
+
+	private Folder setGeneralFolderProperties(Node node, Folder folder, String userid) {
+		try {
+		folder.setFolderName(node.getName());
+		folder.setFolderPath(node.getPath());
+		folder.setParentFolder(node.getParent().getName());
+		folder.setCreatedBy(node.getProperty(Config.EDMS_AUTHOR).getString());
+		folder.setModificationDate(node.getProperty(Config.EDMS_MODIFICATIONDATE).getString());
+		
+		} catch (RepositoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return folder;
+	}
+
 
 	public String recycleFolder(String folderPath,String userid )
 	{
@@ -1273,17 +1313,26 @@ case "ngs":
 		Node parent=root.getParent();
 		//root.setProperty(Config.EDMS_RECYCLE_DOC, true);
 		root.setProperty(Config.EDMS_RESTORATION_PATH, root.getPath());
+		root.setProperty(Config.EDMS_RESTORATION_PATH, root.getPath());
 		jcrsession.save();
 		jcrsession.getWorkspace().clone(jcrsession.getWorkspace().getName(),root.getPath(), "/"+userid+"/trash/"+root.getName(),false);
 		jcrsession.save();
 		root.setProperty(Config.USERS_READ, new String[]{});
 		//root.removeShare();
-		
+		boolean flag=Config.EDMS_FOLDER.equals(root.getPrimaryNodeType().getName());
 		root.remove();
 		jcrsession.save();
+		if(flag){
 		int no_of_folders=Integer.parseInt(parent.getProperty(Config.EDMS_NO_OF_FOLDERS).getString());
 		if(no_of_folders>0){
 		parent.setProperty(Config.EDMS_NO_OF_FOLDERS,no_of_folders-1);
+		}}else{
+			int no_of_Files = Integer.parseInt(parent.getProperty(
+					Config.EDMS_NO_OF_DOCUMENTS).getString());
+			if (no_of_Files > 0) {
+				parent.setProperty(Config.EDMS_NO_OF_DOCUMENTS, no_of_Files - 1);
+			}
+			
 		}
 		jcrsession.save();
 		/*	if(root.hasNodes()){
@@ -1389,40 +1438,34 @@ case "ngs":
 			}else{
 				createFolderRecursionWhenNotFound(folderName.substring(0,folderName.lastIndexOf("/")+1),userid);
 			}
-			
 		} catch (LoginException e) {
 			e.printStackTrace();
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 		}
 		return folder;
-	
 	}
 
 	public RenameFolderRes renameFolder(String oldfolderPath, String newFolderPath,String userid) {
 		RenameFolderRes response=new RenameFolderRes();
 		try {
-			
 			Node forVer=jcrsession.getRootNode().getNode(oldfolderPath.substring(1));
-			//System.out.println(forVer.getProperty(Config.EDMS_AUTHOR).getString());
 			if(forVer.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
-
-				Version version=	jcrsession.getWorkspace().getVersionManager().checkin(forVer.getPath());
+				Version version=jcrsession.getWorkspace().getVersionManager().checkin(forVer.getPath());
 				jcrsession.getWorkspace().getVersionManager().getVersionHistory(forVer.getPath()).addVersionLabel(version.getName(), "renamed from "+oldfolderPath.substring(oldfolderPath.lastIndexOf("/")+1)+" to"+newFolderPath, true);
 				jcrsession.getWorkspace().getVersionManager().checkout(forVer.getPath());
-				
-			jcrsession.move(oldfolderPath, oldfolderPath.substring(0,oldfolderPath.lastIndexOf("/")) + "/" + newFolderPath);
-			jcrsession.save();	
-			
-			response.setResponse("Success");
-			response.setSuccess(true);
+				jcrsession.move(oldfolderPath, oldfolderPath.substring(0,oldfolderPath.lastIndexOf("/")) + "/" + newFolderPath);
+				SimpleDateFormat format = new SimpleDateFormat(
+					"YYYY-MM-dd'T'HH:mm:ss.SSSZ");
+				forVer.setProperty(Config.EDMS_MODIFICATIONDATE,(format.format(new Date())).toString().replace("+0530", "Z") );
+				jcrsession.save();	
+				response.setResponse("Success");
+				response.setSuccess(true);
 		}else
 		{
-
 			   response.setResponse("Access Denied");
 			   response.setSuccess(false);	
 		}}
-		
 		catch (RepositoryException e) {
 			   response.setResponse("Access Denied");
 			   response.setSuccess(false);
@@ -1479,4 +1522,50 @@ case "ngs":
 		
 		return (String[]) list.toArray(new String[list.size()]);
 	}*/
+
+	public RecentlyModifiedResponse recentlyModified(String folderPath, String userid) {
+		RecentlyModifiedResponse res=new RecentlyModifiedResponse();
+		ArrayOfFolders folders=new ArrayOfFolders();
+		FilesAndFolders filesFolders=new FilesAndFolders();
+		  javax.jcr.query.QueryManager queryManager;
+			try {
+				queryManager = jcrsession.getWorkspace().getQueryManager();
+				//Create a query object ...
+		        String expression = "select * from [edms:folder] AS s WHERE ISDESCENDANTNODE(s,'"+folderPath+"') ORDER BY s.[jcr:lastModified] ASC ";
+		        //expression = "select * from [edms:folder] AS s WHERE NAME() = 'sanjay1' ";
+		        //expression = "select * from [edms:document] WHERE NAME() like '%.png' ";
+		        //expression="SELECT p.* FROM [nt:base] AS p WHERE p.[jcr:lastModified] >= CAST('2015-01-01T00:00:00.000Z' AS DATE) AND p.[jcr:lastModified] <= CAST('2015-12-31T23:59:59.999Z' AS DATE)";
+				//expression = "select * from [edms:folder] where [jcr:path] like '%santosh%'";
+		         
+	        javax.jcr.query.Query query = queryManager.createQuery(expression, javax.jcr.query.Query.JCR_SQL2);
+	        
+	        //query.setLimit(10);
+	       // query.setOffset(0);
+	        // Execute the query and get the results ...
+	        javax.jcr.query.QueryResult result = query.execute();
+	     //   System.out.println(result.getNodes());
+	        for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
+				Node node = nit.nextNode();
+				Folder folder=new Folder();
+				setGeneralFolderProperties(node, folder, userid);
+				folders.getFolderList().add(folder);
+	        }
+	        ArrayOfFiles files=new ArrayOfFiles();
+	        expression = "select * from [edms:document] AS s WHERE ISDESCENDANTNODE(s,'"+folderPath+"') ORDER BY s.[jcr:lastModified] ASC ";
+	        query = queryManager.createQuery(expression, javax.jcr.query.Query.JCR_SQL2);
+	        result = query.execute();
+        for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
+			Node node = nit.nextNode();
+			File file=new File();
+			file=new FileRepository().setGeneralFileProperties(node, file, userid);
+			files.getFileList().add(file);
+        }
+		filesFolders.setFoldersList(folders);
+		filesFolders.setFilesList(files);
+		res.setRecentlyModifiedFolders(filesFolders);
+			}catch(Exception e){
+		e.printStackTrace();
+	}
+			return res;		
+	}
 }
