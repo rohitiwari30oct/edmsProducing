@@ -1,5 +1,7 @@
 package hello;
 
+import com.edms.documentmodule.AddKeywordRequest;
+import com.edms.documentmodule.AddKeywordResponse;
 import com.edms.documentmodule.AssignSinglePermissionRequest;
 import com.edms.documentmodule.AssignSinglePermissionResponse;
 import com.edms.documentmodule.CreateFolderRequest;
@@ -22,6 +24,8 @@ import com.edms.documentmodule.RecentlyModifiedRequest;
 import com.edms.documentmodule.RecentlyModifiedResponse;
 import com.edms.documentmodule.RecycleFolderRequest;
 import com.edms.documentmodule.RecycleFolderResponse;
+import com.edms.documentmodule.RemoveKeywordRequest;
+import com.edms.documentmodule.RemoveKeywordResponse;
 import com.edms.documentmodule.RenameFolderRequest;
 import com.edms.documentmodule.RenameFolderResponse;
 import com.edms.documentmodule.RestoreFolderRequest;
@@ -132,13 +136,30 @@ public class FolderEndpoint {
 				));
 		return response;
 	}
-	
+
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "recycleFolderRequest")
 	@ResponsePayload
 	public RecycleFolderResponse recycleFolderRequest(
 			@RequestPayload RecycleFolderRequest request) {
 		RecycleFolderResponse response = new RecycleFolderResponse();
 		response.setRecycleFolderResponse(folderRepository.recycleFolder(request.getFolderPath(),request.getUserid()));
+		return response;
+	}
+
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "addKeywordRequest")
+	@ResponsePayload
+	public AddKeywordResponse addKeywordRequest(
+			@RequestPayload AddKeywordRequest request) {
+		AddKeywordResponse response = new AddKeywordResponse();
+		response.setSuccess(folderRepository.addKeyword(request.getFolderPath(),request.getUserid(),request.getKeyword()));
+		return response;
+	}
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "removeKeywordRequest")
+	@ResponsePayload
+	public RemoveKeywordResponse removeKeywordRequest(
+			@RequestPayload RemoveKeywordRequest request) {
+		RemoveKeywordResponse response = new RemoveKeywordResponse();
+		response.setSuccess(folderRepository.removeKeyword(request.getFolderPath(),request.getUserid(),request.getKeyword()));
 		return response;
 	}
 	

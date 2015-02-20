@@ -267,6 +267,41 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+	<xs:element name="addKeywordRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folderPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="keyword" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="addKeywordResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="removeKeywordRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folderPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="keyword" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="removeKeywordResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 
 
 	<xs:element name="restoreFolderRequest">

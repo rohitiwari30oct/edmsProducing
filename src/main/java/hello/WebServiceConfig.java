@@ -70,7 +70,8 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 		basicDataSource.setDriverClassName("com.mysql.jdbc.Driver");
 		basicDataSource.setUrl("jdbc:mysql://localhost:3306/edms?useUnicode=true&characterEncoding=UTF-8");
 		basicDataSource.setUsername("root");
-		basicDataSource.setPassword("");
+		//basicDataSource.setPassword("");
+		basicDataSource.setPassword("hh##8993Avi#00??");
 		return basicDataSource;
 	}
 	
@@ -172,7 +173,7 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 	public XsdSchema workflowSchema() {
 		return new SimpleXsdSchema(new ClassPathResource("workflow.xsd"));
 	}
-	
+
 	@Bean(name="workflowHistory")
 	public DefaultWsdl11Definition defaultWsdlWorkflowHistDefinition(XsdSchema workflowHistorySchema){
 		DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
@@ -186,6 +187,21 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 	@Bean
 	public XsdSchema workflowHistorySchema() {
 		return new SimpleXsdSchema(new ClassPathResource("workflowHistory.xsd"));
+	}
+
+	@Bean(name="user")
+	public DefaultWsdl11Definition defaultWsdlLogin(XsdSchema userSchema){
+		DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
+		wsdl11Definition.setPortTypeName("UserPort");
+		wsdl11Definition.setLocationUri("/ws");
+		wsdl11Definition.setTargetNamespace("http://edms.com/user");
+		wsdl11Definition.setSchema(userSchema);
+		return wsdl11Definition;
+	}
+	
+	@Bean
+	public XsdSchema userSchema() {
+		return new SimpleXsdSchema(new ClassPathResource("user.xsd"));
 	}
 
 /*@Bean 

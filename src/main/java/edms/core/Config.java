@@ -55,6 +55,8 @@ public class Config {
 	public static final String EDMS_OWNER = "edms:owner";
 	public static final String EDMS_DOWNLOADDATE = "edms:downloadDate";
 	public static final String EDMS_ACCESSDATE = "edms:accessDate";
+	public static final String DEFAULT_USER_ROLE = "ROLE_USER";
+	public static final Object DEFAULT_ADMIN_ROLE = "ROLE_ADMIN";
 	
 	public static void load(String userid,String password){
 		JCR_USERNAME=userid;

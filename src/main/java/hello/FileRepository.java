@@ -69,6 +69,7 @@ import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.commons.cnd.ParseException;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.security.principal.EveryonePrincipal;
+
 import org.apache.tika.Tika;
 import org.apache.tika.metadata.Office;
 
@@ -83,6 +84,7 @@ import com.edms.documentmodule.FileListReturn;
 import com.edms.documentmodule.FileVersionDetail;
 import com.edms.documentmodule.FilesAndFolders;
 import com.edms.documentmodule.Folder;
+import com.edms.documentmodule.FolderVersionDetail;
 import com.edms.documentmodule.RenameFileRes;
 import com.edms.documentmodule.SearchDocByDateResponse;
 import com.edms.documentmodule.SearchDocByLikeResponse;
@@ -95,13 +97,14 @@ import org.springframework.util.Assert;
 
 import edms.core.Config;
 import edms.core.JcrRepositorySession;
+import edms.core.JcrRepositoryUtils;
+import edms.core.SessionWrapper;
 import ezvcard.*;
 import ezvcard.io.text.VCardReader;
 import ezvcard.property.*;
 
 @Component
 public class FileRepository {
-	private static Session jcrsession = JcrRepositorySession.jcrsession;
 
 	/*
 	 * @Autowired FileService FileService;
@@ -112,15 +115,22 @@ public class FileRepository {
 	@PostConstruct
 	public void initData() {
 		System.out.println("only single time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ");
-		jcrsession = JcrRepositorySession.getSession();
+		
+		
+		//MailUtils.getMatchingHeader(arg0, arg1);
+		
+		
+		
+		//JcrRepositorySession.getSession("admin");	
 	}
 
 	public FileListReturn listFile(String name, String userid) {
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		Assert.notNull(name);
 		FileListReturn FileList1 = new FileListReturn();
 		ArrayOfFiles Files = new ArrayOfFiles();
-		Node root = null;
-		sortByProperty("", "", userid);
 		try {
 			/*
 			 * String[]
@@ -139,8 +149,8 @@ public class FileRepository {
 			/*
 			 * root = jcrsession.getRootNode(); if (name.length() > 1) { if
 			 * (!root.hasNode(userid)) {
-			 * //root=JcrRepositorySession.createFile(userid);
-			 * //JcrRepositorySession.createFile(userid+"/trash"); } else { root
+			 * //root=jcrsession.createFile(userid);
+			 * //jcrsession.createFile(userid+"/trash"); } else { root
 			 * = root.getNode(name.substring(1)); } }
 			 * root=jcrsession.getRootNode();
 			 */javax.jcr.query.QueryManager queryManager;
@@ -156,7 +166,7 @@ public class FileRepository {
 					+ name
 					+ "') and [edms:author]='"
 					+ userid
-					+ "' ORDER BY [NAME(s),DESC]";
+					+ "'  ORDER BY s.[jcr:created] ASC";
 			javax.jcr.query.Query query = queryManager.createQuery(expression,
 					javax.jcr.query.Query.JCR_SQL2);
 
@@ -177,23 +187,24 @@ public class FileRepository {
 				// if(node.getProperty(Config.EDMS_AUTHOR).getString().equals(userid))
 				// {
 				File File = new File();
-				File = setProperties(node, File, userid);
+				File = setProperties(node, File, userid,jcrsession);
 				Files.getFileList().add(File);
 				// }
 				// }
 				// }
-			}
-		} catch (LoginException e) {
-			e.printStackTrace();
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		}
-		FileList1.setFileListResult(Files);
+			}	FileList1.setFileListResult(Files);
 		FileList1.setSuccess(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			//JcrRepositoryUtils.logout(sessionId);
+		}
+	
 		return FileList1;
 	}
 
-	public File setProperties(Node node, File file, String userid) {
+	public File setProperties(Node node, File file, String userid,Session jcrsession) {
+		
 		try {
 		
 			file.setFileName(node.getName());
@@ -313,39 +324,41 @@ public class FileRepository {
 				}
 			}
 
-			/*
-			 * VersionHistory history =
-			 * jcrsession.getWorkspace().getVersionManager
-			 * ().getVersionHistory(node
-			 * .getNode(JcrConstants.JCR_CONTENT).getPath()); // To iterate over
-			 * all versions VersionIterator versions = history.getAllVersions();
-			 * while (versions.hasNext()) { Version version =
-			 * versions.nextVersion(); FileVersionDetail versionDetail=new
-			 * FileVersionDetail(); versionDetail.setCreatedBy(userid);
-			 * versionDetail
-			 * .setCreationDate(version.getCreated().getTime().toString());
-			 * String[] details=history.getVersionLabels(version);
-			 * if(details.length>0){ versionDetail.setDetails(details[0]); }
-			 * versionDetail.setVersionName(version.getName());
-			 * versionDetail.setVersionLabel(version.getParent().getName());
-			 * file.getFileVersionsHistory().add(versionDetail); }
-			 */
+			VersionHistory history = jcrsession.getWorkspace().getVersionManager().getVersionHistory(node.getPath());
+			// To iterate over all versions
+			VersionIterator versions = history.getAllVersions();
+			while (versions.hasNext()) {
+			  Version version = versions.nextVersion();
+			  FileVersionDetail versionDetail=new FileVersionDetail();
+			  versionDetail.setCreatedBy(userid);
+			  versionDetail.setCreationDate(version.getCreated().getTime().toString());
+			  String[] details=history.getVersionLabels(version);
+			  if(details.length>0){
+			  versionDetail.setDetails(details[0]);
+			  }  versionDetail.setVersionName(version.getName());
+			  versionDetail.setVersionLabel(version.getParent().getName());
+			  file.getFileVersionsHistory().add(versionDetail);
+			}
 		} catch (RepositoryException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return file;
 	}
-	File setGeneralFileProperties(Node node, File file, String userid) {
+	
+	File setPropertiesWithoutStream(Node node, File file, String userid,Session jcrsession){
+
+		
 		try {
+		
 			file.setFileName(node.getName());
-		file.setFilePath(node.getPath());
-		file.setParentFolder(node.getParent().getName());
-		if(node.hasProperty(Config.EDMS_SIZE)){
-		file.setFileSize(node.getProperty(Config.EDMS_SIZE).getLong());
-		}
-		file.setModificationDate(node.getProperty(Config.EDMS_MODIFICATIONDATE).getString());
-		if(node.hasNode(Config.EDMS_CONTENT)){
+			file.setFilePath(node.getPath());
+			file.setParentFolder(node.getParent().getName());
+			/*if (node.hasProperty(Config.EDMS_NAME)) {
+				System.out.println("title of doc is : "
+						+ node.getProperty(Config.EDMS_NAME).getString());
+			}*/
+			if(node.hasNode(Config.EDMS_CONTENT)){/*
 			Node ntResourceNode = node.getNode("edms:content");
 			InputStream is = ntResourceNode.getProperty("jcr:data").getBinary()
 					.getStream();
@@ -359,18 +372,161 @@ public class FileRepository {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			*/}
+			
+			if (node.hasProperty(Config.EDMS_AUTHOR))
+				file.setCreatedBy(node.getProperty(Config.EDMS_AUTHOR)
+						.getString());
+			if (node.hasProperty(Config.EDMS_RECYCLE_DOC))
+				file.setRecycle(node.getProperty(Config.EDMS_RECYCLE_DOC)
+						.getBoolean());
+
+			if (node.hasProperty(Config.EDMS_KEYWORDS)) {
+				Value[] actualUsers = node.getProperty(Config.EDMS_KEYWORDS)
+						.getValues();
+				for (int i = 0; i < actualUsers.length; i++) {
+					file.getKeywords().add(actualUsers[i].getString());
+				}
+			}
+			if (node.hasProperty(Config.EDMS_CREATIONDATE))
+				file.setCreationDate(node.getProperty(Config.EDMS_CREATIONDATE)
+						.getString());
+
+			if (node.hasProperty(Config.EDMS_MODIFICATIONDATE))
+				file.setModificationDate(node.getProperty(
+						Config.EDMS_MODIFICATIONDATE).getString());
+
+			/*
+			 * if(node.hasProperty(Config.EDMS_NO_OF_DOCUMENTS)){
+			 * file.setNoOfDocuments
+			 * (node.getProperty(Config.EDMS_NO_OF_DOCUMENTS).getString());
+			 * 
+			 * } if(node.hasProperty(Config.EDMS_NO_OF_FileS)){
+			 * file.setNoOfFiles
+			 * (node.getProperty(Config.EDMS_NO_OF_FileS).getString()); }
+			 */
+			if (node.hasProperty(Config.EDMS_DESCRIPTION))
+				file.setNotes(node.getProperty(Config.EDMS_DESCRIPTION)
+						.getString());
+
+			/* start mapping permissions to edms File */
+			if (node.hasProperty(Config.USERS_READ)) {
+				Value[] actualUsers = node.getProperty(Config.USERS_READ)
+						.getValues();
+
+				for (int i = 0; i < actualUsers.length; i++) {
+					file.getUserRead().add(actualUsers[i].getString());
+				}
+			}
+			if (node.hasProperty(Config.USERS_WRITE)) {
+				Value[] actualUsers = node.getProperty(Config.USERS_WRITE)
+						.getValues();
+				for (int i = 0; i < actualUsers.length; i++) {
+					file.getUserWrite().add(actualUsers[i].getString());
+				}
+			}
+			if (node.hasProperty(Config.USERS_DELETE)) {
+				Value[] actualUsers = node.getProperty(Config.USERS_DELETE)
+						.getValues();
+				for (int i = 0; i < actualUsers.length; i++) {
+					file.getUserDelete().add(actualUsers[i].getString());
+				}
+			}
+			if (node.hasProperty(Config.USERS_SECURITY)) {
+				Value[] actualUsers = node.getProperty(Config.USERS_SECURITY)
+						.getValues();
+				for (int i = 0; i < actualUsers.length; i++) {
+					file.getUserSecurity().add(actualUsers[i].getString());
+				}
+			}
+			if (node.hasProperty(Config.GROUPS_READ)) {
+				Value[] actualUsers = node.getProperty(Config.GROUPS_READ)
+						.getValues();
+				for (int i = 0; i < actualUsers.length; i++) {
+					file.getGroupRead().add(actualUsers[i].getString());
+				}
+			}
+			if (node.hasProperty(Config.GROUPS_WRITE)) {
+				Value[] actualUsers = node.getProperty(Config.GROUPS_WRITE)
+						.getValues();
+				for (int i = 0; i < actualUsers.length; i++) {
+					file.getGroupWrite().add(actualUsers[i].getString());
+				}
+			}
+			if (node.hasProperty(Config.GROUPS_DELETE)) {
+				Value[] actualUsers = node.getProperty(Config.GROUPS_DELETE)
+						.getValues();
+				for (int i = 0; i < actualUsers.length; i++) {
+					file.getGroupDelete().add(actualUsers[i].getString());
+				}
+			}
+			if (node.hasProperty(Config.GROUPS_SECURITY)) {
+				Value[] actualUsers = node.getProperty(Config.GROUPS_SECURITY)
+						.getValues();
+				for (int i = 0; i < actualUsers.length; i++) {
+					file.getGroupSecurity().add(actualUsers[i].getString());
+				}
+			}
+
+			VersionHistory history = jcrsession.getWorkspace().getVersionManager().getVersionHistory(node.getPath());
+			// To iterate over all versions
+			VersionIterator versions = history.getAllVersions();
+			while (versions.hasNext()) {
+			  Version version = versions.nextVersion();
+			  FileVersionDetail versionDetail=new FileVersionDetail();
+			  versionDetail.setCreatedBy(userid);
+			  versionDetail.setCreationDate(version.getCreated().getTime().toString());
+			  String[] details=history.getVersionLabels(version);
+			  if(details.length>0){
+			  versionDetail.setDetails(details[0]);
+			  }  versionDetail.setVersionName(version.getName());
+			  versionDetail.setVersionLabel(version.getParent().getName());
+			  file.getFileVersionsHistory().add(versionDetail);
 			}
 		} catch (RepositoryException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return file;
+	
+	}
+	File setGeneralFileProperties(Node node, File file, String userid) {
+		
+		try {
+			file.setFileName(node.getName());
+		file.setFilePath(node.getPath());
+		file.setParentFolder(node.getParent().getName());
+		if(node.hasProperty(Config.EDMS_SIZE)){
+		file.setFileSize(node.getProperty(Config.EDMS_SIZE).getLong());
+		}
+		file.setModificationDate(node.getProperty(Config.EDMS_MODIFICATIONDATE).getString());
+		if(node.hasNode(Config.EDMS_CONTENT)){/*
+			Node ntResourceNode = node.getNode("edms:content");
+			InputStream is = ntResourceNode.getProperty("jcr:data").getBinary()
+					.getStream();
+			
+			try {
+				byte[] imageBytes = IOUtils.toByteArray(is);
+				String encodedImage = org.apache.commons.codec.binary.Base64
+						.encodeBase64String(imageBytes);
+				file.setFileContent(encodedImage);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			*/}
+		} catch (RepositoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+		}
+		return file;
 	}
 
 	public Boolean hasChild(String FilePath, String userid) {
-
-		Repository repository = new TransientRepository();
-		// Session jcrsession = null;
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		boolean flag = false;
 		try {
 			/*
@@ -393,12 +549,10 @@ public class FileRepository {
 			}
 			flag = root.hasNodes();
 
-		} catch (LoginException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		} finally {
-			// jcrsession.logout();
+		} finally{
+			//JcrRepositoryUtils.logout(sessionId);
 		}
 		return flag;
 	}
@@ -528,9 +682,9 @@ public class FileRepository {
 		
 		
 		
-		
-		
-		
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		
 		
 		Node file = null;
@@ -759,7 +913,7 @@ public class FileRepository {
 							Integer.parseInt(root.getProperty(
 									Config.EDMS_NO_OF_DOCUMENTS).getString()) + 1);
 					jcrsession.save();
-					file1 = setProperties(file, file1, userid);
+					file1 = setProperties(file, file1, userid,jcrsession);
 					response.setFile(file1);
 					response.setSuccess(true);
 				} else {
@@ -767,21 +921,19 @@ public class FileRepository {
 					System.out.println("you have not permission to add child node");
 				}
 			}
-		} catch (LoginException e) {
-
+		} catch (Exception e) {
 			response.setSuccess(false);
 			e.printStackTrace();
-		} catch (RepositoryException e) {
-
-			response.setSuccess(false);
-			e.printStackTrace();
-		} finally {
-			// jcrsession.logout();
+		}finally{
+			//JcrRepositoryUtils.logout(sessionId);
 		}
 		return response;
 	}
 
 	public File getFileByPath(String FilePath, String userid) {
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		Repository repository = new TransientRepository();
 		// Session jcrsession = null;
 		File File1 = new File();
@@ -792,13 +944,13 @@ public class FileRepository {
 			}
 			SimpleDateFormat format = new SimpleDateFormat(
 					"YYYY-MM-dd'T'HH:mm:ss.SSSZ");
-			jcrsession.getWorkspace().getVersionManager().checkout(root.getPath());
+			/*jcrsession.getWorkspace().getVersionManager().checkout(root.getPath());
 			
 			root.setProperty(Config.EDMS_ACCESSDATE,
 					(format.format(new Date())).toString().replace("+0530", "Z"));
 			root.setProperty(Config.EDMS_DOWNLOADDATE,
 					(format.format(new Date())).toString().replace("+0530", "Z"));
-			jcrsession.save();
+			jcrsession.save();*/
 			File1.setFileName(root.getName().toString());
 			File1.setFilePath(root.getPath().toString());
 			if (root.getPath().toString().length() > 1) {
@@ -808,19 +960,15 @@ public class FileRepository {
 							|| (root.getName().equals(userid) && (root
 									.getProperty(Config.EDMS_AUTHOR)
 									.getString()).equals(Config.JCR_USERNAME))) {
-						setProperties(root, File1, userid);
-						System.out.println(File1.getFileContent());
+						setProperties(root, File1, userid,jcrsession);
+						//System.out.println(File1.getFileContent());
 					}
 				}
 			}
-		} catch (LoginException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			// jcrsession.logout();
+		}finally{
+			//JcrRepositoryUtils.logout(sessionId);
 		}
 		return File1;
 	}
@@ -855,7 +1003,7 @@ public class FileRepository {
 				rt.setProperty(Config.GROUPS_SECURITY, new String[] { groups });
 			}
 
-			jcrsession.save();
+			//jcrsession.save();
 			if (rt.hasNodes()) {
 				for (NodeIterator nit = rt.getNodes(); nit.hasNext();) {
 					Node root = nit.nextNode();
@@ -863,18 +1011,68 @@ public class FileRepository {
 							users, groups);
 				}
 			}
-		} catch (LoginException e) {
-			e.printStackTrace();
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	public void assignSinglePermissionRecursion(Node rt, String userid,
 			String user, String value) {
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		try {
+			if(value.equals("ur")){
+				Value[] actualUsers = rt.getProperty(Config.USERS_READ)
+						.getValues();
+				String newUser = "";
+				for (int i = 0; i < actualUsers.length; i++) {
+					newUser += actualUsers[i].getString() + ",";
+				}
+				// System.out.println(newUser.contains(user));
+				if (!newUser.contains(user)) {
+
+					newUser += user + ",";
+					rt.setProperty(Config.USERS_READ, new String[] { newUser });
+				}
+				jcrsession.save();
+			}else if(value.equals("uw")){
+				
+				
+				Value[] actualUsers = rt.getProperty(Config.USERS_READ)
+						.getValues();
+				String newUser = "";
+				for (int i = 0; i < actualUsers.length; i++) {
+					newUser += actualUsers[i].getString() + ",";
+				}
+				// System.out.println(newUser.contains(user));
+				if (!newUser.contains(user)) {
+
+					newUser += user + ",";
+					rt.setProperty(Config.USERS_READ, new String[] { newUser });
+				}
+			
+				
+				
+				 actualUsers = rt.getProperty(Config.USERS_WRITE)
+						.getValues();
+				 newUser = "";
+				for (int i = 0; i < actualUsers.length; i++) {
+					newUser += actualUsers[i].getString() + ",";
+				}
+				// System.out.println(newUser.contains(user));
+				if (!newUser.contains(user)) {
+
+					newUser += user + ",";
+					rt.setProperty(Config.USERS_WRITE, new String[] { newUser });
+				}
+				jcrsession.save();
+			}
+			
+			
+			/*
 			switch (value) {
+			
 			case "ur": {
 				Value[] actualUsers = rt.getProperty(Config.USERS_READ)
 						.getValues();
@@ -1168,7 +1366,7 @@ public class FileRepository {
 			}
 			default:
 				break;
-			}
+			}*/
 
 			if (rt.hasNodes()) {
 				for (NodeIterator nit = rt.getNodes(); nit.hasNext();) {
@@ -1176,16 +1374,18 @@ public class FileRepository {
 					assignSinglePermissionRecursion(root, userid, user, value);
 				}
 			}
-		} catch (LoginException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}finally{
+			//JcrRepositoryUtils.logout(sessionId);
 		}
 	}
 
 	public String assignSinglePermission(String FilePath, String userid,
 			String user, String value) {
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		try {
 			Node root = jcrsession.getRootNode();
 			if (FilePath.length() > 1) {
@@ -1218,21 +1418,20 @@ public class FileRepository {
 			} else {
 				return "sorry you don't have permissions to share this File";
 			}
-		} catch (LoginException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return "failure";
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return "failure";
-		} finally {
-			// jcrsession.logout();
+		} finally{
+			//JcrRepositoryUtils.logout(sessionId);
 		}
 		return "Success";
 	}
 
 	public String shareFileByPath(String FilePath, String userid, String users,
 			String groups, String userpermissions, String grouppermissions) {
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		// Repository repository = new TransientRepository();
 		// File File1 = new File();
 		// Session jcrsession=null;
@@ -1273,15 +1472,11 @@ public class FileRepository {
 			} else {
 				return "sorry you don't have permissions to share this File";
 			}
-		} catch (LoginException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return "failure";
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return "failure";
-		} finally {
-			// jcrsession.logout();
+		}finally{
+			//JcrRepositoryUtils.logout(sessionId);
 		}
 		return "Success";
 	}
@@ -1319,7 +1514,7 @@ public class FileRepository {
 		return (String[]) list.toArray(new String[list.size()]);
 	}
 
-	public User createUser(String userid, String password, Session jcrsession,
+	/*public User createUser(String userid, String password, Session jcrsession,
 			Node root) {
 		User user = null;
 		try {
@@ -1351,7 +1546,7 @@ public class FileRepository {
 			e.printStackTrace();
 		}
 		return user;
-	}
+	}*/
 
 	public Group createGroup(String userid, String groupName,
 			Session jcrsession, Node root) {
@@ -1365,25 +1560,13 @@ public class FileRepository {
 			jcrsession.save();
 		} catch (RepositoryException e) {
 			e.printStackTrace();
+		}finally{
 		}
 		return group;
 	}
 
-	public static void removeUser(Session jcrsession, String userid) {
-		JackrabbitSession js = (JackrabbitSession) jcrsession;
-		UserManager userManager;
-		try {
-			userManager = js.getUserManager();
-			User user = (User) userManager.getAuthorizable(userid);
-			user.remove();
-			jcrsession.save();
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 
-	public String getPermissions(User user, String path, Session jcrsession) {
+	/*public String getPermissions(User user, String path, Session jcrsession) {
 		String permissions = "";
 		try {
 
@@ -1392,11 +1575,11 @@ public class FileRepository {
 			AccessControlManager aMgr;
 			aMgr = jcrsession.getAccessControlManager();
 			// get supported privileges of any node
-			/*
+			
 			 * Privilege[] privileges = aMgr
 			 * .getSupportedPrivileges(root.getPath()); for (int i = 0; i <
 			 * privileges.length; i++) { //System.out.println(privileges[i]); }
-			 */
+			 
 
 			// get now applied privileges on a node
 			Privilege[] privileges = aMgr.getPrivileges(root.getPath());
@@ -1409,7 +1592,7 @@ public class FileRepository {
 			e.printStackTrace();
 		}
 		return permissions;
-	}
+	}*/
 
 	public void setPolicy(Session jcrsession, Node root, String userid,
 			String path, String permission) {
@@ -1490,46 +1673,12 @@ public class FileRepository {
 		}
 	}
 
-	public static void registerNamespace(Session jcrsession, Node root) {
-		try {
-			// //System.out.println("root is : " + root);
-			Workspace ws = jcrsession.getWorkspace();
-			// System.out.println("workspace is : " + ws.getName());
-			NamespaceRegistry nr;
-			nr = ws.getNamespaceRegistry();
-			// System.out.println("namespace registry is : "
-			// + nr.getPrefixes().length);
-			for (String str : nr.getPrefixes()) {
-				// System.out.println(str);
-			}
-			for (String str : nr.getURIs()) {
-				// System.out.println(str);
-			}
-			for (NodeTypeIterator iterator = ws.getNodeTypeManager()
-					.getAllNodeTypes(); iterator.hasNext();) {
-				NodeType nodeType = (NodeType) iterator.next();
-				// System.out.println(nodeType.getName());
-			}
-			nr.registerNamespace("edms", "http://www.edms.com/1.0");
-			// System.out.println("in repository");
-			InputStream is = ClassLoader.class
-					.getResourceAsStream("/edms/module/jcr/CustomNodes.cnd");
-			// System.out.println("Input Stream is : " + is);
-			Reader cnd = new InputStreamReader(is);
-			NodeType[] nodeTypes;
-			nodeTypes = CndImporter.registerNodeTypes(cnd, jcrsession, false);
-			// System.out.println(nodeTypes.length);
-		} catch (RepositoryException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (ParseException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
+	
 
 	public FileListReturn listSharedFile(String userid) {
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		FileListReturn FileList1 = new FileListReturn();
 		ArrayOfFiles Files = new ArrayOfFiles();
 		Node root = null;
@@ -1576,27 +1725,28 @@ public class FileRepository {
 							// System.out.println("for node : "+node.getPath().toString()+" newUser contains "+node.getProperty(Config.EDMS_AUTHOR).getString()+" is "+newUser.contains(userid));
 							if (newUser.contains(userid)) {
 								File File = new File();
-								File = setProperties(node, File, userid);
+								File = setProperties(node, File, userid,jcrsession);
 								Files.getFileList().add(File);
 							}
 						}
 					}
 				}
 			}
-			// }
-		} catch (LoginException e) {
-			e.printStackTrace();
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		} finally {
-			// jcrsession.logout();
-		}
-		FileList1.setFileListResult(Files);
+			// }FileList1.setFileListResult(Files);
 		FileList1.setSuccess(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			//JcrRepositoryUtils.logout(sessionId);
+		}
+		
 		return FileList1;
 	}
 
 	public FileListReturn listSharedFile(String userid, String path) {
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		FileListReturn FileList1 = new FileListReturn();
 		ArrayOfFiles Files = new ArrayOfFiles();
 		Node root = null;
@@ -1626,23 +1776,21 @@ public class FileRepository {
 							// System.out.println("for node : "+node.getPath().toString()+" newUser contains "+node.getProperty(Config.EDMS_AUTHOR).getString()+" is "+newUser.contains(userid));
 							if (newUser.contains(userid)) {
 								File File = new File();
-								File = setProperties(node, File, userid);
+								File = setProperties(node, File, userid,jcrsession);
 								Files.getFileList().add(File);
 							}
 						}
 					}
 				}
 			}
-			// }
-		} catch (LoginException e) {
-			e.printStackTrace();
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		} finally {
-			// jcrsession.logout();
-		}
-		FileList1.setFileListResult(Files);
+			// }FileList1.setFileListResult(Files);
 		FileList1.setSuccess(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally{
+			//JcrRepositoryUtils.logout(sessionId);
+		}
+		
 		return FileList1;
 	}
 
@@ -1704,6 +1852,9 @@ public class FileRepository {
 	}*/
 
 	public String deleteFile(String FilePath, String userid) {
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		String response = "";
 		try {
 			Node root = jcrsession.getRootNode();
@@ -1713,11 +1864,16 @@ public class FileRepository {
 			response = "success";
 		} catch (RepositoryException e) {
 			response = "Exception Occured";
+		}finally{
+			//JcrRepositoryUtils.logout(sessionId);
 		}
 		return response;
 	}
 
 	public String restoreFile(String FilePath, String userid) {
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		String response = "";
 		try {
 			Node root = jcrsession.getRootNode();
@@ -1727,12 +1883,16 @@ public class FileRepository {
 		} catch (RepositoryException e) {
 			response = "Exception Occured";
 			e.printStackTrace();
+		}finally{
+			//JcrRepositoryUtils.logout(sessionId);
 		}
 		return response;
 	}
 
 	public void restoreFileRecursion(Node root, String userid) {
-		try {
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();		try {
 			String parents = root.getProperty(Config.EDMS_RESTORATION_PATH)
 					.getString().substring(1);
 			parents = parents.substring(0, parents.lastIndexOf("/"));
@@ -1769,6 +1929,9 @@ public class FileRepository {
 	}
 
 	public Node createFileRecursionWhenNotFound(String FileName, String userid) {
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		Node file = null;
 		try {
 			Node root = jcrsession.getRootNode();
@@ -1807,9 +1970,7 @@ public class FileRepository {
 						userid);
 			}
 
-		} catch (LoginException e) {
-			e.printStackTrace();
-		} catch (RepositoryException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return file;
@@ -1818,6 +1979,9 @@ public class FileRepository {
 
 	public RenameFileRes renameFile(String oldFilePath, String newFilePath,
 			String userid) {
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		RenameFileRes response = new RenameFileRes();
 		try {
 
@@ -1825,17 +1989,17 @@ public class FileRepository {
 					oldFilePath.substring(1));
 			// System.out.println(forVer.getProperty(Config.EDMS_AUTHOR).getString());
 			if (forVer.getProperty(Config.EDMS_AUTHOR).getString()
-					.equals(userid)) {
-				forVer.checkin();
-				forVer.checkout();
-				jcrsession.move(oldFilePath,
-						oldFilePath.substring(0, oldFilePath.lastIndexOf("/"))
-								+ "/" + newFilePath);
-				jcrsession.save();
-
-				response.setResponse("Success");
-				response.setSuccess(true);
-			} else {
+					.equals(userid)) {Version version=jcrsession.getWorkspace().getVersionManager().checkin(forVer.getPath());
+					jcrsession.getWorkspace().getVersionManager().getVersionHistory(forVer.getPath()).addVersionLabel(version.getName(), "renamed from "+oldFilePath.substring(oldFilePath.lastIndexOf("/")+1)+" to "+newFilePath, true);
+					jcrsession.getWorkspace().getVersionManager().checkout(forVer.getPath());
+					jcrsession.move(oldFilePath,
+							oldFilePath.substring(0, oldFilePath.lastIndexOf("/"))
+									+ "/" + newFilePath);SimpleDateFormat format = new SimpleDateFormat(
+						"YYYY-MM-dd'T'HH:mm:ss.SSSZ");
+					forVer.setProperty(Config.EDMS_MODIFICATIONDATE,(format.format(new Date())).toString().replace("+0530", "Z") );
+					jcrsession.save();	
+					response.setResponse("Success");
+					response.setSuccess(true);} else {
 
 				response.setResponse("Access Denied");
 				response.setSuccess(false);
@@ -1844,12 +2008,17 @@ public class FileRepository {
 			response.setResponse("Access Denied");
 			response.setSuccess(false);
 			e.printStackTrace();
+		}finally{
+			//JcrRepositoryUtils.logout(sessionId);
 		}
 		return response;
 	}
 
 	/* vfc */
-	public VCFFileListReturn getVCFFileAtt(String fdrname, String userid) {
+	public VCFFileListReturn getVCFFileAtt(String fdrname, String userid) {	
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		Assert.notNull(fdrname);
 		VCFFileListReturn FileList1 = new VCFFileListReturn();
 		ArrayOfVCFFiles Files = new ArrayOfVCFFiles();
@@ -1859,8 +2028,8 @@ public class FileRepository {
 			root = jcrsession.getRootNode();
 			if (fdrname.length() > 1) {
 				if (!root.hasNode(userid)) {
-					// root=JcrRepositorySession.createFile(userid);
-					// JcrRepositorySession.createFile(userid+"/trash");
+					// root=jcrsession.createFile(userid);
+					// jcrsession.createFile(userid+"/trash");
 				} else {
 					root = root.getNode(fdrname.substring(1));
 				}
@@ -2034,25 +2203,22 @@ public class FileRepository {
 					}
 				}
 
-			}
-		} catch (LoginException e) {
-			status = false;
-			e.printStackTrace();
-		} catch (RepositoryException e) {
-			status = false;
-			e.printStackTrace();
-		} catch (IOException e) {
-			status = false;
-			e.printStackTrace();
-		}
-		FileList1.setVCFFileListResult(Files);
+			}	FileList1.setVCFFileListResult(Files);
 		FileList1.setVCFSuccess(status);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			//JcrRepositoryUtils.logout(sessionId);
+		}
+	
 		return FileList1;
 	}
 
 	public SortByPropertyRes sortByProperty(String path, String propertyName,
 			String userid) {
-
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		SortByPropertyRes sortByProperty = new SortByPropertyRes();
 		// Obtain the query manager for the session via the workspace ...
 		javax.jcr.query.QueryManager queryManager;
@@ -2090,13 +2256,17 @@ public class FileRepository {
 		} catch (RepositoryException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally{
+			//JcrRepositoryUtils.logout(sessionId);
 		}
 		return null;
 	}
 
 	public SearchDocByLikeResponse searchDocByLike(String searchParamValue,
 			String folderPath, String searchParam, String userid) {
-
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		SearchDocByLikeResponse searchDocResponse = new SearchDocByLikeResponse();
 		ArrayOfFolders folders = new ArrayOfFolders();
 		ArrayOfFiles files = new ArrayOfFiles();
@@ -2118,7 +2288,7 @@ public class FileRepository {
 			for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
 				Node node = nit.nextNode();
 				Folder folder = new Folder();
-				new FolderRepository().setProperties(node, folder, userid);
+				new FolderRepository().setProperties(node, folder, userid,jcrsession);
 				folders.getFolderList().add(folder);
 			}
 			expression = "select * from [edms:document] AS s WHERE ISDESCENDANTNODE(s,'"
@@ -2133,7 +2303,7 @@ public class FileRepository {
 			for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
 				Node node = nit.nextNode();
 				File file = new File();
-				new FileRepository().setProperties(node, file, userid);
+				new FileRepository().setProperties(node, file, userid,jcrsession);
 				files.getFileList().add(file);
 			}
 			filesFolders.setFilesList(files);
@@ -2142,13 +2312,17 @@ public class FileRepository {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return searchDocResponse;
+		}finally{
+			//JcrRepositoryUtils.logout(sessionId);
 		}
 		return searchDocResponse;
 	}
 
 	public SearchDocByDateResponse searchDocByDate(String searchParamValue,
 			String folderPath, String searchParam, String userid) {
-
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		SearchDocByDateResponse searchDocResponse = new SearchDocByDateResponse();
 		ArrayOfFolders folders = new ArrayOfFolders();
 		ArrayOfFiles files = new ArrayOfFiles();
@@ -2195,7 +2369,7 @@ public class FileRepository {
 			for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
 				Node node = nit.nextNode();
 				Folder folder = new Folder();
-				new FolderRepository().setProperties(node, folder, userid);
+				new FolderRepository().setProperties(node, folder, userid,jcrsession);
 				folders.getFolderList().add(folder);
 			}
 			expression = "select * from [edms:document] AS s WHERE ISDESCENDANTNODE(s,'"
@@ -2210,7 +2384,7 @@ public class FileRepository {
 			for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
 				Node node = nit.nextNode();
 				File file = new File();
-				new FileRepository().setProperties(node, file, userid);
+				new FileRepository().setProperties(node, file, userid,jcrsession);
 				files.getFileList().add(file);
 			}
 			filesFolders.setFilesList(files);
@@ -2219,12 +2393,17 @@ public class FileRepository {
 			} catch (Exception e) {
 			e.printStackTrace();
 			return searchDocResponse;
+		}finally{
+			//JcrRepositoryUtils.logout(sessionId);
 		}
 		return searchDocResponse;
 	}
 
 	public EditFileResponse editFile(String fileContent, String filePath,
 			String userid) {
+		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		Session jcrsession = sessions.getSession();
+		String sessionId=sessions.getId();
 		EditFileResponse res = new EditFileResponse();
 		EditFileRes response=new EditFileRes();
 		try {
@@ -2258,13 +2437,15 @@ public class FileRepository {
 
 				response.setResponse("Access Denied");
 				response.setSuccess(false);
-			}
+			}res.setEditFileRes(response);
 		} catch (RepositoryException e) {
 			response.setResponse("Access Denied");
 			response.setSuccess(false);
 			e.printStackTrace();
+		}finally{
+			//JcrRepositoryUtils.logout(sessionId);
 		}
-		res.setEditFileRes(response);
+		
 		return res;
 	}
 
