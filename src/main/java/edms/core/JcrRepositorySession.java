@@ -66,7 +66,7 @@ public class JcrRepositorySession {
 			registerNamespace(jcrsession, jcrsession.getRootNode());
 			}catch(Exception e){
 			}
-			if(jcrsession.getRootNode().hasNode("santosh@avi-oil.com"))
+			/*if(jcrsession.getRootNode().hasNode("santosh@avi-oil.com"))
 			jcrsession.getRootNode().getNode("santosh@avi-oil.com").remove();
 			if(jcrsession.getRootNode().hasNode("santosh@avi-oil.com/trash"))
 			jcrsession.getRootNode().getNode("santosh@avi-oil.com/trash").remove();
@@ -77,7 +77,7 @@ public class JcrRepositorySession {
 			if(jcrsession.getRootNode().hasNode("janak@avi-oil.com"))
 			jcrsession.getRootNode().getNode("janak@avi-oil.com").remove();
 			if(jcrsession.getRootNode().hasNode("janak@avi-oil.com/trash"))
-			jcrsession.getRootNode().getNode("janak@avi-oil.com/trash").remove();
+			jcrsession.getRootNode().getNode("janak@avi-oil.com/trash").remove();*/
 			//jcrsession.save();
 			//removeUser(jcrsession, "santosh@avi-oil.com");
 			//removeUser(jcrsession, "sanjay@avi-oil.com");

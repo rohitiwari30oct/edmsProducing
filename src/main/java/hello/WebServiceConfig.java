@@ -11,6 +11,7 @@ import org.activiti.engine.TaskService;
 import org.activiti.spring.ProcessEngineFactoryBean;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.springframework.boot.autoconfigure.freemarker.FreeMarkerProperties;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 import org.springframework.ws.config.annotation.EnableWs;
 import org.springframework.ws.config.annotation.WsConfigurerAdapter;
 import org.springframework.ws.transport.http.MessageDispatcherServlet;
@@ -41,6 +44,14 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 			}
 		};
 	}
+	
+	@Bean
+	public FreeMarkerProperties freeMarkerConfigurer() {
+	    FreeMarkerProperties  setting=new FreeMarkerProperties();
+	    setting.setCheckTemplateLocation(false);
+	    return setting;
+	}
+	
 	
 	@Bean
 	public SpringProcessEngineConfiguration processEngineConfiguration(){
@@ -70,8 +81,9 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 		basicDataSource.setDriverClassName("com.mysql.jdbc.Driver");
 		basicDataSource.setUrl("jdbc:mysql://localhost:3306/edms?useUnicode=true&characterEncoding=UTF-8");
 		basicDataSource.setUsername("root");
-		//basicDataSource.setPassword("");
 		basicDataSource.setPassword("hh##8993Avi#00??");
+		//basicDataSource.setUsername("edms");
+		//basicDataSource.setPassword("Me8pHCL##??kk7890");
 		return basicDataSource;
 	}
 	

@@ -93,9 +93,14 @@ public class FolderRepository {
 
 
 	public FolderListReturn listFolder(String name, String userid) {
+		
+	 //DocumentConverter docConverter
+		
+		
+		
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		Assert.notNull(name);
 		FolderListReturn folderList1 = new FolderListReturn();
 		ArrayOfFolders folders = new ArrayOfFolders();
@@ -233,28 +238,28 @@ public class FolderRepository {
 
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
-		//Session jcrsession = null;
+		javax.jcr.query.QueryManager queryManager;
 		boolean flag = false;
 		try {
-		/*jcrsession = repository.login(new SimpleCredentials(Config.EDMS_ADMIN,
-					Config.EDMS_ADMIN.toCharArray()));*/
-			/* jcrsession = repository.login(new SimpleCredentials(
-			 userid,"redhat".toCharArray()));*/
-			/*
-			 * if (!node.getName().equals("jcr:system") &&
-			 * (!node.getProperty(JcrConstants.JCR_PRIMARYTYPE)
-			 * .getString().equals(JcrConstants.NT_RESOURCE))) {
-			 */
-			Node root = jcrsession.getRootNode();
-			if (folderPath.length() > 1) {
-				root = root.getNode(folderPath.substring(1));
-			}
-			flag = root.hasNodes();
+			queryManager = jcrsession.getWorkspace().getQueryManager();
+			// Create a query object ...
+			String expression = "select * from [edms:folder] AS s WHERE ISDESCENDANTNODE(s,'"
+					+ folderPath
+					+ "')";
+			//System.out.println(expression);
 			
+			javax.jcr.query.Query query = queryManager.createQuery(expression,
+					javax.jcr.query.Query.JCR_SQL2);
+			javax.jcr.query.QueryResult result = query.execute();
+			for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
+				flag=true;
+				break;
+			}
+			
+		
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
+		}finally{
 			//JcrRepositoryUtils.logout(sessionId);
 		}
 		return flag;
@@ -264,7 +269,7 @@ public class FolderRepository {
 			String userid, String keywords, String description) {
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		Node folder = null;
 		Folder folder1 = new Folder();
 		try {
@@ -433,7 +438,7 @@ public class FolderRepository {
 	
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		// AccessControlManager acm = jcrsession.getAccessControlManager();
 		
 //	     AccessControlList acl = getList(acm, node.getPath());
@@ -480,51 +485,11 @@ public class FolderRepository {
 		return folder1;
 	}
 
-	public void shareFolderRecursion(Node rt,String userpermissions,String grouppermissions,String users,String groups) {
-		try {
-			if(userpermissions.contains("1")){
-				
-				rt.setProperty(Config.USERS_READ, new String[]{users});
-			}
-			if(userpermissions.contains("2")){
-				rt.setProperty(Config.USERS_WRITE, new String[]{users});
-			}
-			if(userpermissions.contains("4")){
-				rt.setProperty(Config.USERS_DELETE, new String[]{users});
-			}
-			if(userpermissions.contains("true")){
-				rt.setProperty(Config.USERS_SECURITY, new String[]{users});
-			}
-			
-			if(grouppermissions.contains("1")){
-				rt.setProperty(Config.GROUPS_READ, new String[]{groups});
-			}
-			if(grouppermissions.contains("2")){
-				rt.setProperty(Config.GROUPS_WRITE, new String[]{groups});
-			}
-			if(grouppermissions.contains("4")){
-				rt.setProperty(Config.GROUPS_DELETE, new String[]{groups});
-			}
-			if(grouppermissions.contains("true")){
-				rt.setProperty(Config.GROUPS_SECURITY, new String[]{groups});
-			}
-
-			//jcrsession.save();
-			if(rt.hasNodes()){
-				for (NodeIterator nit = rt.getNodes(); nit.hasNext();) {
-					Node root=nit.nextNode();
-					shareFolderRecursion(root, userpermissions, grouppermissions, users, groups);
-				}
-			}} catch (Exception e) {
-				e.printStackTrace();
-			}finally{
-			
-		}
-	}
+	
 	public void assignSinglePermissionRecursion(Node rt,String userid,String user,String value) {
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		try {
 			if(value.equals("ur"))
 			{
@@ -613,314 +578,6 @@ public class FolderRepository {
 				}
 				jcrsession.save();
 			}
-			
-			
-			
-			
-			
-			
-			
-			/*
-			switch (value) {
-			case "ur":
-			{	Value[] actualUsers = rt.getProperty(Config.USERS_READ).getValues();
-			String newUser="";
-			for (int i = 0; i < actualUsers.length; i++) {
-				newUser+=actualUsers[i].getString()+",";
-			}
-			//System.out.println(newUser.contains(user));
-			if(!newUser.contains(user))
-			{
-
-				newUser+=user+",";
-				rt.setProperty(Config.USERS_READ, new String[]{newUser});
-				}
-				jcrsession.save();
-				break;
-			}
-			case "uw":{
-				
-				Value[] actualUsers = rt.getProperty(Config.USERS_READ).getValues();
-				String newUser="";
-				for (int i = 0; i < actualUsers.length; i++) {
-					newUser+=actualUsers[i].getString()+",";
-				}
-				//System.out.println(newUser.contains(user));
-				if(!newUser.contains(user))
-				{
-
-					newUser+=user+",";
-					rt.setProperty(Config.USERS_READ, new String[]{newUser});
-					}
-				
-				actualUsers = rt.getProperty(Config.USERS_WRITE).getValues();
-				newUser="";
-				for (int i = 0; i < actualUsers.length; i++) {
-					newUser+=actualUsers[i].getString()+",";
-				}
-				//System.out.println(newUser.contains(user));
-				if(!newUser.contains(user))
-				{
-
-					newUser+=user+",";
-					rt.setProperty(Config.USERS_WRITE, new String[]{newUser});
-				}
-				jcrsession.save();
-				break;}
-		case "ud":
-				{Value[] actualUsers = rt.getProperty(Config.USERS_DELETE).getValues();
-				String newUser="";
-				for (int i = 0; i < actualUsers.length; i++) {
-					newUser+=actualUsers[i].getString()+",";
-				}
-				//System.out.println(newUser.contains(user));
-				if(!newUser.contains(user))
-				{
-
-					newUser+=user+",";
-					rt.setProperty(Config.USERS_DELETE, new String[]{newUser});
-				}
-				jcrsession.save();
-			break;}
-		case "us":
-				{Value[] actualUsers = rt.getProperty(Config.USERS_SECURITY).getValues();
-				String newUser="";
-				for (int i = 0; i < actualUsers.length; i++) {
-					newUser+=actualUsers[i].getString()+",";
-				}
-				//System.out.println(newUser.contains(user));
-				if(!newUser.contains(user))
-				{
-					newUser+=user+",";
-					rt.setProperty(Config.USERS_SECURITY, new String[]{newUser});
-				}
-				jcrsession.save();
-				break;}
-		case "nur":
-		{	
-		Value[] actualUsers = rt.getProperty(Config.USERS_READ).getValues();
-		String newUser="";
-		for (int i = 0; i < actualUsers.length; i++) {
-			newUser+=actualUsers[i].getString()+",";
-		}
-		//System.out.println(newUser.contains(user));
-		if(newUser.contains(user))
-			{
-			newUser=newUser.replace(user, "");
-			rt.setProperty(Config.USERS_READ, new String[]{newUser});
-			jcrsession.save();
-			}
-		
-		actualUsers = rt.getProperty(Config.USERS_WRITE).getValues();
-		newUser="";
-		for (int i = 0; i < actualUsers.length; i++) {
-			newUser+=actualUsers[i].getString()+",";
-		}
-		//System.out.println(newUser.contains(user));
-		if(newUser.contains(user))
-			{
-			newUser=newUser.replace(user, "");
-			rt.setProperty(Config.USERS_WRITE, new String[]{newUser});
-			jcrsession.save();
-			}
-		
-		
-		actualUsers = rt.getProperty(Config.USERS_DELETE).getValues();
-		newUser="";
-		for (int i = 0; i < actualUsers.length; i++) {
-			newUser+=actualUsers[i].getString()+",";
-		}
-		//System.out.println(newUser.contains(user));
-		if(newUser.contains(user))
-			{
-			newUser=newUser.replace(user, "");
-			rt.setProperty(Config.USERS_DELETE, new String[]{newUser});
-			jcrsession.save();
-			}
-		
-		actualUsers = rt.getProperty(Config.USERS_SECURITY).getValues();
-		newUser="";
-		for (int i = 0; i < actualUsers.length; i++) {
-			newUser+=actualUsers[i].getString()+",";
-		}
-		//System.out.println(newUser.contains(user));
-		if(newUser.contains(user))
-			{
-			newUser=newUser.replace(user, "");
-			rt.setProperty(Config.USERS_SECURITY, new String[]{newUser});
-			jcrsession.save();
-			}
-			break;
-		}
-		case "nuw":{	
-			Value[] actualUsers = rt.getProperty(Config.USERS_WRITE).getValues();
-			String newUser="";
-			for (int i = 0; i < actualUsers.length; i++) {
-				newUser+=actualUsers[i].getString()+",";
-			}
-			//System.out.println(newUser.contains(user));
-			if(newUser.contains(user))
-				{
-				newUser=newUser.replace(user, "");
-				rt.setProperty(Config.USERS_WRITE, new String[]{newUser});
-				jcrsession.save();
-				}
-				break;
-			}
-	case "nud":
-			{	
-				Value[] actualUsers = rt.getProperty(Config.USERS_DELETE).getValues();
-				String newUser="";
-				for (int i = 0; i < actualUsers.length; i++) {
-					newUser+=actualUsers[i].getString()+",";
-				}
-				//System.out.println(newUser.contains(user));
-				if(newUser.contains(user))
-					{
-					newUser=newUser.replace(user, "");
-					rt.setProperty(Config.USERS_DELETE, new String[]{newUser});
-					jcrsession.save();
-					}
-					break;
-				}
-	case "nus":
-			{	
-				Value[] actualUsers = rt.getProperty(Config.USERS_SECURITY).getValues();
-				String newUser="";
-				for (int i = 0; i < actualUsers.length; i++) {
-					newUser+=actualUsers[i].getString()+",";
-				}
-				//System.out.println(newUser.contains(user));
-				if(newUser.contains(user))
-					{
-					newUser=newUser.replace(user, "");
-					rt.setProperty(Config.USERS_SECURITY, new String[]{newUser});
-					jcrsession.save();
-					}
-					break;
-				}
-	case "gr":
-	{Value[] actualUsers = rt.getProperty(Config.GROUPS_READ).getValues();
-	String newUser="";
-	for (int i = 0; i < actualUsers.length; i++) {
-		newUser+=actualUsers[i].getString()+",";
-	}
-	//System.out.println(newUser.contains(user));
-	if(!newUser.contains(user))
-	{
-		newUser+=user+",";
-		rt.setProperty(Config.GROUPS_READ, new String[]{newUser});
-	}
-	jcrsession.save();
-	break;}
-	case "gw":{Value[] actualUsers = rt.getProperty(Config.GROUPS_WRITE).getValues();
-	String newUser="";
-	for (int i = 0; i < actualUsers.length; i++) {
-		newUser+=actualUsers[i].getString()+",";
-	}
-	//System.out.println(newUser.contains(user));
-	if(!newUser.contains(user))
-	{
-		newUser+=user+",";
-		rt.setProperty(Config.GROUPS_WRITE, new String[]{newUser});
-	}
-	jcrsession.save();
-	break;}
-case "gd":
-		{Value[] actualUsers = rt.getProperty(Config.GROUPS_DELETE).getValues();
-		String newUser="";
-		for (int i = 0; i < actualUsers.length; i++) {
-			newUser+=actualUsers[i].getString()+",";
-		}
-		//System.out.println(newUser.contains(user));
-		if(!newUser.contains(user))
-		{
-			newUser+=user+",";
-			rt.setProperty(Config.GROUPS_DELETE, new String[]{newUser});
-		}
-		jcrsession.save();
-		break;}
-case "gs":
-		{Value[] actualUsers = rt.getProperty(Config.GROUPS_SECURITY).getValues();
-		String newUser="";
-		for (int i = 0; i < actualUsers.length; i++) {
-			newUser+=actualUsers[i].getString()+",";
-		}
-		//System.out.println(newUser.contains(user));
-		if(!newUser.contains(user))
-		{
-			newUser+=user+",";
-			rt.setProperty(Config.GROUPS_SECURITY, new String[]{newUser});
-		}
-		jcrsession.save();
-		break;}
-case "ngr":
-{	
-	Value[] actualUsers = rt.getProperty(Config.GROUPS_READ).getValues();
-	String newUser="";
-	for (int i = 0; i < actualUsers.length; i++) {
-		newUser+=actualUsers[i].getString()+",";
-	}
-	//System.out.println(newUser.contains(user));
-	if(newUser.contains(user))
-		{
-		newUser=newUser.replace(user, "");
-		rt.setProperty(Config.GROUPS_READ, new String[]{newUser});
-		jcrsession.save();
-		}
-		break;
-	}
-case "ngw":{	
-	Value[] actualUsers = rt.getProperty(Config.GROUPS_WRITE).getValues();
-	String newUser="";
-	for (int i = 0; i < actualUsers.length; i++) {
-		newUser+=actualUsers[i].getString()+",";
-	}
-	//System.out.println(newUser.contains(user));
-	if(newUser.contains(user))
-		{
-		newUser=newUser.replace(user, "");
-		rt.setProperty(Config.GROUPS_WRITE, new String[]{newUser});
-		jcrsession.save();
-		}
-		break;
-	}
-case "ngd":
-	{	
-		Value[] actualUsers = rt.getProperty(Config.GROUPS_DELETE).getValues();
-		String newUser="";
-		for (int i = 0; i < actualUsers.length; i++) {
-			newUser+=actualUsers[i].getString()+",";
-		}
-		//System.out.println(newUser.contains(user));
-		if(newUser.contains(user))
-			{
-			newUser=newUser.replace(user, "");
-			rt.setProperty(Config.GROUPS_DELETE, new String[]{newUser});
-			jcrsession.save();
-			}
-			break;
-		}
-case "ngs":
-	{	
-		Value[] actualUsers = rt.getProperty(Config.GROUPS_SECURITY).getValues();
-		String newUser="";
-		for (int i = 0; i < actualUsers.length; i++) {
-			newUser+=actualUsers[i].getString()+",";
-		}
-		//System.out.println(newUser.contains(user));
-		if(newUser.contains(user))
-			{
-			newUser=newUser.replace(user, "");
-			rt.setProperty(Config.GROUPS_SECURITY, new String[]{newUser});
-			jcrsession.save();
-			}
-			break;
-		}
-	default:
-	break;
-	}*/
-			
 			if(rt.hasNodes()){
 				for (NodeIterator nit = rt.getNodes(); nit.hasNext();) {
 					Node root=nit.nextNode();
@@ -933,9 +590,15 @@ case "ngs":
 	}
 		public String assignSinglePermission(String folderPath, String userid,
 				String user,String value) {
+			String destUser="";
+			if(user.contains("/")){
+			destUser=user.substring(0,user.indexOf("/"));
+			}else{
+				destUser=user;
+			}
 			SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 			Session jcrsession = sessions.getSession();
-			String sessionId=sessions.getId();
+			//String sessionId=sessions.getId();
 		try {
 			Node root = jcrsession.getRootNode();
 			if (folderPath.length() > 1) {
@@ -944,18 +607,20 @@ case "ngs":
 			
 			if(root.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
 						//System.out.println(":before assigning permissions like "+value +" to user : "+user+" on "+root.getName());
-						assignSinglePermissionRecursion(root, userid, user, value);
+						assignSinglePermissionRecursion(root, userid, destUser, value);
 						//System.out.println(":value contains n "+value.contains("n"));
 						if(!value.contains("n")){
-							
-						Workspace ws=(JcrRepositoryUtils.adminloginToWorkSpace(user, "redhat")).getSession().getWorkspace();
-						String[] names=ws.getAccessibleWorkspaceNames();
-						System.out.println(ws.getAccessibleWorkspaceNames());
-						Node rty=jcrsession.getRootNode();
+							Session destSession=(JcrRepositoryUtils.adminloginToWorkSpace(destUser, "redhat")).getSession();
+						Workspace ws=destSession.getWorkspace();
+						//String[] names=ws.getAccessibleWorkspaceNames();
+						System.out.println(ws.getName());
+						Node rty=destSession.getRootNode();
 						if(!rty.hasNode(user+"/"+root.getName())){
 					//	Session session=JcrRepositorySession.getSession(user);
 					//	JcrRepositorySession.setPolicy(session,session.getRootNode(),userid,session.getRootNode().getPath(),Privilege.JCR_ALL);
-						ws.clone(userid, root.getPath(), "/"+user+"/"+root.getName() , false);
+						
+							ws.clone(userid, root.getPath(), "/"+user+"/"+root.getName() , false);
+							destSession.save();
 						}
 						else{
 						System.out.println("already exist");	
@@ -966,6 +631,7 @@ case "ngs":
 							remov.remove();
 							}
 						}
+						
 						jcrsession.save();
 			}else{
 				return "sorry you don't have permissions to share this folder";	
@@ -979,94 +645,7 @@ case "ngs":
 	}
 	
 
-		public String shareFolderByPath(String folderPath, String userid,
-				String users,String groups,String userpermissions,String grouppermissions) {
-			SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
-			Session jcrsession = sessions.getSession();
-			String sessionId=sessions.getId();
-		//Repository	repository =  new TransientRepository();
-		//Folder folder1 = new Folder();
-		//Session jcrsession=null;
-		try {
-			/*jcrsession = repository.login(new SimpleCredentials(Config.EDMS_ADMIN,
-					Config.EDMS_ADMIN.toCharArray()));*/
-			/* jcrsession = repository.login(new SimpleCredentials(
-			 userid,"redhat".toCharArray()));*/
 		
-			Node root = jcrsession.getRootNode();
-			if (folderPath.length() > 1) {
-				root = root.getNode(folderPath.substring(1));
-			}
-			
-			if(root.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
-				shareFolderRecursion(root, userpermissions, grouppermissions, users, groups);
-				
-				Workspace ws=jcrsession.getWorkspace();
-				
-				
-				for(String user:users.split(","))
-				{
-						if(!user.equals(userid)){
-							Node rty=jcrsession.getRootNode();
-							if(!rty.hasNode(user+"/"+root.getName())){
-							ws.clone(ws.getName(), root.getPath(), "/"+user+"/"+root.getName() , false);
-						}
-						else{
-						//System.out.println("already exist");	
-						}
-						}
-				}
-				jcrsession.save();
-			}else{
-				return "sorry you don't have permissions to share this folder";	
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "failure";
-		} finally {
-			//JcrRepositoryUtils.logout(sessionId);
-		}
-		return "Success";
-	}
-	
-	
-	
-	
-	/*public boolean shareFolderByPath(Session jcrsession,String folderPath, String userid,
-			String users,String groups,String userpermissions,String grouppermissions) {
-		
-		try {
-			Node root = jcrsession.getRootNode();
-			if(userid!=Config.EDMS_ADMIN){
-				root=root.getNode(userid);
-				}
-				if (folderPath.length() > 1) {
-				root = root.getNode(folderPath.substring(1));
-			}
-			//Workspace ws = jcrsession.getWorkspace();
-			//System.out
-					.println(repository.OPTION_SHAREABLE_NODES_SUPPORTED
-							+ " shareable or not  "
-							+ root.getPath().toString()
-							+ "^^^^^^^^^^^^^^^^^ sharing to "
-							+ "/santosh@avi-oil.com/"
-							+ root.getPath()
-									.toString()
-									.substring(
-											root.getPath().toString()
-													.lastIndexOf("/")));//ws.clone(ws.getName(), "/sanjay", "/sanjay", false);
-			//jcrsession.save();
-		} catch (LoginException e) {
-			e.printStackTrace();
-			return false;
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
-		return true;
-	}*/
-
 	/**
 	 * Convert a Value array to String array.
 	 */
@@ -1145,9 +724,18 @@ case "ngs":
 
 
 	public FolderListReturn listSharedFolder(String userid) {
-		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		
+		
+		String destUser="";
+		if(userid.contains("/")){
+		destUser=userid.substring(0,userid.indexOf("/"));
+		}else{
+			destUser=userid;
+		}
+		
+		SessionWrapper sessions =JcrRepositoryUtils.login(destUser, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		FolderListReturn folderList1 = new FolderListReturn();
 		ArrayOfFolders folders = new ArrayOfFolders();
 		Node root = null;
@@ -1156,7 +744,7 @@ case "ngs":
 				root=root.getNode(userid);
 			for (NodeIterator nit = root.getNodes(); nit.hasNext();) {
 				Node node = nit.nextNode();
-				if(!node.getProperty(Config.EDMS_AUTHOR).getString().equals(userid)){
+				if(!node.getProperty(Config.EDMS_AUTHOR).getString().equals(destUser)){
 				if (Config.EDMS_FOLDER.equals(node.getPrimaryNodeType().getName())) {
 
 					if(node.hasProperty(Config.USERS_READ)){
@@ -1165,7 +753,7 @@ case "ngs":
 					for (int i = 0; i < actualUsers.length; i++) {
 						newUser+=actualUsers[i].getString()+",";
 					}
-					if(newUser.contains(userid))
+					if(newUser.contains(destUser))
 					{
 					Folder folder = new Folder();
 					folder=setGeneralFolderProperties(node,folder,userid);
@@ -1184,7 +772,7 @@ case "ngs":
 	public FolderListReturn listSharedFolder(String userid,String path) {
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		FolderListReturn folderList1 = new FolderListReturn();
 		ArrayOfFolders folders = new ArrayOfFolders();
 		Node root = null;
@@ -1239,7 +827,7 @@ case "ngs":
 	public FilesAndFolders listRecycledDocRecursion(String userid,String path,FilesAndFolders filesFolders) {
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		ArrayOfFiles files = new ArrayOfFiles();
 		ArrayOfFolders folders=new ArrayOfFolders();
 		Node root = null;
@@ -1282,7 +870,7 @@ case "ngs":
 		return filesFolders;
 	}
 
-	private Folder setGeneralFolderProperties(Node node, Folder folder, String userid) {
+	public Folder setGeneralFolderProperties(Node node, Folder folder, String userid) {
 		try {
 		folder.setFolderName(node.getName());
 		folder.setFolderPath(node.getPath());
@@ -1302,7 +890,7 @@ case "ngs":
 	{
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		String response="";
 		try {
 			Node root = jcrsession.getRootNode();
@@ -1332,7 +920,7 @@ case "ngs":
 		try{
 			SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 			Session jcrsession = sessions.getSession();
-			String sessionId=sessions.getId();
+			//String sessionId=sessions.getId();
 			Node parent=root.getParent();
 		//root.setProperty(Config.EDMS_RECYCLE_DOC, true);
 		root.setProperty(Config.EDMS_RESTORATION_PATH, root.getPath());
@@ -1381,7 +969,7 @@ case "ngs":
 	{
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		String response="";
 		try {
 			Node root = jcrsession.getRootNode();
@@ -1400,7 +988,7 @@ case "ngs":
 	public String restoreFolder(String folderPath, String userid) {
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		String response="";
 		try {
 			Node root = jcrsession.getRootNode();
@@ -1420,7 +1008,7 @@ case "ngs":
 	public void restoreFolderRecursion(Node root,String userid){
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		try{
 			String parents=root.getProperty(Config.EDMS_RESTORATION_PATH).getString().substring(1);
 			parents=parents.substring(0,parents.lastIndexOf("/"));
@@ -1462,7 +1050,7 @@ case "ngs":
 	public Node createFolderRecursionWhenNotFound(String folderName,String userid){
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		Node folder = null;
 		try {
 			Node root = jcrsession.getRootNode();
@@ -1504,7 +1092,7 @@ case "ngs":
 	public RenameFolderRes renameFolder(String oldfolderPath, String newFolderPath,String userid) {
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		RenameFolderRes response=new RenameFolderRes();
 		try {
 			Node forVer=jcrsession.getRootNode().getNode(oldfolderPath.substring(1));
@@ -1537,7 +1125,7 @@ case "ngs":
 	public String restoreVersion(String folderPath, String versionName,String userid) {
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		String response="";
 		try {
 			jcrsession.save();
@@ -1591,7 +1179,7 @@ case "ngs":
 	public RecentlyModifiedResponse recentlyModified(String folderPath, String userid) {	JcrRepositorySession jcr=new JcrRepositorySession();
 	SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 	Session jcrsession = sessions.getSession();
-	String sessionId=sessions.getId();
+	//String sessionId=sessions.getId();
 		RecentlyModifiedResponse res=new RecentlyModifiedResponse();
 		ArrayOfFolders folders=new ArrayOfFolders();
 		FilesAndFolders filesFolders=new FilesAndFolders();
@@ -1644,7 +1232,7 @@ case "ngs":
 		
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		String response="";
 		try {
 			Node root = jcrsession.getRootNode();
@@ -1675,7 +1263,7 @@ case "ngs":
 		
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
-		String sessionId=sessions.getId();
+		//String sessionId=sessions.getId();
 		String response="";
 		try {
 			Node root = jcrsession.getRootNode();

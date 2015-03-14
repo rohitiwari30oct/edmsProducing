@@ -8,12 +8,20 @@ import com.edms.documentmodule.EditFileRequest;
 import com.edms.documentmodule.EditFileResponse;
 import com.edms.documentmodule.GetFileByPathRequest;
 import com.edms.documentmodule.GetFileByPathResponse;
+import com.edms.documentmodule.GetFileByPathWithOutStreamRequest;
+import com.edms.documentmodule.GetFileByPathWithOutStreamResponse;
 import com.edms.documentmodule.GetFileRequest;
 import com.edms.documentmodule.GetFileResponse;
+import com.edms.documentmodule.GetFileWithOutStreamRequest;
+import com.edms.documentmodule.GetFileWithOutStreamResponse;
 import com.edms.documentmodule.GetSharedFilesByPathRequest;
 import com.edms.documentmodule.GetSharedFilesByPathResponse;
+import com.edms.documentmodule.GetSharedFilesByPathWithOutStreamRequest;
+import com.edms.documentmodule.GetSharedFilesByPathWithOutStreamResponse;
 import com.edms.documentmodule.GetSharedFilesRequest;
 import com.edms.documentmodule.GetSharedFilesResponse;
+import com.edms.documentmodule.GetSharedFilesWithOutStreamRequest;
+import com.edms.documentmodule.GetSharedFilesWithOutStreamResponse;
 import com.edms.documentmodule.GetVCFFileRequest;
 import com.edms.documentmodule.GetVCFFileResponse;
 import com.edms.documentmodule.RecycleFileRequest;
@@ -52,12 +60,28 @@ public class FileEndpoint {
 				.listFile(request.getFilePath(),request.getUserid()));
 		return response;
 	}
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "getFileWithOutStreamRequest")
+	@ResponsePayload
+	public GetFileWithOutStreamResponse getFileWithOutStream(@RequestPayload GetFileWithOutStreamRequest request) {
+		GetFileWithOutStreamResponse response = new GetFileWithOutStreamResponse();
+		response.setGetFilesByParentFile(FileRepository
+				.listFileWithOutStream(request.getFilePath(),request.getUserid()));
+		return response;
+	}
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "getSharedFilesRequest")
 	@ResponsePayload
 	public GetSharedFilesResponse getsharedFiles(@RequestPayload GetSharedFilesRequest request) {
 		GetSharedFilesResponse response = new GetSharedFilesResponse();
 		response.setGetSharedFiles(FileRepository
 				.listSharedFile(request.getUserid()));
+		return response;
+	}
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "getSharedFilesWithOutStreamRequest")
+	@ResponsePayload
+	public GetSharedFilesWithOutStreamResponse getsharedFiles(@RequestPayload GetSharedFilesWithOutStreamRequest request) {
+		GetSharedFilesWithOutStreamResponse response = new GetSharedFilesWithOutStreamResponse();
+		response.setGetSharedFiles(FileRepository
+				.listSharedFileWithOutStream(request.getUserid()));
 		return response;
 	}
 	/*@PayloadRoot(namespace = NAMESPACE_URI, localPart = "getRecycledDocsRequest")
@@ -68,6 +92,15 @@ public class FileEndpoint {
 				.listRecycledDoc(request.getUserid(),request.getPath()));
 		return response;
 	}*/
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "getSharedFilesByPathWithOutStreamRequest")
+	@ResponsePayload
+	public GetSharedFilesByPathWithOutStreamResponse getsharedFilesByPath(@RequestPayload GetSharedFilesByPathWithOutStreamRequest request) {
+		GetSharedFilesByPathWithOutStreamResponse response = new GetSharedFilesByPathWithOutStreamResponse();
+		response.setGetSharedFilesByPath(FileRepository
+				.listSharedFileWithOutStream(request.getUserid(),request.getPath()));
+		return response;
+	}
+
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "getSharedFilesByPathRequest")
 	@ResponsePayload
 	public GetSharedFilesByPathResponse getsharedFilesByPath(@RequestPayload GetSharedFilesByPathRequest request) {
@@ -97,7 +130,7 @@ public class FileEndpoint {
 				request.getUserid());
 		return response;
 	}
-	
+
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "getFileByPathRequest")
 	@ResponsePayload
 	public GetFileByPathResponse getFileByPath(
@@ -108,34 +141,17 @@ public class FileEndpoint {
 				request.getFilePath(),request.getUserid()));
 		return response;
 	}
-	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "shareFileByPathRequest")
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "getFileByPathWithOutStreamRequest")
 	@ResponsePayload
-	public ShareFileByPathResponse shareFileByPath(
-			@RequestPayload ShareFileByPathRequest request) {
-		ShareFileByPathResponse response = new ShareFileByPathResponse();
-		response.setShareResponse(FileRepository.shareFileByPath(
-				request.getFilePath(),request.getUserid(),request.getUsers(),request.getGroups(),request.getUserpermissions()
-				,request.getGrouppermissions()));
+	public GetFileByPathWithOutStreamResponse getFileByPathWithStream(
+			@RequestPayload GetFileByPathWithOutStreamRequest request) {
+		//System.out.println("in Endpoint");
+		GetFileByPathWithOutStreamResponse response = new GetFileByPathWithOutStreamResponse();
+		response.setFile(FileRepository.getFileByPathWithOutStream(
+				request.getFilePath(),request.getUserid()));
 		return response;
 	}
-	/*@PayloadRoot(namespace = NAMESPACE_URI, localPart = "assignSinglePermissionRequest")
-	@ResponsePayload
-	public AssignSinglePermissionResponse assignSinglePermissionRequest(
-			@RequestPayload AssignSinglePermissionRequest request) {
-		AssignSinglePermissionResponse response = new AssignSinglePermissionResponse();
-		response.setAssignSinglePermissionResponse(FileRepository.assignSinglePermission(
-				request.getFilePath(),request.getUserid(),request.getUser(),request.getValue()
-				));
-		return response;
-	}*/
-	/*@PayloadRoot(namespace = NAMESPACE_URI, localPart = "recycleFileRequest")
-	@ResponsePayload
-	public RecycleFileResponse recycleFileRequest(
-			@RequestPayload RecycleFileRequest request) {
-		RecycleFileResponse response = new RecycleFileResponse();
-		response.setRecycleFileResponse(FileRepository.recycleFile(request.getFilePath(),request.getUserid()));
-		return response;
-	}*/
+
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "deleteFileRequest")
 	@ResponsePayload
 	public DeleteFileResponse deleteFileRequest(

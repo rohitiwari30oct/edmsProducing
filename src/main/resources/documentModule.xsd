@@ -472,6 +472,39 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+    <xs:element name="getSharedFilesWithOutStreamRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getSharedFilesWithOutStreamResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element minOccurs="0" maxOccurs="1" name="GetSharedFiles"
+					type="tns:FileListReturn" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
+	<xs:element name="getSharedFilesByPathWithOutStreamRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="path" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getSharedFilesByPathWithOutStreamResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element minOccurs="0" maxOccurs="1"
+					name="GetSharedFilesByPath" type="tns:FileListReturn" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 
 
 
@@ -484,6 +517,23 @@
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="getFileResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element minOccurs="0" maxOccurs="1"
+					name="GetFilesByParentFile" type="tns:FileListReturn" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getFileWithOutStreamRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FilePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getFileWithOutStreamResponse">
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element minOccurs="0" maxOccurs="1"
@@ -513,7 +563,7 @@
 			<xs:element name="filePath" type="xs:string" />
 			<xs:element name="fileSize" type="xs:long" />
 			
-			<xs:element name="fileContent" type="xs:string"/> 
+			<xs:element name="fileContent" type="xs:base64Binary"/> 
 			<xs:element minOccurs="0" maxOccurs="unbounded" name="keywords"
 				type="xs:string" />
 			<xs:element name="notes" type="xs:string" />
@@ -557,7 +607,7 @@
 			<xs:sequence>
 				<xs:element name="fileName" type="xs:string" />
 				
-				<xs:element name="fileContent" type="xs:string" />
+				<xs:element name="fileContent" type="xs:base64Binary" />
 				<xs:element name="parentFile" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="keywords" type="xs:string" />
@@ -585,6 +635,25 @@
 
 
 	<xs:element name="getFileByPathResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="File" type="tns:File" />
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getFileByPathWithOutStreamRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FilePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
+	<xs:element name="getFileByPathWithOutStreamResponse">
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="File" type="tns:File" />
@@ -702,7 +771,7 @@
 	<xs:element name="editFileRequest">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="fileContent" type="xs:string" />
+				<xs:element name="fileContent" type="xs:base64Binary" />
 				<xs:element name="filePath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
 			</xs:sequence>

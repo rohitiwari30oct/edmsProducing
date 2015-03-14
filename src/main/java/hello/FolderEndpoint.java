@@ -115,17 +115,7 @@ public class FolderEndpoint {
 		return response;
 	}
 	
-	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "shareFolderByPathRequest")
-	@ResponsePayload
-	public ShareFolderByPathResponse shareFolderByPath(
-			@RequestPayload ShareFolderByPathRequest request) {
-		ShareFolderByPathResponse response = new ShareFolderByPathResponse();
-		response.setShareResponse(folderRepository.shareFolderByPath(
-				request.getFolderPath(),request.getUserid(),request.getUsers(),request.getGroups(),request.getUserpermissions()
-				,request.getGrouppermissions()));
-		return response;
-	}
-	
+
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "assignSinglePermissionRequest")
 	@ResponsePayload
 	public AssignSinglePermissionResponse assignSinglePermissionRequest(
