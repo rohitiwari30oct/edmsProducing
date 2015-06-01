@@ -41,27 +41,20 @@
 		</xs:complexType>
 	</xs:element>
 	
-	<xs:element name="getUserListRequest">
-	</xs:element>
-	<xs:element name="getUserListResponse">
+	<xs:element name="getUsersListRequest">
 		<xs:complexType>
-				<xs:sequence>
-					
-			<xs:element  name="userList" type="tns:userList"/>
-				</xs:sequence>
+			<xs:sequence>
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
 		</xs:complexType>
-	
 	</xs:element>
-		<xs:complexType name="userList">
-		<xs:sequence>
-			<xs:element minOccurs="0" maxOccurs="1" name="userListResult"
-				type="tns:ArrayOfUsers" />
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="ArrayOfUsers">
-		<xs:sequence>
-			<xs:element minOccurs="0" maxOccurs="unbounded" name="allUserList"
-				nillable="true" type="tns:User" />
-		</xs:sequence>
-	</xs:complexType>
+
+	<xs:element name="getUsersListResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="usersList" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 </xs:schema>

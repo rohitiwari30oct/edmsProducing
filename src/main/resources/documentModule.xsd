@@ -284,6 +284,23 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+	<xs:element name="addNotesRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folderPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="note" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="addNotesResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 
 	<xs:element name="removeKeywordRequest">
 		<xs:complexType>
@@ -296,6 +313,42 @@
 	</xs:element>
 
 	<xs:element name="removeKeywordResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="editKeywordRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folderPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="keyword" type="xs:string" />
+				<xs:element name="editedKeyword" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="editKeywordResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="removeNotesRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folderPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="note" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="removeNotesResponse">
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="Success" type="xs:boolean" />
@@ -611,6 +664,7 @@
 				<xs:element name="parentFile" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="keywords" type="xs:string" />
+				<xs:element name="fileSize" type="xs:long" />
 				<xs:element name="notes" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
@@ -863,4 +917,55 @@
     FILES PROCESSING END
     -->
     
+	<xs:element name="moveDocRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="srcDocPath" type="xs:string" />
+				<xs:element name="destDocPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="moveDocResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="copyDocRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="srcDocPath" type="xs:string" />
+				<xs:element name="destDocPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="copyDocResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="setSortOrderRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="sortOrder" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="setSortOrderResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
 </xs:schema>

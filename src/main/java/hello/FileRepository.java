@@ -1,6 +1,7 @@
 package hello;
 
 import javax.annotation.PostConstruct;
+import javax.jcr.AccessDeniedException;
 import javax.jcr.Binary;
 import javax.jcr.LoginException;
 import javax.jcr.NamespaceRegistry;
@@ -13,6 +14,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
+import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 import javax.jcr.ValueFormatException;
@@ -32,7 +34,9 @@ import javax.jcr.security.Privilege;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
+import javax.jcr.version.VersionManager;
 import javax.print.attribute.standard.MediaSize.NA;
+import javax.security.auth.Subject;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -50,15 +54,21 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.AccessController;
 import java.security.Principal;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.activiti.engine.impl.persistence.entity.UserIdentityManager;
 import org.apache.commons.io.IOUtils;
@@ -68,17 +78,15 @@ import org.apache.jackrabbit.api.security.JackrabbitAccessControlEntry;
 import org.apache.jackrabbit.api.security.JackrabbitAccessControlList;
 import org.apache.jackrabbit.api.security.JackrabbitAccessControlManager;
 import org.apache.jackrabbit.api.security.JackrabbitAccessControlPolicy;
+import org.apache.jackrabbit.api.security.principal.PrincipalIterator;
 import org.apache.jackrabbit.api.security.principal.PrincipalManager;
 import org.apache.jackrabbit.api.security.user.Group;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
-import org.apache.jackrabbit.commons.JcrUtils;
-import org.apache.jackrabbit.commons.cnd.CndImporter;
-import org.apache.jackrabbit.commons.cnd.ParseException;
+import org.apache.jackrabbit.core.SessionImpl;
 import org.apache.jackrabbit.core.TransientRepository;
-import org.apache.jackrabbit.core.security.principal.EveryonePrincipal;
+import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.apache.tika.Tika;
-import org.apache.tika.metadata.Office;
 
 import com.edms.documentmodule.ArrayOfFiles;
 import com.edms.documentmodule.ArrayOfFolders;
@@ -91,16 +99,12 @@ import com.edms.documentmodule.FileListReturn;
 import com.edms.documentmodule.FileVersionDetail;
 import com.edms.documentmodule.FilesAndFolders;
 import com.edms.documentmodule.Folder;
-import com.edms.documentmodule.FolderVersionDetail;
-import com.edms.documentmodule.RenameFileRes;
 import com.edms.documentmodule.SearchDocByDateResponse;
 import com.edms.documentmodule.SearchDocByLikeResponse;
 import com.edms.documentmodule.SortByPropertyRes;
 import com.edms.documentmodule.VCFFileAtt;
 import com.edms.documentmodule.VCFFileListReturn;
 
-import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -132,13 +136,402 @@ public class FileRepository{
 	 */
 
 	// @Autowired DefaultSpringSecurityContextSource contextSource;
+	public static void setPolicyForTestToFolder(String userid, String path) {
+		try{
+			//SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+			SessionWrapper sessions =JcrRepositoryUtils.adminloginToWorkSpace(userid, "redhat");
+			Session session = sessions.getSession();
+			// usual entry point into the Jackrabbit API
+			JackrabbitSession js = (JackrabbitSession) session;
+			User user = ((User) js.getUserManager().getAuthorizable(userid));
+			Principal principal = user.getPrincipal();
+			AccessControlManager aMgr = session.getAccessControlManager();
+			Privilege[] privileges = new Privilege[] { aMgr.privilegeFromName(Privilege.JCR_ALL) };
+			JackrabbitAccessControlList  acl;
+			
+			try{
+				acl = (JackrabbitAccessControlList) aMgr.getPolicies(path)[0];
+			}catch(Exception e ){
+				acl = (JackrabbitAccessControlList) aMgr.getApplicablePolicies(path).nextAccessControlPolicy();
+			}
+			
+			// remove all existing entries
+			/*for (AccessControlEntry e : acl.getAccessControlEntries()) {
+				acl.removeAccessControlEntry(e);
+			}*/
+			acl.addAccessControlEntry(principal, privileges);
+			// add entry
+			Map<String, Value> restrictions = new HashMap<String, Value>();
+			ValueFactory vf = session.getValueFactory();
+			restrictions.put("rep:nodePath", vf.createValue(path, PropertyType.PATH));
+			restrictions.put("rep:glob", vf.createValue("*"));
+			acl.addEntry(principal, privileges, true /* allow or deny */, restrictions);
+			// the policy must be re-set
+			aMgr.setPolicy(path, acl);
+			session.save();
+			//session.logout();
+			}catch(Exception e ){
+				e.printStackTrace();
+			}
+		
+			/*System.out.println("only single time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ");
+			SessionWrapper sessions =JcrRepositoryUtils.login("sanjay@avi-oil.com", "redhat");
+			Session jcrsession = sessions.getSession();
+			Node root;
+			try {
+			root = jcrsession.getRootNode().getNode("santosh@avi-oil.com");
+			//root.addMixin(JcrConstants.MIX_SHAREABLE);
+			jcrsession.save();
+			} catch (PathNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			} catch (RepositoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}	*/
+			
+		}
+	public static void setPolicyForTest(String userid){
+	try{
+		String path="/"+userid;
+		/*//SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		SessionWrapper sessions =JcrRepositoryUtils.adminloginToWorkSpace(userid, "redhat");
+		Session session = sessions.getSession();*/
+		Session session = GetSession(userid,JcrRepositorySession.getRepository());
+		// usual entry point into the Jackrabbit API
+		JackrabbitSession js = (JackrabbitSession) session;
+		User user = ((User) js.getUserManager().getAuthorizable(userid));
+		Principal principal = user.getPrincipal();
+		AccessControlManager aMgr = session.getAccessControlManager();
+		Privilege[] privileges = new Privilege[] { aMgr.privilegeFromName(Privilege.JCR_ALL) };
+		JackrabbitAccessControlList  acl;
+		try{
+		acl = (JackrabbitAccessControlList) aMgr.getPolicies(path)[0];
+		}catch(Exception e ){
 
+			acl = (JackrabbitAccessControlList) aMgr.getApplicablePolicies(path).nextAccessControlPolicy();
+		}
+		// remove all existing entries
+		/*for (AccessControlEntry e : acl.getAccessControlEntries()) {
+			acl.removeAccessControlEntry(e);
+		}*/
+		acl.addAccessControlEntry(principal, privileges);
+		// add entry
+		Map<String, Value> restrictions = new HashMap<String, Value>();
+		ValueFactory vf = session.getValueFactory();
+		restrictions.put("rep:nodePath", vf.createValue(path, PropertyType.PATH));
+		restrictions.put("rep:glob", vf.createValue("*"));
+		acl.addEntry(principal, privileges, true /* allow or deny */, restrictions);
+		// the policy must be re-set
+		aMgr.setPolicy(path, acl);
+		session.save();
+		//session.logout();
+		}catch(Exception e ){
+			e.printStackTrace();
+		}
+	}
+	public static Session GetSession( String userid,final Repository repository) throws PrivilegedActionException {
+		Session session = null;
+		try {
+			session = repository.login( new SimpleCredentials(userid.substring(0,userid.lastIndexOf("@")), "redhat".toCharArray()), "avi-oil.com");
+			SessionImpl si = (SessionImpl) session;
+			JackrabbitSession js = ((JackrabbitSession) session);
+			Subject subject = ((SessionImpl) js).getSubject();
+			Set<Principal> principals = new LinkedHashSet<Principal>();
+			principals = subject.getPrincipals();
+			Subject combinedSubject=new Subject(false,subject.getPrincipals(),subject.getPublicCredentials(),subject.getPrivateCredentials());
+			combinedSubject.getPrincipals().add(new AdminPrincipal("admin"));
+			try {
+				session = Subject.doAsPrivileged(combinedSubject,
+						new PrivilegedExceptionAction<Session>() {
+							public Session run() throws Exception {
+								Session ss = repository.login();
+								return ss;
+							}
+						}, AccessController.getContext());
+			} catch (PrivilegedActionException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+		}
+		return session;
+	}
+	public static void setPolicyForDenyTest(String userid) throws PrivilegedActionException, AccessDeniedException, UnsupportedRepositoryOperationException, RepositoryException{
+		Session session=null;
+		try{
+		//  usual entry point into the Jackrabbit API
+		//	SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		//	Session jcrsession = sessions.getSession();
+		 session = GetSession(userid,JcrRepositorySession.getRepository());
+		 
+//		 JcrRepositorySession.createFolder(userid, session);
+		JackrabbitSession js = (JackrabbitSession) session;
+		// get user/principal for whom to read/set ACLs
+		// Note: the ACL security API works using Java Principals as high-level abstraction and does not
+		// assume the users are actually stored in the JCR with the Jackrabbit UserManagement; an example
+		// are external users provided by a custom LoginModule via LDAP
+		PrincipalManager pMgr = js.getPrincipalManager();
+		Principal principal = pMgr.getPrincipal(userid.substring(0,userid.lastIndexOf("@")));
+
+		// get the Jackrabbit access control manager
+		JackrabbitAccessControlManager acMgr = (JackrabbitAccessControlManager) session.getAccessControlManager();
+		JackrabbitAccessControlPolicy[] ps = acMgr.getPolicies(principal); // or getApplicablePolicies()
+		if(ps.length==0){
+			ps = acMgr.getApplicablePolicies(principal);
+		}
+		JackrabbitAccessControlList list = (JackrabbitAccessControlList) ps[0];
+		// list entries
+		AccessControlEntry[] entries =  list.getAccessControlEntries();
+		for (int i = 0; i < entries.length; i++) {
+			list.removeAccessControlEntry(entries[i]);
+		}
+		// add entry
+		Privilege[] privileges = new Privilege[] { acMgr.privilegeFromName(Privilege.JCR_ALL) };
+		Map<String, Value> restrictions = new HashMap<String, Value>();
+		ValueFactory vf = session.getValueFactory();
+		restrictions.put("rep:nodePath", vf.createValue("/", PropertyType.PATH));
+		restrictions.put("rep:glob", vf.createValue("*"));
+		boolean b=list.addEntry(principal, privileges, false /* allow or deny */, restrictions);
+		System.out.println("deny to / is : "+b);
+		// reorder entries
+		//list.orderBefore(entry, entry2);
+		// finally set policy again & save
+		acMgr.setPolicy(list.getPath(), list);
+		session.save();
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			if(session!=null)
+			session.logout();
+		}
+	}
+
+	public static void setPolicyForAllowTest(String path,String userid) throws PrivilegedActionException, AccessDeniedException, UnsupportedRepositoryOperationException, RepositoryException{
+		Session session=null;
+		try{
+		// usual entry point into the Jackrabbit API
+		//	SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
+		//	Session jcrsession = sessions.getSession();
+		session = GetSession(userid,JcrRepositorySession.getRepository());
+		JackrabbitSession js = (JackrabbitSession) session;
+		System.out.println(session.getWorkspace().getName());
+		// get user/principal for whom to read/set ACLs
+		// Note: the ACL security API works using Java Principals as high-level abstraction and does not
+		// assume the users are actually stored in the JCR with the Jackrabbit UserManagement; an example
+		// are external users provided by a custom LoginModule via LDAP
+		PrincipalManager pMgr = js.getPrincipalManager();
+		Principal principal = pMgr.getPrincipal(userid.substring(0,userid.lastIndexOf("@")));
+		
+		if(!session.getRootNode().hasNode(userid)){
+			JcrRepositorySession.createFolder(userid,session);
+			JcrRepositorySession.createFolder(userid+"/trash",session);
+		}
+	/*	else{
+			session.getRootNode().getNode(userid).remove();
+			session.save();
+		}*/
+		// get the Jackrabbit access control manager
+		JackrabbitAccessControlManager acMgr = (JackrabbitAccessControlManager) session.getAccessControlManager();
+		JackrabbitAccessControlPolicy[] ps = acMgr.getPolicies(principal); // or getApplicablePolicies()
+		if(ps.length==0){
+			ps = acMgr.getApplicablePolicies(principal);
+		}
+		JackrabbitAccessControlList list = (JackrabbitAccessControlList) ps[0];
+		// list entries
+		AccessControlEntry[] entries =  list.getAccessControlEntries();
+		for (int i = 0; i < entries.length; i++) {
+			list.removeAccessControlEntry(entries[i]);
+		}
+		// add entry
+		Privilege[] privileges = new Privilege[] { acMgr.privilegeFromName(Privilege.JCR_ALL) };
+		Map<String, Value> restrictions = new HashMap<String, Value>();
+		ValueFactory vf = session.getValueFactory();
+		restrictions.put("rep:nodePath", vf.createValue(path, PropertyType.PATH));
+		restrictions.put("rep:glob", vf.createValue("*"));
+		boolean b=list.addEntry(principal, privileges, true /* allow or deny */, restrictions);
+		System.out.println("allow to "+path +" is : "+b);
+		// reorder entries
+		//list.orderBefore(entry, entry2);
+		// finally set policy again & save
+		acMgr.setPolicy(list.getPath(), list);
+		session.save();
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			if(session!=null)
+			session.logout();
+		}
+	}
+	
+	
+	public static void setPolicyForDeny(String userid){
+	try{
+		String path="/";
+		//SessionWrapper sessions =JcrRepositoryUtils.adminloginToWorkSpace(userid, "redhat");
+		//Session session = sessions.getSession();
+		Session session = GetSession(userid,new TransientRepository());
+		JackrabbitSession js = (JackrabbitSession) session;
+		User user = ((User) js.getUserManager().getAuthorizable(userid));
+		Principal principal = user.getPrincipal();
+		AccessControlManager aMgr = session.getAccessControlManager();
+		Privilege[]	privileges = new Privilege[] { aMgr.privilegeFromName(Privilege.JCR_ALL) };
+		JackrabbitAccessControlList  acl;
+		
+		try{
+			acl = (JackrabbitAccessControlList) aMgr.getPolicies(path)[0];
+			}catch(Exception e ){
+
+				acl = (JackrabbitAccessControlList) aMgr.getApplicablePolicies(path).nextAccessControlPolicy();
+			}
+		// remove all existing entries
+			for (AccessControlEntry e : acl.getAccessControlEntries()) {
+			System.out.println(e.getPrivileges());
+		}
+		acl.addAccessControlEntry(principal, privileges);
+		Map<String, Value> restrictions = new HashMap<String, Value>();
+		ValueFactory vf = session.getValueFactory();
+		restrictions.put("rep:nodePath", vf.createValue(path, PropertyType.PATH));
+		restrictions.put("rep:glob", vf.createValue("*"));
+		acl.addEntry(principal, privileges, false /* allow or deny */, restrictions);
+		aMgr.setPolicy(path, acl);
+		session.save();
+		}catch(Exception e ){
+			e.printStackTrace();
+		}
+	}
+	public static void setPolicyForSystem(String userid,String folder){
+	try{
+		String path="/"+folder;
+		/*SessionWrapper sessions =JcrRepositoryUtils.adminloginToWorkSpace(userid, "redhat");
+		Session session = sessions.getSession();
+		*/
+
+		Session session = GetSession(userid,new TransientRepository());
+		// usual entry point into the Jackrabbit API
+		JackrabbitSession js = (JackrabbitSession) session;  
+		//System.out.println(js.getAttribute("principal"));
+		//System.out.println(session.setNamespacePrefix(prefix, uri););
+		PrincipalManager pManager=js.getPrincipalManager();
+		PrincipalIterator pIterator=pManager.findPrincipals(userid);
+		while(pIterator.hasNext()){
+			System.out.println(pIterator.next());
+		}
+		//System.out.println(pManager.findPrincipals("sanjay"));
+		//System.out.println(pManager.findPrincipals("") );
+		
+		pManager.getPrincipal(userid).getName().equals(userid);
+		User user = ((User) js.getUserManager().getAuthorizable(userid));
+		Principal principal =user.getPrincipal();
+		AccessControlManager aMgr = session.getAccessControlManager();
+		
+		/* privileges = aMgr.getPrivileges(path); 
+		for (int i = 0; i < privileges.length; i++) 
+		{ 
+			System.out.println(privileges[i]); 
+		}*/
+		
+		Privilege[]	privileges = new Privilege[] { aMgr.privilegeFromName(Privilege.JCR_ALL) };
+		JackrabbitAccessControlList  acl;
+
+		try{
+			acl = (JackrabbitAccessControlList) aMgr.getPolicies(path)[0];
+			}catch(Exception e ){
+
+				acl = (JackrabbitAccessControlList) aMgr.getApplicablePolicies(path).nextAccessControlPolicy();
+			}
+		//acl = (JackrabbitAccessControlList) aMgr.getApplicablePolicies(path).nextAccessControlPolicy();
+		// remove all existing entries
+			for (AccessControlEntry e : acl.getAccessControlEntries()) {
+			System.out.println(e.getPrivileges());
+			//acl.removeAccessControlEntry(e);
+		}
+		//acl.addAccessControlEntry(principal, privileges);
+		// add entry
+		Map<String, Value> restrictions = new HashMap<String, Value>();
+		ValueFactory vf = session.getValueFactory();
+		restrictions.put("rep:nodePath", vf.createValue(path, PropertyType.PATH));
+		restrictions.put("rep:glob", vf.createValue("*"));
+		//acl.addEntry(principal, privileges, true /* allow or deny */, restrictions);
+		// the policy must be re-set
+		aMgr.setPolicy(path, acl);
+		session.save();
+		//session.logout();
+		}catch(Exception e ){
+			e.printStackTrace();
+		}
+	
+	
+/*	System.out.println("only single time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ");
+	SessionWrapper sessions =JcrRepositoryUtils.login("sanjay@avi-oil.com", "redhat");
+	Session jcrsession = sessions.getSession();
+Node root;
+try {
+root = jcrsession.getRootNode().getNode("santosh@avi-oil.com");
+//root.addMixin(JcrConstants.MIX_SHAREABLE);
+jcrsession.save();
+} catch (PathNotFoundException e) {
+// TODO Auto-generated catch block
+e.printStackTrace();
+} catch (RepositoryException e) {
+// TODO Auto-generated catch block
+e.printStackTrace();
+}	
+	
+*/
+	
+	
+	}
+	
+	
 	
 	
 	@PostConstruct
-	public void initData() {
-		System.out.println("only single time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ");
-		//JcrRepositorySession.getSession("admin");	
+	public void initData() throws AccessDeniedException, UnsupportedRepositoryOperationException, PrivilegedActionException, RepositoryException {
+
+		/*
+			setPolicyForDeny("janak@avi-oil.com");
+			setPolicyForTest("janak@avi-oil.com");
+			setPolicyForSystem("janak@avi-oil.com","jcr:system");
+		*/
+		//setPolicyForSystem("janak@avi-oil.com","rep:policy");
+		//JcrRepositorySession.getSession("sanjay");	
+		
+	 	/*	setPolicyForAllowTest("/","sanjay@avi-oil.com");
+			setPolicyForDenyTest("sanjay@avi-oil.com");
+			setPolicyForAllowTest("/sanjay@avi-oil.com","sanjay@avi-oil.com");
+		*/
+		/*
+		setPolicyForAllowTest("/","santosh@avi-oil.com");
+		setPolicyForDenyTest("santosh@avi-oil.com");
+		setPolicyForAllowTest("/santosh@avi-oil.com","santosh@avi-oil.com");*/
+		//setPolicyForDeny("sanjay");
+		//setPolicyForTest("sanjay");
+		//setPolicyForSystem("sanjay","jcr:system");
+		//setPolicyForSystem("sanjay","rep:policy");
+		
+		
+		
+		
+		
+	/*	setPolicyForDeny("santosh@avi-oil.com");
+		setPolicyForTest("santosh@avi-oil.com");
+		setPolicyForSystem("santosh@avi-oil.com","jcr:system");*/
+	/*	//setPolicyForSystem("santosh@avi-oil.com","rep:policy");
+		
+		setPolicyForDeny("shibu@avi-oil.com");
+		setPolicyForTest("shibu@avi-oil.com");
+		setPolicyForSystem("shibu@avi-oil.com","jcr:system");
+		//setPolicyForSystem("shibu@avi-oil.com","rep:policy");*/
+		
+	
+	/*	try {
+			JcrRepositoryUtils.processFileDir(Config.EDMS_BULKUPLOAD_PATH);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
 	}
 
 	public FileListReturn listFile(String name, String userid) {
@@ -149,28 +542,8 @@ public class FileRepository{
 		FileListReturn FileList1 = new FileListReturn();
 		ArrayOfFiles Files = new ArrayOfFiles();
 		try {
-			/*
-			 * String[]
-			 * wwws=jcrsession.getWorkspace().getAccessibleWorkspaceNames(); for
-			 * (int i = 0; i < wwws.length; i++) {
-			 * //System.out.println(wwws[i]); }
-			 */
-			// registerNamespace(jcrsession, root);
-			// removeUser(jcrsession, userid);
-			// createUser(userid, "redhat", jcrsession, root);
-			// setPolicy(jcrsession, root, userid,root.getPath(),
-			// Privilege.JCR_ALL);
-			// Workspace ws=jcrsession.getWorkspace();
-			// ws.createWorkspace(userid);
-
-			/*
-			 * root = jcrsession.getRootNode(); if (name.length() > 1) { if
-			 * (!root.hasNode(userid)) {
-			 * //root=jcrsession.createFile(userid);
-			 * //jcrsession.createFile(userid+"/trash"); } else { root
-			 * = root.getNode(name.substring(1)); } }
-			 * root=jcrsession.getRootNode();
-			 */javax.jcr.query.QueryManager queryManager;
+			
+			javax.jcr.query.QueryManager queryManager;
 			queryManager = jcrsession.getWorkspace().getQueryManager();
 			String expression = "select * from [edms:document] AS s WHERE ISDESCENDANTNODE(s,'"
 					+ name
@@ -181,9 +554,7 @@ public class FileRepository{
 					+ name + "') ORDER BY [NAME(s),DESC]";
 			expression = "select * from [edms:document] AS s WHERE ISCHILDNODE(s,'"
 					+ name
-					+ "') and [edms:author]='"
-					+ userid
-					+ "'  ORDER BY s.[jcr:created] ASC";
+					+ "')  and CONTAINS(s.[edms:owner],'*"+userid+"* OR *"+Config.EDMS_ADMINISTRATOR+"*')  ORDER BY s.["+Config.EDMS_Sorting_Parameter+"] ASC";
 			javax.jcr.query.Query query = queryManager.createQuery(expression,
 					javax.jcr.query.Query.JCR_SQL2);
 
@@ -259,9 +630,7 @@ public class FileRepository{
 					+ name + "') ORDER BY [NAME(s),DESC]";
 			expression = "select * from [edms:document] AS s WHERE ISCHILDNODE(s,'"
 					+ name
-					+ "') and [edms:author]='"
-					+ userid
-					+ "'  ORDER BY s.[jcr:created] ASC";
+					+ "')  and CONTAINS(s.[edms:owner],'*"+userid+"* OR *"+Config.EDMS_ADMINISTRATOR+"*')  ORDER BY s.["+Config.EDMS_Sorting_Parameter+"] ASC";
 			javax.jcr.query.Query query = queryManager.createQuery(expression,
 					javax.jcr.query.Query.JCR_SQL2);
 
@@ -287,7 +656,8 @@ public class FileRepository{
 				// }
 				// }
 				// }
-			}	FileList1.setFileListResult(Files);
+			}	
+		FileList1.setFileListResult(Files);
 		FileList1.setSuccess(true);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -571,8 +941,9 @@ public class FileRepository{
 					file.getGroupSecurity().add(actualUsers[i].getString());
 				}
 			}
-
-			VersionHistory history = jcrsession.getWorkspace().getVersionManager().getVersionHistory(node.getPath());
+			Workspace work=jcrsession.getWorkspace();
+			VersionManager verManager=work.getVersionManager();
+			VersionHistory history=verManager.getVersionHistory(node.getPath());
 			// To iterate over all versions
 			VersionIterator versions = history.getAllVersions();
 			while (versions.hasNext()) {
@@ -662,134 +1033,10 @@ public class FileRepository{
 	}
 
 	public CreateFileResponse createFile(String fileName, String parentFile,
-			String userid, String keywords, String description, byte[] is) {
+			String userid, String keywords, String description, byte[] is,long filesize) {
 		CreateFileResponse response = new CreateFileResponse();
-
+if(is!=null){
 		byte[] decodedBaseData=org.apache.commons.codec.binary.Base64.decodeBase64(is);
-		/*Path path2=Paths.get("D://testingFolder//decoded"+fileName);
-		try {
-			Files.write(path2, decodedBaseData);
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}*/
-		/*
-		
-		InputStream iss = null;
-		try {
-			iss = new FileInputStream(new java.io.File("D:/1.png"));
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		
-		InputStream inputStream = iss;
-		OutputStream outputStream = null;
-	 
-		try {
-			// read this file into InputStream	
-		//	inputStream=IOUtils.toInputStream(IOUtils.toString(is));
-			// write the inputStream to a FileOutputStream
-			outputStream = 
-	                    new FileOutputStream(new java.io.File("D:/3.png"));
-	 
-			int read = 0;
-			byte[] bytes = new byte[4096];
-	 
-			while ((read = inputStream.read(bytes)) != -1) {
-				outputStream.write(bytes, 0, read);
-			}
-	 
-			System.out.println("Done!");
-	 
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (inputStream != null) {
-				try {
-					inputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (outputStream != null) {
-				try {
-					// outputStream.flush();
-					outputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-	 
-			}
-		}
-		
-		byte[] imageBytes = null;
-		InputStream iss1 = null;
-		try {
-			iss1 = new FileInputStream(new java.io.File("D:/1.png"));
-			
-			byte[] buffer = new byte[4096];
-			int bytesRead = iss1.read(buffer);
-			String page = new String(buffer, 0, bytesRead, "UTF-8");
-			System.out.println(page);
-			
-			
-			imageBytes = IOUtils.toByteArray(iss1);
-			imageBytes=org.apache.commons.codec.binary.Base64.decodeBase64(org.apache.commons.codec.binary.Base64
-					.encodeBase64URLSafeString(imageBytes));
-			String issss=IOUtils.toString(imageBytes);
-			iss1=IOUtils.toInputStream(issss);	
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}catch(IOException e){
-			e.printStackTrace();
-		}
-
-		
-		InputStream inputStream1=null;
-		OutputStream outputStream1 = null;
-					try {
-						inputStream1=iss1;
-						// read this file into InputStream	
-					//	inputStream=IOUtils.toInputStream(IOUtils.toString(is));
-						// write the inputStream to a FileOutputStream
-						outputStream1 = 
-				                    new FileOutputStream(new java.io.File("D:/4.png"));
-				 
-						int read = 0;
-						byte[] bytes = new byte[4096];
-				 
-						while ((read = inputStream1.read(bytes)) != -1) {
-							outputStream1.write(bytes, 0, read);
-						}
-				 
-						System.out.println("Done!");
-				 
-					} catch (IOException e) {
-						e.printStackTrace();
-					} finally {
-						if (inputStream1 != null) {
-							try {
-								inputStream1.close();
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-						}
-						if (outputStream1 != null) {
-							try {
-								// outputStream.flush();
-								outputStream1.close();
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-				 
-						}
-					}
-*/		
-		
-		
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
 		//String sessionId=sessions.getId();
@@ -798,8 +1045,19 @@ public class FileRepository{
 		try {
 			Node root = jcrsession.getRootNode();
 			if (parentFile.length() > 1) {
+				System.out.println(parentFile);
 				root = root.getNode(parentFile.substring(1));
 			}
+			
+			//int count=0;
+			String fileNames=fileName;
+			String ext=fileName.substring(fileName.lastIndexOf('.'));
+			fileNames=fileName.substring(0,fileName.lastIndexOf('.'));
+			while(root.hasNode(fileNames+ext)){
+			//	count++;
+				fileNames+="-copy";
+			}
+			fileName=fileNames+ext;
 			if (root.hasProperty(Config.USERS_WRITE)) {
 				Value[] actualUsers = root.getProperty(Config.USERS_WRITE)
 						.getValues();
@@ -816,7 +1074,7 @@ public class FileRepository{
 								.getProperty(Config.EDMS_AUTHOR).getString())
 								.equals(Config.JCR_USERNAME))) {
 					jcrsession.save();
-					Version version = jcrsession.getWorkspace()
+					/*		Version version = jcrsession.getWorkspace()
 							.getVersionManager().checkin(root.getPath());
 					System.out.println(version.getName());
 					jcrsession
@@ -828,9 +1086,9 @@ public class FileRepository{
 									true);
 					jcrsession.getWorkspace().getVersionManager()
 							.checkout(root.getPath());
-
+					*/
 					file = root.addNode(fileName, Config.EDMS_DOCUMENT);
-
+					
 					if (root.hasProperty(Config.USERS_READ)
 							&& (!root.getProperty(Config.EDMS_AUTHOR)
 									.toString().equals(Config.EDMS_ADMIN))) {
@@ -891,8 +1149,7 @@ public class FileRepository{
 					if (root.hasProperty(Config.GROUPS_READ)
 							&& !root.getProperty(Config.EDMS_AUTHOR).toString()
 									.equals(Config.EDMS_ADMIN)) {
-						Value[] actualUser = root.getProperty(
-								Config.GROUPS_READ).getValues();
+						Value[] actualUser = root.getProperty(Config.GROUPS_READ).getValues();
 						String newUser = "";
 						for (int i = 0; i < actualUser.length; i++) {
 							newUser += actualUser[i].getString() + ",";
@@ -950,16 +1207,26 @@ public class FileRepository{
 
 					file.setProperty(Config.EDMS_KEYWORDS, keywords.split(","));
 					file.setProperty(Config.EDMS_NAME, fileName);
-					if (root.getProperty(Config.EDMS_AUTHOR).getString()
-							.equals(Config.EDMS_ADMIN)) {
+					if(root.hasProperty(Config.EDMS_OWNER)){
+						System.out.println(root.getProperty(Config.EDMS_OWNER).getString());
+						file.setProperty(Config.EDMS_OWNER,root.getProperty(Config.EDMS_OWNER).getString()+","+userid);
+					}else{
+						file.setProperty(Config.EDMS_OWNER,root.getProperty(Config.EDMS_AUTHOR).getString());
+					}
+					
+					
+				/*	if (root.getProperty(Config.EDMS_AUTHOR).getString()
+							.equals(Config.EDMS_ADMIN)) {*/
 
-						file.setProperty(Config.EDMS_AUTHOR, userid);
+					file.setProperty(Config.EDMS_AUTHOR, userid);
+					
+					//file.setProperty(Config.EDMS_PATH, root.getPath()+"/"+fileName);
 
-					} else {
+					/*} else {
 						file.setProperty(Config.EDMS_AUTHOR,
 								root.getProperty(Config.EDMS_AUTHOR)
 										.getString());
-					}
+					}*/
 						//file.setProperty(Config.EDMS_DESCRIPTION, is);
 					SimpleDateFormat format = new SimpleDateFormat(
 							"YYYY-MM-dd'T'HH:mm:ss.SSSZ");
@@ -973,47 +1240,48 @@ public class FileRepository{
 					file.setProperty(Config.EDMS_DOWNLOADDATE,
 							"");
 					file.setProperty(Config.EDMS_RECYCLE_DOC, false);
-					file.addMixin(JcrConstants.MIX_SHAREABLE);
+
+					file.setProperty(Config.EDMS_SIZE, filesize);
+					//file.addMixin(JcrConstants.MIX_SHAREABLE);
 					file.addMixin(JcrConstants.MIX_VERSIONABLE);
 					String iss;
 					InputStream	isss= new ByteArrayInputStream(decodedBaseData);
-					
-						
 
-						try {
+						/*try {
+							System.out.println(isss.available());
 							file.setProperty(Config.EDMS_SIZE,isss.available() );
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
-						}
+						}*/
 					ValueFactory valueFactory = jcrsession.getValueFactory();
 					Binary myBinary = valueFactory.createBinary(isss);
 					file.addMixin("mix:referenceable");
 					Node resNode = file
-							.addNode("edms:content", "edms:resource");
+							.addNode("jcr:content", "nt:resource");
 					Tika tika = new Tika();
 					String mimeType;
 					try {
 						mimeType = tika.detect(isss);
 						System.out.println("MimeType of the Uploading File is "+mimeType);
 						resNode.setProperty("jcr:mimeType", mimeType);
+						resNode.setProperty("jcr:data",myBinary);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}finally{
+						myBinary.dispose();
 						isss.close();
 					}
 					
-					resNode.setProperty("jcr:data",myBinary);
-					myBinary.dispose();
 					Calendar lastModified = Calendar.getInstance();
 					lastModified
 							.setTimeInMillis(lastModified.getTimeInMillis());
 					resNode.setProperty("jcr:lastModified", lastModified);
 					jcrsession.save();
-					root.setProperty(
+					/*root.setProperty(
 							Config.EDMS_NO_OF_DOCUMENTS,
 							Integer.parseInt(root.getProperty(
-									Config.EDMS_NO_OF_DOCUMENTS).getString()) + 1);
+									Config.EDMS_NO_OF_DOCUMENTS).getString()) + 1);*/
 					jcrsession.save();
 					file1 = setPropertiesWithoutStream(file, file1, userid,jcrsession);
 					response.setFile(file1);
@@ -1030,6 +1298,7 @@ public class FileRepository{
 			
 			//JcrRepositoryUtils.logout(sessionId);
 		}
+}
 		return response;
 	}
 
@@ -1037,7 +1306,6 @@ public class FileRepository{
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
 		//String sessionId=sessions.getId();
-		Repository repository = new TransientRepository();
 		// Session jcrsession = null;
 		File File1 = new File();
 		try {
@@ -1045,6 +1313,7 @@ public class FileRepository{
 			if (FilePath.length() > 1) {
 				root = root.getNode(FilePath.substring(1));
 			}
+			
 			SimpleDateFormat format = new SimpleDateFormat(
 					"YYYY-MM-dd'T'HH:mm:ss.SSSZ");
 			/*jcrsession.getWorkspace().getVersionManager().checkout(root.getPath());
@@ -1088,7 +1357,6 @@ public class FileRepository{
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
 		//String sessionId=sessions.getId();
-		Repository repository = new TransientRepository();
 		// Session jcrsession = null;
 		File File1 = new File();
 		try {
@@ -1434,7 +1702,6 @@ public class FileRepository{
 		ArrayOfFiles Files = new ArrayOfFiles();
 		Node root = null;
 
-		Repository repository = new TransientRepository();
 		// Session jcrsession = null;
 		try {
 			/*
@@ -1502,7 +1769,6 @@ public class FileRepository{
 		ArrayOfFiles Files = new ArrayOfFiles();
 		Node root = null;
 
-		Repository repository = new TransientRepository();
 		// Session jcrsession = null;
 		try {
 			/*
@@ -1569,44 +1835,25 @@ public class FileRepository{
 		Session jcrsession = sessions.getSession();
 		//String sessionId=sessions.getId();
 		FileListReturn FileList1 = new FileListReturn();
-		ArrayOfFiles Files = new ArrayOfFiles();
+		ArrayOfFiles files = new ArrayOfFiles();
 		Node root = null;
 		try {
-			root = jcrsession.getRootNode();
-			root = root.getNode(path.substring(1));
-			for (NodeIterator nit = root.getNodes(); nit.hasNext();) {
-				Node node = nit.nextNode();
-				/*
-				 * boolean recycle=false;
-				 * if(node.hasProperty(Config.EDMS_RECYCLE_DOC)){
-				 * recycle=node.getProperty
-				 * (Config.EDMS_RECYCLE_DOC).getBoolean(); }if(!recycle){
-				 */
-				if (!node.getProperty(Config.EDMS_AUTHOR).getString()
-						.equals(userid)) {
-					if (Config.EDMS_DOCUMENT.equals(node.getPrimaryNodeType()
-							.getName())) {
-
-						if (node.hasProperty(Config.USERS_READ)) {
-							Value[] actualUsers = node.getProperty(
-									Config.USERS_READ).getValues();
-							String newUser = "";
-							for (int i = 0; i < actualUsers.length; i++) {
-								newUser += actualUsers[i].getString() + ",";
-							}
-							// System.out.println("for node : "+node.getPath().toString()+" newUser contains "+node.getProperty(Config.EDMS_AUTHOR).getString()+" is "+newUser.contains(userid));
-							if (newUser.contains(userid)) {
-								File File = new File();
-								File = setProperties(node, File, userid,jcrsession);
-								Files.getFileList().add(File);
-							}
-						}
-					}
-				}
+			javax.jcr.query.QueryManager queryManager;
+			queryManager = jcrsession.getWorkspace().getQueryManager();
+			String expression = "select * from [edms:document] AS s WHERE ISCHILDNODE(s,'"+path+"') AND CONTAINS(s.["+Config.USERS_READ+"], '*"
+					+ userid + "*') ORDER BY s.["+Config.EDMS_Sorting_Parameter+"] ASC";
+			//expression = "select * from [edms:folder] AS s WHERE NAME like ['%san%']";
+		    javax.jcr.query.Query query = queryManager.createQuery(expression, javax.jcr.query.Query.JCR_SQL2);
+		    javax.jcr.query.QueryResult result = query.execute();
+			
+			for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
+					Node node = nit.nextNode();
+					File file = new File();
+					file=setPropertiesWithoutStream(node, file, userid, jcrsession);
+					files.getFileList().add(file);
 			}
-			// }
-			FileList1.setFileListResult(Files);
-		FileList1.setSuccess(true);
+			FileList1.setFileListResult(files);
+			FileList1.setSuccess(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally{
@@ -1622,44 +1869,25 @@ public class FileRepository{
 		Session jcrsession = sessions.getSession();
 		//String sessionId=sessions.getId();
 		FileListReturn FileList1 = new FileListReturn();
-		ArrayOfFiles Files = new ArrayOfFiles();
+		ArrayOfFiles files = new ArrayOfFiles();
 		Node root = null;
 		try {
-			root = jcrsession.getRootNode();
-			root = root.getNode(path.substring(1));
-			for (NodeIterator nit = root.getNodes(); nit.hasNext();) {
-				Node node = nit.nextNode();
-				/*
-				 * boolean recycle=false;
-				 * if(node.hasProperty(Config.EDMS_RECYCLE_DOC)){
-				 * recycle=node.getProperty
-				 * (Config.EDMS_RECYCLE_DOC).getBoolean(); }if(!recycle){
-				 */
-				if (!node.getProperty(Config.EDMS_AUTHOR).getString()
-						.equals(userid)) {
-					if (Config.EDMS_DOCUMENT.equals(node.getPrimaryNodeType()
-							.getName())) {
-
-						if (node.hasProperty(Config.USERS_READ)) {
-							Value[] actualUsers = node.getProperty(
-									Config.USERS_READ).getValues();
-							String newUser = "";
-							for (int i = 0; i < actualUsers.length; i++) {
-								newUser += actualUsers[i].getString() + ",";
-							}
-							// System.out.println("for node : "+node.getPath().toString()+" newUser contains "+node.getProperty(Config.EDMS_AUTHOR).getString()+" is "+newUser.contains(userid));
-							if (newUser.contains(userid)) {
-								File File = new File();
-								File = setPropertiesWithoutStream(node, File, userid,jcrsession);
-								Files.getFileList().add(File);
-							}
-						}
-					}
-				}
+			javax.jcr.query.QueryManager queryManager;
+			queryManager = jcrsession.getWorkspace().getQueryManager();
+			String expression = "select * from [edms:document] AS s WHERE ISCHILDNODE(s,'"+path+"') AND CONTAINS(s.["+Config.USERS_READ+"], '*"
+					+ userid + "*') ORDER BY s.["+Config.EDMS_Sorting_Parameter+"] ASC";
+			//expression = "select * from [edms:folder] AS s WHERE NAME like ['%san%']";
+		    javax.jcr.query.Query query = queryManager.createQuery(expression, javax.jcr.query.Query.JCR_SQL2);
+		    javax.jcr.query.QueryResult result = query.execute();
+			
+			for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
+					Node node = nit.nextNode();
+					File file = new File();
+					file=setPropertiesWithoutStream(node, file, userid, jcrsession);
+					files.getFileList().add(file);
 			}
-			// }
-			FileList1.setFileListResult(Files);
-		FileList1.setSuccess(true);
+			FileList1.setFileListResult(files);
+			FileList1.setSuccess(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally{
@@ -1790,9 +2018,9 @@ public class FileRepository{
 			jcrsession.save();
 			root.remove();
 			jcrsession.save();
-			int no_of_Files = Integer.parseInt(parent.getProperty(
+		/*	int no_of_Files = Integer.parseInt(parent.getProperty(
 					Config.EDMS_NO_OF_DOCUMENTS).getString());
-			parent.setProperty(Config.EDMS_NO_OF_DOCUMENTS, no_of_Files + 1);
+			parent.setProperty(Config.EDMS_NO_OF_DOCUMENTS, no_of_Files + 1);*/
 			jcrsession.save();
 			/*
 			 * if(root.hasNodes()){ for (NodeIterator nit = root.getNodes();
@@ -1837,7 +2065,7 @@ public class FileRepository{
 				file.setProperty(Config.EDMS_RECYCLE_DOC, false);
 				// file.setProperty(Config.EDMS_NO_OF_FileS, 0);
 				// file.setProperty(Config.EDMS_NO_OF_DOCUMENTS, 0);
-				file.addMixin(JcrConstants.MIX_SHAREABLE);
+			//	file.addMixin(JcrConstants.MIX_SHAREABLE);
 				file.addMixin(JcrConstants.MIX_VERSIONABLE);
 				jcrsession.save();
 			} else {
@@ -1853,7 +2081,7 @@ public class FileRepository{
 
 	}
 
-	public RenameFileRes renameFile(String oldFilePath, String newFilePath,
+/*	public RenameFileRes renameFile(String oldFilePath, String newFilePath,
 			String userid) {
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
 		Session jcrsession = sessions.getSession();
@@ -1872,8 +2100,9 @@ public class FileRepository{
 							oldFilePath.substring(0, oldFilePath.lastIndexOf("/"))
 									+ "/" + newFilePath);SimpleDateFormat format = new SimpleDateFormat(
 						"YYYY-MM-dd'T'HH:mm:ss.SSSZ");
-					forVer.setProperty(Config.EDMS_MODIFICATIONDATE,(format.format(new Date())).toString().replace("+0530", "Z") );
-					jcrsession.save();	
+									forVer.setProperty(Config.EDMS_MODIFICATIONDATE,(format.format(new Date())).toString().replace("+0530", "Z") );
+									forVer.setProperty(Config.EDMS_NAME, newFilePath);
+									jcrsession.save();	
 					response.setResponse("Success");
 					response.setSuccess(true);} else {
 
@@ -1889,7 +2118,7 @@ public class FileRepository{
 		}
 		return response;
 	}
-
+*/
 	/* vfc */
 	public VCFFileListReturn getVCFFileAtt(String fdrname, String userid) {	
 		SessionWrapper sessions =JcrRepositoryUtils.login(userid, "redhat");
@@ -2158,11 +2387,22 @@ public class FileRepository{
 		try {
 			queryManager = jcrsession.getWorkspace().getQueryManager();
 			// Create a query object ...
+			
 			String expression = "select * from [edms:folder] AS s WHERE ISDESCENDANTNODE(s,'"
 					+ folderPath
 					+ "') AND CONTAINS(s.["+searchParam+"], '*"
-					+ searchParamValue + "*')";
-			System.out.println(expression);
+					+ searchParamValue + "*')  and CONTAINS(s.[edms:owner],'*"+userid+"* OR *"+Config.EDMS_ADMINISTRATOR+"*') ";
+			if(searchParamValue.indexOf(':')>=0){
+				String[] searchParamValues=searchParamValue.split(":");
+				expression = "select * from [edms:folder] AS s WHERE ISDESCENDANTNODE(s,'"
+			+ folderPath
+			+ "') AND CONTAINS(s.["+searchParam+"], '*"
+			+ searchParamValues[1]+"*')  and CONTAINS(s.[edms:owner],'*"+userid+"* OR *"+Config.EDMS_ADMINISTRATOR+"*') ";
+
+			}
+			
+			
+			//System.out.println(expression);
 			
 			javax.jcr.query.Query query = queryManager.createQuery(expression,
 					javax.jcr.query.Query.JCR_SQL2);
@@ -2172,24 +2412,38 @@ public class FileRepository{
 			
 			for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
 				Node node = nit.nextNode();
+				if(!node.getPath().contains("trash"))
+				{
 				Folder folder = new Folder();
 				new FolderRepository().setProperties(node, folder, userid,jcrsession);
-				folders.getFolderList().add(folder);
+				folders.getFolderList().add(folder);}
 			}
 			
 			expression = "select * from [edms:document] AS s WHERE ISDESCENDANTNODE(s,'"
 					+ folderPath
 					+ "') AND CONTAINS(s.["+searchParam+"], '*"
-					+ searchParamValue + "*')";
+					+ searchParamValue + "*')   and CONTAINS(s.[edms:owner],'*"+userid+"* OR *"+Config.EDMS_ADMINISTRATOR+"*') ";
+			
+			if(searchParamValue.indexOf(':')>=0){
+				String[] searchParamValues=searchParamValue.split(":");
+				expression = "select * from [edms:document] AS s WHERE ISDESCENDANTNODE(s,'"
+						+ folderPath
+						+ "') AND CONTAINS(s.["+searchParam+"], '*"
+						+ searchParamValues[1]+"*')  and CONTAINS(s.[edms:owner],'*"+userid+"* OR *"+Config.EDMS_ADMINISTRATOR+"*') ";
+
+						}
+			
 			query = queryManager.createQuery(expression,
 					
 					javax.jcr.query.Query.JCR_SQL2);
 			result = query.execute();
 			for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
 				Node node = nit.nextNode();
+				if(!node.getPath().contains("trash"))
+				{
 				File file = new File();
 				new FileRepository().setPropertiesWithoutStream(node, file, userid,jcrsession);
-				files.getFileList().add(file);
+				files.getFileList().add(file);}
 			}
 			filesFolders.setFilesList(files);
 			filesFolders.setFoldersList(folders);
@@ -2217,28 +2471,34 @@ public class FileRepository{
 			queryManager = jcrsession.getWorkspace().getQueryManager();
 			// Create a query object ...
 			String expression = "";
-
+		//	searchParam=Config.EDMS_CREATIONDATE;
 			Calendar cal = Calendar.getInstance();
 			SimpleDateFormat format = new SimpleDateFormat(
 					"YYYY-MM-dd'T'HH:mm:ss.SSSZ");
 			format.format(cal.getTime());
 			Date before = cal.getTime();
-			System.out.println(before);
-			System.out.println("current date : "
-					+ format.format(before).substring(0,
-							format.format(before).lastIndexOf("+")) + "Z");
+//			System.out.println(before);
+//			System.out.println("current date : "+ format.format(before).substring(0,format.format(before).lastIndexOf("+")) + "Z");
 			cal.add(Calendar.MONTH, -1);
 			cal.add(Calendar.DATE, -20);
 			Date dateafter = cal.getTime();
 
-			System.out.println("one month before date : "
+			/*System.out.println("one month before date : "
 					+ format.format(dateafter).substring(0,
-							format.format(dateafter).lastIndexOf("+")) + "Z");
+							format.format(dateafter).lastIndexOf("+")) + "Z");*/
 			expression = "SELECT * FROM [edms:folder] AS p WHERE ISDESCENDANTNODE(p,'"
 					+ folderPath
-					+ "') AND CONTAINS(s.["+searchParam+"], '*"
+					+ "') AND CONTAINS(p.["+searchParam+"], '*"
 					+ searchParamValue + "*')";
-			/*
+			
+			
+			expression = "SELECT * FROM [edms:folder] AS p WHERE ISDESCENDANTNODE(p,'"
+					+ folderPath
+					+ "') AND ["
+					+ searchParam
+					+ "] like '%"
+					+ searchParamValue + "%'   and CONTAINS(p.[edms:owner],'*"+userid+"* OR *"+Config.EDMS_ADMINISTRATOR+"*') ";
+			/* CONTAINS(s.[edms:owner],'*"+userid+"* OR *"+Config.EDMS_ADMINISTRATOR+"*') 
 			 * + "AND p.[edms:modified] >= CAST('" +
 			 * format.format(dateafter).replace("+0530", "Z") +
 			 * "' AS DATE) AND p.[edms:modified] <= CAST('" +
@@ -2247,26 +2507,37 @@ public class FileRepository{
 
 			javax.jcr.query.Query query = queryManager.createQuery(expression,
 					javax.jcr.query.Query.JCR_SQL2);
+			query.setLimit(15);
 			javax.jcr.query.QueryResult result = query.execute();
 
 			for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
 				Node node = nit.nextNode();
-				Folder folder = new Folder();
-				new FolderRepository().setGeneralFolderProperties(node, folder, userid);
-				folders.getFolderList().add(folder);
+				if(!node.getPath().contains("trash"))
+				{Folder folder = new Folder();
+				new FolderRepository().setProperties(node, folder, userid,jcrsession);
+				folders.getFolderList().add(folder);}
 			}
 			expression = "select * from [edms:document] AS s WHERE ISDESCENDANTNODE(s,'"
 					+ folderPath
 					+ "') AND CONTAINS(s.["+searchParam+"], '*"
 					+ searchParamValue + "*')";
+			
+			expression = "select * from [edms:document] AS s WHERE ISDESCENDANTNODE(s,'"
+					+ folderPath
+					+ "') AND ["
+					+ searchParam
+					+ "] like '%"
+					+ searchParamValue + "%'  and CONTAINS(s.[edms:owner],'*"+userid+"* OR *"+Config.EDMS_ADMINISTRATOR+"*') ";
 			query = queryManager.createQuery(expression,
 					javax.jcr.query.Query.JCR_SQL2);
+			query.setLimit(15);
 			result = query.execute();
 			for (NodeIterator nit = result.getNodes(); nit.hasNext();) {
 				Node node = nit.nextNode();
-				File file = new File();
+				if(!node.getPath().contains("trash"))
+				{File file = new File();
 				new FileRepository().setPropertiesWithoutStream(node, file, userid,jcrsession);
-				files.getFileList().add(file);
+				files.getFileList().add(file);}
 			}
 			filesFolders.setFilesList(files);
 			filesFolders.setFoldersList(folders);
@@ -2294,8 +2565,7 @@ public class FileRepository{
 			// System.out.println(forVer.getProperty(Config.EDMS_AUTHOR).getString());
 			if (forVer.getProperty(Config.EDMS_AUTHOR).getString()
 					.equals(userid)) {
-				forVer.checkin();
-				forVer.checkout();
+				
 				Node content=forVer.getNode("edms:content");
 				InputStream	isss=null;
 				byte[] encodedImage = org.apache.commons.codec.binary.Base64
@@ -2319,10 +2589,13 @@ public class FileRepository{
 			response.setSuccess(false);
 			e.printStackTrace();
 		}finally{
+			
 			//JcrRepositoryUtils.logout(sessionId);
 		}
 		
 		return res;
 	}
+
+	
 
 }

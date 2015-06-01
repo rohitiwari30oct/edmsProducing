@@ -42,6 +42,7 @@
 [edms:document] > nt:hierarchyNode, mix:referenceable, mix:lockable, mix:accessControlled
 - edms:author (string)
 - edms:name (string)
+- edms:path (string)
 - edms:language (string)
 - edms:title (String)
 - edms:created (String)
@@ -62,6 +63,7 @@
 [edms:folder] > nt:folder, mix:referenceable, mix:lockable, mix:accessControlled
 - edms:author (string)
 - edms:name (string)
+- edms:path (string)
 - edms:title (String)
 - edms:description (String)
 - edms:created (String)

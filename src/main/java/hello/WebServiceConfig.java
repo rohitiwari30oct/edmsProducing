@@ -82,8 +82,8 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 		basicDataSource.setUrl("jdbc:mysql://localhost:3306/edms?useUnicode=true&characterEncoding=UTF-8");
 		basicDataSource.setUsername("root");
 		basicDataSource.setPassword("hh##8993Avi#00??");
-		//basicDataSource.setUsername("edms");
-		//basicDataSource.setPassword("Me8pHCL##??kk7890");
+	//	basicDataSource.setUsername("edms");
+	//	basicDataSource.setPassword("Me8pHCL##??kk7890");
 		return basicDataSource;
 	}
 	

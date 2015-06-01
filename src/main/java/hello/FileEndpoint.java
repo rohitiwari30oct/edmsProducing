@@ -117,7 +117,7 @@ public class FileEndpoint {
 			@RequestPayload CreateFileRequest request) {
 		CreateFileResponse response = FileRepository.createFile(
 				request.getFileName(),request.getParentFile(),
-				request.getUserid(),request.getKeywords(),request.getNotes(),request.getFileContent());
+				request.getUserid(),request.getKeywords(),request.getNotes(),request.getFileContent(),request.getFileSize());
 		return response;
 	}
 
@@ -168,14 +168,14 @@ public class FileEndpoint {
 		response.setRestoreFileResponse(FileRepository.restoreFile(request.getFilePath(),request.getUserid()));
 		return response;
 	}
-	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "renameFileRequest")
+/*	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "renameFileRequest")
 	@ResponsePayload
 	public RenameFileResponse renameFileRequest(
 			@RequestPayload RenameFileRequest request) {
 		RenameFileResponse response = new RenameFileResponse();
 		response.setRenameFileRes(FileRepository.renameFile(request.getOldName(),request.getNewName(),request.getUserid()));
 		return response;
-	}
+	}*/
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "sortByPropertyRequest")
 	@ResponsePayload
 	public SortByPropertyResponse sortByPropertyRequest(

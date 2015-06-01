@@ -29,6 +29,7 @@ public class Config {
 	public static String EDMS_ADMIN="admin";
 	public static String JCR_PASSWORD="admin";
 	public static String JCR_SYSTEM="jcr:system";
+	public static final String EDMS_Sorting_Parameter = "edms:name";
 	public static final String EDMS_FOLDER = "edms:folder";
 	public static final String EDMS_NAME = "edms:name";
 	public static final String EDMS_TITLE = "edms:title";
@@ -55,8 +56,12 @@ public class Config {
 	public static final String EDMS_OWNER = "edms:owner";
 	public static final String EDMS_DOWNLOADDATE = "edms:downloadDate";
 	public static final String EDMS_ACCESSDATE = "edms:accessDate";
+	public static String EDMS_SORT_ORDER = "edms:created";
+	public static String EDMS_ADMINISTRATOR="administrator@avi-oil.com";
 	public static final String DEFAULT_USER_ROLE = "ROLE_USER";
 	public static final Object DEFAULT_ADMIN_ROLE = "ROLE_ADMIN";
+	public static final String EDMS_BULKUPLOAD_PATH = "/maildir/forUpload";
+	public static final String EDMS_PATH = "edms:path";
 	
 	public static void load(String userid,String password){
 		JCR_USERNAME=userid;

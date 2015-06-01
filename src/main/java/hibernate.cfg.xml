@@ -7,7 +7,7 @@
     
     <session-factory>
      <property name="hbm2ddl.auto">update</property> 
-      <mapping class="com.edms.entity.Group"/>
+<!--       <mapping class="com.edms.entity.Group"/> -->
     </session-factory>
     
     </hibernate-configuration>

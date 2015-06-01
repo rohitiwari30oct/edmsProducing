@@ -1,13 +1,20 @@
 package edms.core;
 
 
+import hello.FileRepository;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.security.AccessController;
 import java.security.Principal;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import javax.jcr.LoginException;
 import javax.jcr.NamespaceRegistry;
@@ -23,15 +30,19 @@ import javax.jcr.security.AccessControlEntry;
 import javax.jcr.security.AccessControlList;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.Privilege;
+import javax.security.auth.Subject;
 
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.api.JackrabbitSession;
 import org.apache.jackrabbit.api.security.principal.PrincipalManager;
+import org.apache.jackrabbit.api.security.user.Authorizable;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.commons.cnd.ParseException;
+import org.apache.jackrabbit.core.SessionImpl;
+import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 
 public class JcrRepositorySession {
 
@@ -51,17 +62,28 @@ public class JcrRepositorySession {
 	}
 	public static Session getSession(String userid) {
 		 getRepository();
-		 
-		 
 		try {
-		//	userid=(userid.split("@"))[0];
-			SimpleCredentials credential=new SimpleCredentials("admin",
-					"admin".toCharArray());
-			
-			jcrsession = repository.login(credential); 
-			System.out.println("userid is : "+jcrsession.getUserID());
-			Node root=jcrsession.getRootNode();
-			//createUser("sanjay", "redhat", jcrsession, jcrsession.getRootNode());
+						jcrsession = repository.login(new SimpleCredentials("sanjay",
+								"redhat".toCharArray()), "default");
+						SessionImpl si = (SessionImpl) jcrsession;
+						JackrabbitSession js = ((JackrabbitSession) jcrsession);
+						Subject subject = ((SessionImpl) js).getSubject();
+						Set<Principal> principals = new LinkedHashSet<Principal>();
+						principals = subject.getPrincipals();
+						Subject combinedSubject=new Subject(false,subject.getPrincipals(),subject.getPublicCredentials(),subject.getPrivateCredentials());
+						combinedSubject.getPrincipals().add(new AdminPrincipal("admin"));
+						try {
+							jcrsession = Subject.doAsPrivileged(combinedSubject,
+									new PrivilegedExceptionAction<Session>() {
+										public Session run() throws Exception {
+											Session ss = repository.login();
+											return ss;
+										}
+									}, AccessController.getContext());
+						} catch (PrivilegedActionException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 			try{
 			registerNamespace(jcrsession, jcrsession.getRootNode());
 			}catch(Exception e){
@@ -126,8 +148,13 @@ public class JcrRepositorySession {
 		try {
 			JackrabbitSession js = (JackrabbitSession) jcrsession;
 			UserManager userManager = js.getUserManager();
-			user = userManager.createUser(userid,password);
-				
+
+			Authorizable auth=userManager.getAuthorizable(userid);
+			if(auth==null){
+			user = userManager.createUser(userid,password);		
+			JcrRepositorySession.setPolicy(jcrsession, null, userid,null,  Privilege.JCR_ALL);
+			}
+			//JcrRepositorySession.setPolicy(jcrsession, null, userid,null,  Privilege.JCR_ALL);
 			
 			/*root=jcrsession.getRootNode();
 			setPolicy(jcrsession, root, userid,root.getPath(),  Privilege.JCR_ALL);
@@ -153,11 +180,16 @@ public class JcrRepositorySession {
 	}
 	public static void setPolicy(Session jcrsession, Node root, String userid,
 			String path,String permission) {
-		SimpleCredentials credential=new SimpleCredentials("admin",
-				"admin".toCharArray());
+		//to be removed when userwise workspaces impl
+		String domain=userid.substring(userid.indexOf('@')+1);
+		
+		
+		SimpleCredentials credential=new SimpleCredentials("admin","admin".toCharArray());
 		try {
 			Repository repository=JcrUtils.getRepository();
-			jcrsession = repository.login(credential,userid); 
+			jcrsession = repository.login(credential,domain); 
+			//jcrsession=repository.login(credential,userid);
+			
 			
 			//for first creation of user
 			root=jcrsession.getRootNode();
@@ -198,9 +230,9 @@ public class JcrRepositorySession {
 				acl = (AccessControlList) aMgr.getPolicies(path)[0];
 			}
 			// remove all existing entries
-			for (AccessControlEntry e : acl.getAccessControlEntries()) {
+			/*for (AccessControlEntry e : acl.getAccessControlEntries()) {
 				acl.removeAccessControlEntry(e);
-			}
+			}*/
 			/*	Group grp = ((Group) js.getUserManager().getAuthorizable(
 					"top-management"));
 				//System.out.println("group path is : " + grp.getID()
@@ -241,7 +273,10 @@ public class JcrRepositorySession {
 	public static Node createFolder(String folderName,Session jcrsession) {
 		Node folder = null;
 		try {
+	//		System.out.println(jcrsession.getWorkspace().getName());
 			Node root = jcrsession.getRootNode();
+			/*root.getNode(folderName).remove();
+			jcrsession.save();*/
 			if(!root.hasNode(folderName)){
 			folder = root.addNode(folderName, Config.EDMS_FOLDER);
 			folder.setProperty(Config.USERS_READ, new String[] {Config.EDMS_ADMIN });
@@ -255,7 +290,7 @@ public class JcrRepositorySession {
 			folder.setProperty(Config.EDMS_KEYWORDS, "root,folder".split(","));
 			folder.setProperty(Config.EDMS_AUTHOR, "admin");
 			folder.setProperty(Config.EDMS_OWNER, "admin");
-			folder.setProperty(Config.EDMS_DESCRIPTION, "this is root folder");
+			folder.setProperty(Config.EDMS_DESCRIPTION, "root folder");
 			folder.setProperty(Config.EDMS_CREATIONDATE,(new Date()).toString());
 			folder.setProperty(Config.EDMS_MODIFICATIONDATE,(new Date()).toString());
 			folder.setProperty(Config.EDMS_ACCESSDATE,(new Date()).toString());
@@ -263,9 +298,18 @@ public class JcrRepositorySession {
 			folder.setProperty(Config.EDMS_RECYCLE_DOC, false);
 			folder.setProperty(Config.EDMS_NO_OF_FOLDERS, 0);
 			folder.setProperty(Config.EDMS_NO_OF_DOCUMENTS, 0);
-			folder.addMixin(JcrConstants.MIX_SHAREABLE);
+			//folder.addMixin(JcrConstants.MIX_SHAREABLE);
 			folder.addMixin(JcrConstants.MIX_VERSIONABLE);
-			jcrsession.save();}
+			jcrsession.save();
+			/*if(!folderName.contains("Trash")){
+				FileRepository.setPolicyForDeny(jcrsession.getUserID());
+				FileRepository.setPolicyForSystem(jcrsession.getUserID(),"jcr:system");
+				FileRepository.setPolicyForTest(jcrsession.getUserID());
+			}
+			*/
+			
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

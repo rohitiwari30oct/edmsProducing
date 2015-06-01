@@ -2,12 +2,18 @@ package hello;
 
 import com.edms.documentmodule.AddKeywordRequest;
 import com.edms.documentmodule.AddKeywordResponse;
+import com.edms.documentmodule.AddNotesRequest;
+import com.edms.documentmodule.AddNotesResponse;
 import com.edms.documentmodule.AssignSinglePermissionRequest;
 import com.edms.documentmodule.AssignSinglePermissionResponse;
+import com.edms.documentmodule.CopyDocRequest;
+import com.edms.documentmodule.CopyDocResponse;
 import com.edms.documentmodule.CreateFolderRequest;
 import com.edms.documentmodule.CreateFolderResponse;
 import com.edms.documentmodule.DeleteFolderRequest;
 import com.edms.documentmodule.DeleteFolderResponse;
+import com.edms.documentmodule.EditKeywordRequest;
+import com.edms.documentmodule.EditKeywordResponse;
 import com.edms.documentmodule.GetFolderByPathRequest;
 import com.edms.documentmodule.GetFolderByPathResponse;
 import com.edms.documentmodule.GetFolderRequest;
@@ -20,18 +26,23 @@ import com.edms.documentmodule.GetSharedFoldersRequest;
 import com.edms.documentmodule.GetSharedFoldersResponse;
 import com.edms.documentmodule.HasChildRequest;
 import com.edms.documentmodule.HasChildResponse;
+import com.edms.documentmodule.MoveDocRequest;
+import com.edms.documentmodule.MoveDocResponse;
 import com.edms.documentmodule.RecentlyModifiedRequest;
 import com.edms.documentmodule.RecentlyModifiedResponse;
 import com.edms.documentmodule.RecycleFolderRequest;
 import com.edms.documentmodule.RecycleFolderResponse;
 import com.edms.documentmodule.RemoveKeywordRequest;
 import com.edms.documentmodule.RemoveKeywordResponse;
+import com.edms.documentmodule.RemoveNotesRequest;
+import com.edms.documentmodule.RemoveNotesResponse;
 import com.edms.documentmodule.RenameFolderRequest;
 import com.edms.documentmodule.RenameFolderResponse;
 import com.edms.documentmodule.RestoreFolderRequest;
 import com.edms.documentmodule.RestoreFolderResponse;
 import com.edms.documentmodule.RestoreVersionRequest;
 import com.edms.documentmodule.RestoreVersionResponse;
+import com.edms.documentmodule.SetSortOrderRequest;
 import com.edms.documentmodule.ShareFolderByPathRequest;
 import com.edms.documentmodule.ShareFolderByPathResponse;
 
@@ -152,6 +163,30 @@ public class FolderEndpoint {
 		response.setSuccess(folderRepository.removeKeyword(request.getFolderPath(),request.getUserid(),request.getKeyword()));
 		return response;
 	}
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "editKeywordRequest")
+	@ResponsePayload
+	public EditKeywordResponse editKeywordRequest(
+			@RequestPayload EditKeywordRequest request) {
+		EditKeywordResponse response = new EditKeywordResponse();
+		response.setSuccess(folderRepository.editKeyword(request.getFolderPath(),request.getUserid(),request.getKeyword(),request.getEditedKeyword()));
+		return response;
+	}
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "addNotesRequest")
+	@ResponsePayload
+	public AddNotesResponse addNotesRequest(
+			@RequestPayload AddNotesRequest request) {
+		AddNotesResponse response = new AddNotesResponse();
+		response.setSuccess(folderRepository.addNote(request.getFolderPath(),request.getUserid(),request.getNote()));
+		return response;
+	}
+/*	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "removeNotesRequest")
+	@ResponsePayload
+	public RemoveNotesResponse removeNotesRequest(
+			@RequestPayload RemoveNotesRequest request) {
+		RemoveNotesResponse response = new RemoveNotesResponse();
+		response.setSuccess(folderRepository.removeNote(request.getFolderPath(),request.getUserid(),request.getNote()));
+		return response;
+	}*/
 	
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "deleteFolderRequest")
 	@ResponsePayload
@@ -190,7 +225,7 @@ public class FolderEndpoint {
 		}
 		return response;
 	}
-	
+
 
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "recentlyModifiedRequest")
 	@ResponsePayload
@@ -198,6 +233,38 @@ public class FolderEndpoint {
 			@RequestPayload RecentlyModifiedRequest request) {
 		RecentlyModifiedResponse response = new RecentlyModifiedResponse();
 		response=folderRepository.recentlyModified(request.getFolderPath(),request.getUserid());
+		return response;
+	}
+	
+	
+
+
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "moveDocRequest")
+	@ResponsePayload
+	public MoveDocResponse moveDoc(
+			@RequestPayload MoveDocRequest request) {
+		MoveDocResponse response = new MoveDocResponse();
+		response=folderRepository.moveDoc(request.getSrcDocPath(),request.getDestDocPath(),request.getUserid());
+		return response;
+	}
+	
+	
+
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "copyDocRequest")
+	@ResponsePayload
+	public CopyDocResponse copyDoc(
+			@RequestPayload CopyDocRequest request) {
+		CopyDocResponse response = new CopyDocResponse();
+		response=folderRepository.copyDoc(request.getSrcDocPath(),request.getDestDocPath(),request.getUserid());
+		return response;
+	}
+
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "setSortOrderRequest")
+	@ResponsePayload
+	public com.edms.documentmodule.SetSortOrderResponse SetSortOrderResponse(
+			@RequestPayload SetSortOrderRequest request) {
+		com.edms.documentmodule.SetSortOrderResponse response = new com.edms.documentmodule.SetSortOrderResponse();
+		response=folderRepository.setSortOrder(request.getSortOrder(),request.getUserid());
 		return response;
 	}
 	

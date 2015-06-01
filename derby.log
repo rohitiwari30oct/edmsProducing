@@ -1,24 +1,12 @@
 ----------------------------------------------------------------
-2015-03-14 04:59:30.898 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.5.3.0 - (802917): instance a816c00e-014c-16a6-c645-000004ff4a90
+2015-05-30 09:57:31.167 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.5.3.0 - (802917): instance a816c00e-014d-a441-4706-000004566518
 on database directory D:\SourceControl\edmsProducing10jan\EDMS-Web-Service-Producing\jackrabbit\version\db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2015-03-14 04:59:32.791 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.5.3.0 - (802917): instance 888c4022-014c-16a6-c645-000004ff4a90
-on database directory D:\SourceControl\edmsProducing10jan\EDMS-Web-Service-Producing\jackrabbit\workspaces\default\db  
-
-Database Class Loader started - derby.database.classpath=''
-----------------------------------------------------------------
-2015-03-14 04:59:36.015 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.5.3.0 - (802917): instance 6965c036-014c-16a6-c645-000004ff4a90
-on database directory D:\SourceControl\edmsProducing10jan\EDMS-Web-Service-Producing\jackrabbit\workspaces\security\db  
-
-Database Class Loader started - derby.database.classpath=''
-----------------------------------------------------------------
-2015-03-14 04:59:37.291 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.5.3.0 - (802917): instance 4aa3404a-014c-16a6-c645-000004ff4a90
-on database directory D:\SourceControl\edmsProducing10jan\EDMS-Web-Service-Producing\jackrabbit\workspaces\nirbhay@silvereye.in\db  
+2015-05-30 09:57:33.608 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.5.3.0 - (802917): instance 888c4022-014d-a441-4706-000004566518
+on database directory D:\SourceControl\edmsProducing10jan\EDMS-Web-Service-Producing\jackrabbit\workspaces\avi-oil.com\db  
 
 Database Class Loader started - derby.database.classpath=''
