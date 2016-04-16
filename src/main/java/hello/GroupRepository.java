@@ -120,7 +120,7 @@ public class GroupRepository {
 			
 			
 						jcrsession = repository.login(new SimpleCredentials(
-								userid,"redhat".toCharArray()));
+								userid,password.toCharArray()));
 						//Workspace ws=jcrsession.getWorkspace();
 						//ws.createWorkspace(userid);
 						
@@ -178,7 +178,7 @@ public class GroupRepository {
 			user = (User) userManager.getAuthorizable("sanjay@avi-oil.com");
 			user.remove();
 			jcrsession.save();
-			user = userManager.createUser("sanjay@avi-oil.com", "redhat");
+			user = userManager.createUser("sanjay@avi-oil.com", password);
 			jcrsession.save();
 			root =jcrsession.getRootNode();
 			System.out.println("root after add user "+root.getPath().toString());
@@ -289,7 +289,7 @@ public class GroupRepository {
 		Node folder=null;
 		Folder folder1=new Folder();
 		try {
-			jcrsession = repository.login(new SimpleCredentials(userid,"redhat".toCharArray()));
+			jcrsession = repository.login(new SimpleCredentials(userid,password.toCharArray()));
 			Node root = jcrsession.getRootNode();
 			if(parentFolder.length()>1){
 			root=root.getNode(parentFolder.substring(1));
@@ -333,7 +333,7 @@ public class GroupRepository {
 		Session jcrsession=null;
 		Folder folder1=new Folder();
 		try {
-			jcrsession = repository.login(new SimpleCredentials(userid,"redhat".toCharArray()));
+			jcrsession = repository.login(new SimpleCredentials(userid,password.toCharArray()));
 			
 			Node root = jcrsession.getRootNode();
 			if(folderPath.length()>1){

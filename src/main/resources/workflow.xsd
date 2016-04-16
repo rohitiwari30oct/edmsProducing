@@ -12,6 +12,44 @@
 	</xs:element>
 
 	<xs:element name="getAuthorizeUserResponse" />
+	<xs:element name="uploadAttachmentRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userId" type="xs:string" />
+				<xs:element name="processInstId" type="xs:string" />
+				<xs:element name="fileName" type="xs:string" />
+				<xs:element name="fileContent" type="xs:base64Binary" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="uploadAttachmentResponse" >
+<xs:complexType>
+			<xs:sequence>
+				<xs:element name="employeeId" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+
+</xs:element>
+	<xs:element name="getAttachmentRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userId" type="xs:string" />
+				<xs:element name="attachmentID" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getAttachmentResponse" >
+<xs:complexType>
+			<xs:sequence>
+				<xs:element name="fileContent" type="xs:base64Binary" />
+				<xs:element name="fileName" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+
+</xs:element>
+
 
 	<xs:element name="getStartWorkflowRequest">
 		<xs:complexType>
@@ -44,6 +82,22 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="image" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getFetchUserTaskFromHistoryRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="employeeId" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getFetchUserTaskFromHistoryResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userTaskListReturn" type="tns:UserTaskListReturn" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -115,6 +169,21 @@
 
 	<xs:element name="getContinueTaskResponse" />
 
+	<xs:element name="getTaskFormDataFromHistoryRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="taskId" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getTaskFormDataFromHistoryResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="taskFormData" type="tns:TaskFormData" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 	<xs:element name="getTaskFormDataRequest">
 		<xs:complexType>
 			<xs:sequence>
@@ -197,5 +266,21 @@
 	</xs:element>
 
 	<xs:element name="getClaimTaskResponse" />
+	
+	<xs:element name="getWorkFlowSnRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="workFlowFormName" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="getWorkFlowSnResponse" >
+	<xs:complexType>
+			<xs:sequence>
+				<xs:element name="workFlowSN" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 
 </xs:schema>

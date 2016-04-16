@@ -17,13 +17,10 @@ public class Group {
 	private int sn;
 	
 	@Column(nullable=false)
-	private String groupName;
+	private String formName;
 	
-	@Column
-	private String[] users;
-	
-	@Column
-	private int no_of_users;
+	@Column(nullable=false)
+	private String formType;
 
 	public int getSn() {
 		return sn;
@@ -33,28 +30,20 @@ public class Group {
 		this.sn = sn;
 	}
 
-	public String getGroupName() {
-		return groupName;
+	public String getFormName() {
+		return formName;
 	}
 
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
+	public void setFormName(String formName) {
+		this.formName = formName;
 	}
 
-	public String[] getUsers() {
-		return users;
+	public String getFormType() {
+		return formType;
 	}
 
-	public void setUsers(String[] users) {
-		this.users = users;
-	}
-
-	public int getNo_of_users() {
-		return no_of_users;
-	}
-
-	public void setNo_of_users(int no_of_users) {
-		this.no_of_users = no_of_users;
+	public void setFormType(String formType) {
+		this.formType = formType;
 	}
 	
 	

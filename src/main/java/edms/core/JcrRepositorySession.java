@@ -3,7 +3,6 @@ package edms.core;
 
 import hello.FileRepository;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -16,7 +15,6 @@ import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.jcr.LoginException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.Node;
 import javax.jcr.Repository;
@@ -26,7 +24,6 @@ import javax.jcr.SimpleCredentials;
 import javax.jcr.Workspace;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeIterator;
-import javax.jcr.security.AccessControlEntry;
 import javax.jcr.security.AccessControlList;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.Privilege;
@@ -40,7 +37,6 @@ import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
-import org.apache.jackrabbit.commons.cnd.ParseException;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 
@@ -53,18 +49,19 @@ public class JcrRepositorySession {
 	
 	public static Repository getRepository(){
 		try {
-			repository = JcrUtils.getRepository();
+			//repository = JcrUtils.getRepository();
+			repository = JcrUtils.getRepository("http://localhost:8090/server");
 		} catch (RepositoryException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		return repository;
 	}
-	public static Session getSession(String userid) {
+	public static Session getSession(String userid,String password) {
 		 getRepository();
 		try {
 						jcrsession = repository.login(new SimpleCredentials("sanjay",
-								"redhat".toCharArray()), "default");
+								password.toCharArray()), "default");
 						SessionImpl si = (SessionImpl) jcrsession;
 						JackrabbitSession js = ((JackrabbitSession) jcrsession);
 						Subject subject = ((SessionImpl) js).getSubject();
@@ -76,7 +73,8 @@ public class JcrRepositorySession {
 							jcrsession = Subject.doAsPrivileged(combinedSubject,
 									new PrivilegedExceptionAction<Session>() {
 										public Session run() throws Exception {
-											Session ss = repository.login();
+											Session ss = repository.login(Config.EDMS_DOMAIN);
+										//	Session ss = repository.login();
 											return ss;
 										}
 									}, AccessController.getContext());
@@ -88,42 +86,11 @@ public class JcrRepositorySession {
 			registerNamespace(jcrsession, jcrsession.getRootNode());
 			}catch(Exception e){
 			}
-			/*if(jcrsession.getRootNode().hasNode("santosh@avi-oil.com"))
-			jcrsession.getRootNode().getNode("santosh@avi-oil.com").remove();
-			if(jcrsession.getRootNode().hasNode("santosh@avi-oil.com/trash"))
-			jcrsession.getRootNode().getNode("santosh@avi-oil.com/trash").remove();
-			if(jcrsession.getRootNode().hasNode("sanjay@avi-oil.com"))
-			jcrsession.getRootNode().getNode("sanjay@avi-oil.com").remove();
-			if(jcrsession.getRootNode().hasNode("sanjay@avi-oil.com/trash"))
-			jcrsession.getRootNode().getNode("sanjay@avi-oil.com/trash").remove();
-			if(jcrsession.getRootNode().hasNode("janak@avi-oil.com"))
-			jcrsession.getRootNode().getNode("janak@avi-oil.com").remove();
-			if(jcrsession.getRootNode().hasNode("janak@avi-oil.com/trash"))
-			jcrsession.getRootNode().getNode("janak@avi-oil.com/trash").remove();*/
-			//jcrsession.save();
-			//removeUser(jcrsession, "santosh@avi-oil.com");
-			//removeUser(jcrsession, "sanjay@avi-oil.com");
-			//removeUser(jcrsession, "janak@avi-oil.com");
-			//createFolder("santosh@avi-oil.com");
-			//createFolder("santosh@avi-oil.com/trash");
-			//createFolder("janak@avi-oil.com");
-			//createFolder("janak@avi-oil.com/trash");
-			//registerNamespace(jcrsession, jcrsession.getRootNode());
-			//createFolder("sanjay@avi-oil.com");
-			//createFolder("sanjay@avi-oil.com/trash");
-			//createFolder("sanjay@avi-oil.com/sharedByOthers");
-			//createFolder("sanjay@avi-oil.com/sharedCalendersByOthers");
-			//removeUser(jcrsession, userid);
-			//Node root=jcrsession.getRootNode();
-			//setPolicy(jcrsession, root, userid,root.getPath(),  Privilege.JCR_ALL);
-			//createFolder(userid);
-			//createFolder(userid+"/trash");
 			jcrsession.save();
 			} catch (RepositoryException e) {
 				e.printStackTrace();
 				return null;
 		}finally{
-		//	jcrsession.logout();
 		}
 		return jcrsession;
 	}
@@ -154,24 +121,6 @@ public class JcrRepositorySession {
 			user = userManager.createUser(userid,password);		
 			JcrRepositorySession.setPolicy(jcrsession, null, userid,null,  Privilege.JCR_ALL);
 			}
-			//JcrRepositorySession.setPolicy(jcrsession, null, userid,null,  Privilege.JCR_ALL);
-			
-			/*root=jcrsession.getRootNode();
-			setPolicy(jcrsession, root, userid,root.getPath(),  Privilege.JCR_ALL);
-			Node userNode=	root.addNode(userid,Config.EDMS_FOLDER);
-			userNode.setProperty(Config.USERS_READ,new String[]{userid});
-			userNode.setProperty(Config.USERS_WRITE,new String[]{userid});
-			userNode.setProperty(Config.USERS_DELETE,new String[]{userid});
-			userNode.setProperty(Config.USERS_SECURITY,new String[]{userid});
-			userNode.setProperty(Config.EDMS_KEYWORDS, new String[]{"user","root","node"});
-			userNode.setProperty(Config.EDMS_AUTHOR,userid);
-			userNode.setProperty(Config.EDMS_CREATIONDATE, (new Date()).toString());
-			userNode.setProperty(Config.EDMS_MODIFICATIONDATE, (new Date()).toString());
-			userNode.setProperty(Config.EDMS_NO_OF_FOLDERS, 0);
-			userNode.setProperty(Config.EDMS_NO_OF_DOCUMENTS, 0);
-			userNode.setProperty(Config.EDMS_RECYCLE_DOC, false);
-			userNode.addMixin(JcrConstants.MIX_SHAREABLE);
-			userNode.addMixin(JcrConstants.MIX_VERSIONABLE);*/
 			jcrsession.save();
 		} catch (RepositoryException e) {
 			e.printStackTrace();
@@ -201,18 +150,6 @@ public class JcrRepositorySession {
 		
 			AccessControlManager aMgr = jcrsession.getAccessControlManager();
 	
-			// get supported privileges of any node
-			/*Privilege[] privileges = aMgr
-					.getSupportedPrivileges(path);
-			for (int i = 0; i < privileges.length; i++) {
-				//System.out.println(privileges[i]);
-			}*/
-
-			// get now applied privileges on a node 
-			/*privileges = aMgr.getPrivileges(path);
-			for (int i = 0; i < privileges.length; i++) {
-				//System.out.println(privileges[i]);
-			}*/
 			String[] percol=permission.split(",");
 			// create a privilege set with jcr:all
 			Privilege[]	setprivilege = new Privilege[percol.length];
@@ -229,18 +166,7 @@ public class JcrRepositorySession {
 				// else node already has a policy, get that one
 				acl = (AccessControlList) aMgr.getPolicies(path)[0];
 			}
-			// remove all existing entries
-			/*for (AccessControlEntry e : acl.getAccessControlEntries()) {
-				acl.removeAccessControlEntry(e);
-			}*/
-			/*	Group grp = ((Group) js.getUserManager().getAuthorizable(
-					"top-management"));
-				//System.out.println("group path is : " + grp.getID()
-					+ " user id is : " + user.getID());
-			*/
-			// Group group=(Group)
-			// js.getPrincipalManager().getGroupMembership(user.getPrincipal());
-			// boolean isAdmin = user.isAdmin();
+			
 			PrincipalManager pMgr = js.getPrincipalManager();
 			Principal principal = pMgr.getPrincipal(userid);
 			
@@ -270,13 +196,11 @@ public class JcrRepositorySession {
 	}
 	
 	
-	public static Node createFolder(String folderName,Session jcrsession) {
+	public static Node createFolder(String folderName,Session jcrsession,String password) {
+		folderName=folderName.toLowerCase();
 		Node folder = null;
 		try {
-	//		System.out.println(jcrsession.getWorkspace().getName());
 			Node root = jcrsession.getRootNode();
-			/*root.getNode(folderName).remove();
-			jcrsession.save();*/
 			if(!root.hasNode(folderName)){
 			folder = root.addNode(folderName, Config.EDMS_FOLDER);
 			folder.setProperty(Config.USERS_READ, new String[] {Config.EDMS_ADMIN });
@@ -301,13 +225,13 @@ public class JcrRepositorySession {
 			//folder.addMixin(JcrConstants.MIX_SHAREABLE);
 			folder.addMixin(JcrConstants.MIX_VERSIONABLE);
 			jcrsession.save();
-			/*if(!folderName.contains("Trash")){
-				FileRepository.setPolicyForDeny(jcrsession.getUserID());
-				FileRepository.setPolicyForSystem(jcrsession.getUserID(),"jcr:system");
-				FileRepository.setPolicyForTest(jcrsession.getUserID());
+			if(folderName.contains("trash")){
+				folderName=folderName.substring(0,folderName.indexOf("/"));
+/*				FileRepository fl=new FileRepository();
+				fl.setPolicyForAllowTest("/",folderName,password,jcrsession);
+				fl.setPolicyForDenyTest(folderName,password,jcrsession);
+				fl.setPolicyForAllowTest("/"+folderName,folderName,password,jcrsession);*/
 			}
-			*/
-			
 			}
 			
 		} catch (Exception e) {

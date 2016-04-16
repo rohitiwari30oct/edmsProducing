@@ -43,13 +43,85 @@ public class WorkflowHistoryRepository {
 	@Autowired
 	private HistoryService historyService;
 	
+	
+	
 	public HistDetVrblInstUpdateEntityReturn getProcessVariables(String processInstId) {
 		System.out.println("in process variable request %%%%%%%%%%%%%%%%%");
 		HistDetVrblInstUpdateEntityReturn varUpdateEntityreturn = new HistDetVrblInstUpdateEntityReturn();
 		List<HistoricDetail> historicDetail = historyService.createHistoricDetailQuery().processInstanceId(processInstId).orderByProcessInstanceId().desc().list();
 		
 		HistoricDetail hd;
-		if((historicDetail.size())==3){
+		int i=0;int c=0; 
+		for (HistoricDetail historicDetail2 : historicDetail) {
+			HistoricDetailVariableInstanceUpdateEntity entity=(HistoricDetailVariableInstanceUpdateEntity)historicDetail2;
+			
+			if(entity.getName().equals("xmlStringForm")){
+				//break;
+				c=i;
+			}
+			i++;
+		}
+		
+		
+		if((historicDetail.size())>0){
+			//hd = historicDetail.get(0);
+			//for(HistoricDetail hdt:historicDetail){
+			HistoricDetail hdt=historicDetail.get(c);
+			if (hdt instanceof HistoricFormPropertyEntity) {
+					HistoricFormPropertyEntity formEntity = (HistoricFormPropertyEntity) hdt;
+					System.out.println("form property id = "+formEntity.getPropertyId()+"property value  ="+formEntity.getPropertyValue());
+				} else if (hdt instanceof HistoricDetailVariableInstanceUpdateEntity) {
+					HistoricDetailVariableInstanceUpdateEntity varEntity = (HistoricDetailVariableInstanceUpdateEntity) hdt;
+					System.out.println(String.format("variable->, key: %s, value: %s", varEntity.getName(), varEntity.getValue()));
+					//if(varEntity.getName().equals("xmlStringForm")){
+						HistDetVrblInstUpdateEntity hdv = new HistDetVrblInstUpdateEntity();
+						hdv.setName(varEntity.getName());
+						hdv.setValue(varEntity.getValue());
+					varUpdateEntityreturn.setHistDetVrblInstUpdateEntity(hdv);
+						return varUpdateEntityreturn;
+					//}
+				}
+			//}
+	/*	}
+		else if((historicDetail.size())==5){
+			//hd = historicDetail.get(0);
+			for(HistoricDetail hdt:historicDetail){
+				if (hdt instanceof HistoricFormPropertyEntity) {
+					HistoricFormPropertyEntity formEntity = (HistoricFormPropertyEntity) hdt;
+					System.out.println("form property id = "+formEntity.getPropertyId()+"property value  ="+formEntity.getPropertyValue());
+				} else if (hdt instanceof HistoricDetailVariableInstanceUpdateEntity) {
+					HistoricDetailVariableInstanceUpdateEntity varEntity = (HistoricDetailVariableInstanceUpdateEntity) hdt;
+					System.out.println(String.format("variable->, key: %s, value: %s", varEntity.getName(), varEntity.getValue()));
+					if(varEntity.getName().equals("xmlStringForm1")){
+						HistDetVrblInstUpdateEntity hdv = new HistDetVrblInstUpdateEntity();
+						hdv.setName(varEntity.getName());
+						hdv.setValue(varEntity.getValue());
+					varUpdateEntityreturn.setHistDetVrblInstUpdateEntity(hdv);
+						return varUpdateEntityreturn;
+					}
+				}
+			}
+		}
+		else if((historicDetail.size())==7){
+			//hd = historicDetail.get(0);
+			for(HistoricDetail hdt:historicDetail){
+				if (hdt instanceof HistoricFormPropertyEntity) {
+					HistoricFormPropertyEntity formEntity = (HistoricFormPropertyEntity) hdt;
+					System.out.println("form property id = "+formEntity.getPropertyId()+"property value  ="+formEntity.getPropertyValue());
+				} else if (hdt instanceof HistoricDetailVariableInstanceUpdateEntity) {
+					HistoricDetailVariableInstanceUpdateEntity varEntity = (HistoricDetailVariableInstanceUpdateEntity) hdt;
+					System.out.println(String.format("variable->, key: %s, value: %s", varEntity.getName(), varEntity.getValue()));
+					if(varEntity.getName().equals("xmlStringForm2")){
+						HistDetVrblInstUpdateEntity hdv = new HistDetVrblInstUpdateEntity();
+						hdv.setName(varEntity.getName());
+						hdv.setValue(varEntity.getValue());
+					varUpdateEntityreturn.setHistDetVrblInstUpdateEntity(hdv);
+						return varUpdateEntityreturn;
+					}
+				}
+			}
+		}
+		else if((historicDetail.size())==9){
 			//hd = historicDetail.get(0);
 			for(HistoricDetail hdt:historicDetail){
 				if (hdt instanceof HistoricFormPropertyEntity) {
@@ -66,11 +138,10 @@ public class WorkflowHistoryRepository {
 						return varUpdateEntityreturn;
 					}
 				}
-			}
-		} else {
-			
+			}*/
+		}
+		 else {
 			hd = historicDetail.get(0);
-			
 			if (hd instanceof HistoricFormPropertyEntity) {
 				HistoricFormPropertyEntity formEntity = (HistoricFormPropertyEntity) hd;
 				System.out.println("form property id = "+formEntity.getPropertyId()+"property value  ="+formEntity.getPropertyValue());

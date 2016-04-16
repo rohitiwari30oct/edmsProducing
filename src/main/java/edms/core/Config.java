@@ -21,7 +21,7 @@
 
 package edms.core;
 
-import java.util.Date;
+import javax.jcr.Repository;
 
 public class Config {
 
@@ -57,12 +57,23 @@ public class Config {
 	public static final String EDMS_DOWNLOADDATE = "edms:downloadDate";
 	public static final String EDMS_ACCESSDATE = "edms:accessDate";
 	public static String EDMS_SORT_ORDER = "edms:created";
-	public static String EDMS_ADMINISTRATOR="administrator@avi-oil.com";
+	//public static String EDMS_ADMINISTRATOR="sanjay@avi-oil.com";
+	public static String EDMS_ADMINISTRATOR="";
+	public static String EDMS_PASSWORD="google@2009";
 	public static final String DEFAULT_USER_ROLE = "ROLE_USER";
 	public static final Object DEFAULT_ADMIN_ROLE = "ROLE_ADMIN";
-	public static final String EDMS_BULKUPLOAD_PATH = "/maildir/forUpload";
+	public static final String EDMS_BULKUPLOAD_PATH = "/maildir/newAccount";
+	public static Repository repository=null;
+	//public static final String EDMS_BULKUPLOAD_PATH = "D:\\dghdg";
 	public static final String EDMS_PATH = "edms:path";
-	
+	public static final String EDMS_GUEST = "guestforpubliclink";
+	//public static  String EDMS_DOMAIN = "avi-oil.com";
+	public static  String EDMS_DOMAIN = "silvereye.in";
+
+	public static String LDAP_URL="ldap://mail.silvereye.in:389";
+	public static String LDAP_DN="dc=silvereye,dc=in";
+	public static String LDAP_RDN="ou=Users,domainName=silvereye.in,o=domains,dc=silvereye,dc=in";
+	public static String LDAP_BASE="mail";
 	public static void load(String userid,String password){
 		JCR_USERNAME=userid;
 		JCR_PASSWORD=password;

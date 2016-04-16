@@ -2,12 +2,11 @@
 <!DOCTYPE hibernate-configuration PUBLIC
     "-//Hibernate/Hibernate Configuration DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
-    
-    <hibernate-configuration>
-    
+<hibernate-configuration>
     <session-factory>
      <property name="hbm2ddl.auto">update</property> 
-<!--       <mapping class="com.edms.entity.Group"/> -->
+    <property name="show_sql">true</property>
+     <mapping class="com.edms.entity.SnTable"/> 
+     <mapping class="com.edms.entity.Quota"/> 
     </session-factory>
-    
-    </hibernate-configuration>
+</hibernate-configuration>

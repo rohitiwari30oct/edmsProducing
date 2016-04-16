@@ -27,14 +27,14 @@ public class SearchEndpoint {
 	@ResponsePayload
 	public SearchDocByLikeResponse searchDocByLikeRequest(@RequestPayload SearchDocByLikeRequest request) {
 		SearchDocByLikeResponse response = new SearchDocByLikeResponse();
-		response=fileRepository.searchDocByLike(request.getSearchParamValue(),request.getFolderPath(),request.getSearchParam(),request.getUserid());
+		response=fileRepository.searchDocByLike(request.getSearchParamValue(),request.getFolderPath(),request.getSearchParam(),request.getUserid(),request.getPassword());
 		return response;
 	}
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "searchDocByDateRequest")
 	@ResponsePayload
 	public SearchDocByDateResponse searchDocByDateResquest(@RequestPayload SearchDocByDateRequest request) {
 		SearchDocByDateResponse response = new SearchDocByDateResponse();
-		response=fileRepository.searchDocByDate(request.getSearchParamValue(),request.getFolderPath(),request.getSearchParam(),request.getUserid());
+		response=fileRepository.searchDocByDate(request.getSearchParamValue(),request.getFolderPath(),request.getSearchParam(),request.getUserid(),request.getPassword());
 		return response;
 	}
 

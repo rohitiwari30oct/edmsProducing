@@ -2,15 +2,20 @@ package hello;
 
 import java.util.Properties;
 
+import javax.servlet.ServletConfig;
+
 import org.activiti.engine.FormService;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.ldap.LDAPConfigurator;
 import org.activiti.spring.ProcessEngineFactoryBean;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.jackrabbit.j2ee.RepositoryStartupServlet;
+import org.hibernate.SessionFactory;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerProperties;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
@@ -20,8 +25,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
-import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 import org.springframework.ws.config.annotation.EnableWs;
 import org.springframework.ws.config.annotation.WsConfigurerAdapter;
 import org.springframework.ws.transport.http.MessageDispatcherServlet;
@@ -43,6 +46,19 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 				setProperty("hibernate.show_sql", "true");
 			}
 		};
+	} 
+	
+	
+	@Bean
+	public SessionFactory buildSessionFactory() {
+		try {
+			
+			return sessionFactory().getObject();
+
+		} catch (Throwable ex) {
+			System.err.println("Initial SessionFactory creation failed." + ex);
+			throw new ExceptionInInitializerError(ex);
+		}
 	}
 	
 	@Bean
@@ -51,7 +67,6 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 	    setting.setCheckTemplateLocation(false);
 	    return setting;
 	}
-	
 	
 	@Bean
 	public SpringProcessEngineConfiguration processEngineConfiguration(){
@@ -62,28 +77,87 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 		springProcessEngineConfiguration.setDatabaseSchemaUpdate("true");
 		springProcessEngineConfiguration.setJobExecutorActivate(true);
 		springProcessEngineConfiguration.setHistory("full");
-		Resource[] resources = new Resource[2];
+		Resource[] resources = new Resource[7];
 		resources[0]=new ClassPathResource("/com/edms/activitiautodeployment/autodeploy.LeaveRequest.bpmn20.xml");
-		resources[1]=new ClassPathResource("/com/edms/activitiautodeployment/autodeploy.testProcess.bpmn20.xml");
+		resources[1]=new ClassPathResource("/com/edms/activitiautodeployment/autodeploy.interOfficeMemo.bpmn20.xml");
+		resources[2]=new ClassPathResource("/com/edms/activitiautodeployment/autodeploy.PurchaseRequisitionRequest.bpmn20.xml");
+		resources[3]=new ClassPathResource("/com/edms/activitiautodeployment/autodeploy.CashPaymentVoucher.bpmn20.xml");
+		resources[4]=new ClassPathResource("/com/edms/activitiautodeployment/autodeploy.PurchaseRequisitionRequestHO.bpmn20.xml");
+		resources[5]=new ClassPathResource("/com/edms/activitiautodeployment/autodeploy.TravelReimbursement.bpmn20.xml");
+		resources[6]=new ClassPathResource("/com/edms/activitiautodeployment/autodeploy.MedicalReimbursement.bpmn20.xml");
 		springProcessEngineConfiguration.setDeploymentResources(resources);
+	/*
 		springProcessEngineConfiguration.setDeploymentMode("single-resource");
-		springProcessEngineConfiguration.setMailServerHost("smtp.gmail.com");
+		springProcessEngineConfiguration.setMailServerHost("180.151.10.150");
+		springProcessEngineConfiguration.setMailServerPort(25);
+		springProcessEngineConfiguration.setMailServerUseTLS(false);
+		springProcessEngineConfiguration.setMailServerUsername("sanjay@avi-oil.com");
+		springProcessEngineConfiguration.setMailServerPassword("google@2009");*/
+
+		springProcessEngineConfiguration.setDeploymentMode("single-resource");
+		springProcessEngineConfiguration.setMailServerHost("mail.avi-oil.com");
 		springProcessEngineConfiguration.setMailServerPort(587);
 		springProcessEngineConfiguration.setMailServerUseTLS(true);
-		springProcessEngineConfiguration.setMailServerUsername("hinduonline2014@gmail.com");
-		springProcessEngineConfiguration.setMailServerPassword("2014@honl");
+		springProcessEngineConfiguration.setMailServerUsername("no-reply@avi-oil.com");
+		springProcessEngineConfiguration.setMailServerPassword("google@2009");
+		
+		/*springProcessEngineConfiguration.setDeploymentMode("single-resource");
+		springProcessEngineConfiguration.setMailServerHost("127.0.0.1");
+		springProcessEngineConfiguration.setMailServerPort(25);
+		springProcessEngineConfiguration.setMailServerUseTLS(false);
+		springProcessEngineConfiguration.setMailServerUsername("no-reply@avi-oil.com");
+	 	*/
+		/*	
+		springProcessEngineConfiguration.setDeploymentMode("single-resource");
+		springProcessEngineConfiguration.setMailServerHost("mail.silvereye.in");
+		springProcessEngineConfiguration.setMailServerPort(587);
+		springProcessEngineConfiguration.setMailServerUseTLS(true);
+		springProcessEngineConfiguration.setMailServerUsername("nirbhay@silvereye.in");
+		springProcessEngineConfiguration.setMailServerPassword("google@2009");*/
+		/*
+		springProcessEngineConfiguration.setDeploymentMode("single-resource");
+        springProcessEngineConfiguration.setMailServerHost("smtp.gmail.com");
+        springProcessEngineConfiguration.setMailServerPort(587);
+        springProcessEngineConfiguration.setMailServerUseTLS(true);
+        springProcessEngineConfiguration.setMailServerUsername("hinduonline2014@gmail.com");
+        springProcessEngineConfiguration.setMailServerPassword("2014@honl");*/
+		//springProcessEngineConfiguration.setMailServerPassword("google@2009");
+		//List<ProcessEngineConfigurator> listConfig=new ArrayList<ProcessEngineConfigurator>();
+		//listConfig.add(getConfiguration());
+		//springProcessEngineConfiguration.setConfigurators(listConfig);
 		return springProcessEngineConfiguration;
 	}
 	
 	@Bean
-	public BasicDataSource dataSource(){
+	public BasicDataSource dataSource() {
 		BasicDataSource basicDataSource = new BasicDataSource();
+		
 		basicDataSource.setDriverClassName("com.mysql.jdbc.Driver");
 		basicDataSource.setUrl("jdbc:mysql://localhost:3306/edms?useUnicode=true&characterEncoding=UTF-8");
+
 		basicDataSource.setUsername("root");
-		basicDataSource.setPassword("hh##8993Avi#00??");
-	//	basicDataSource.setUsername("edms");
-	//	basicDataSource.setPassword("Me8pHCL##??kk7890");
+		basicDataSource.setPassword("");
+
+//		basicDataSource.setUsername("root");
+//		basicDataSource.setPassword("HPDELL6789##67ibmcisco");
+		
+		//for aims
+		//basicDataSource.setUsername("root");
+		//basicDataSource.setPassword("Med##??1975#");
+		
+		
+		// for lls
+		// basicDataSource.setUsername("root");
+		// basicDataSource.setPassword("IBM773300&&&8591");
+		
+		// basicDataSource.setUsername("root");
+		// basicDataSource.setPassword("hello67##89HRM");
+
+		// basicDataSource.setUsername("root");
+		// basicDataSource.setPassword("hh##8993Avi#00??");
+		
+		// basicDataSource.setUsername("edms");
+		// basicDataSource.setPassword("Me8pHCL##??kk7890");
 		return basicDataSource;
 	}
 	
@@ -111,7 +185,33 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 		localSessionFactoryBean.setHibernateProperties(hibernateProperties());
 		return localSessionFactoryBean;
 	}
+
 	
+	/*@Bean
+	public WebdavConfig webdavService() throws Exception{
+		WebdavConfig simpleWebdavServlet=new WebdavConfig();
+		return simpleWebdavServlet;
+	}*/
+/*	@Bean
+	public JCRWebdavServerServlet webdavJCRService() throws Exception{
+		JCRWebdavServerServlet simpleWebdavServlet=new JCRWebdavServerServlet() {
+			
+			@Override
+			protected Repository getRepository() {
+				// TODO Auto-generated method stub
+				try {
+					return JcrUtils.getRepository();
+				} catch (RepositoryException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
+			}
+		};
+		DavLocatorFactory davLocatorFact=new DavLocatorFactoryImpl("/jackrabbit/repository");
+		simpleWebdavServlet.setLocatorFactory(davLocatorFact);
+		return simpleWebdavServlet;
+	}*/
 	@Bean
 	public RepositoryService repositoryService(ProcessEngineFactoryBean pefb) throws Exception{
 		return pefb.getObject().getRepositoryService();
@@ -141,13 +241,32 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 	public TaskService taskService(ProcessEngineFactoryBean pefb) throws Exception {
 		return pefb.getObject().getTaskService();
 	}
-	
+
 	@Bean
 	public ProcessEngineFactoryBean processEngine(){
 		ProcessEngineFactoryBean processEngineFactoryBean = new ProcessEngineFactoryBean();
 		processEngineFactoryBean.setProcessEngineConfiguration(processEngineConfiguration());
 		return processEngineFactoryBean;
 	}	
+/*	@Bean
+	public ProcessEngineFactoryBean processEngine(){
+		ProcessEngineFactoryBean processEngineFactoryBean = new ProcessEngineFactoryBean();
+		processEngineFactoryBean.setProcessEngineConfiguration(processEngineConfiguration());
+		return processEngineFactoryBean;
+	}*/	
+	
+	@Bean LDAPConfigurator getConfiguration(){
+		LDAPConfigurator ldapConfigurator=new LDAPConfigurator();
+		ldapConfigurator.setBaseDn("dc=avi-oil,dc=com");
+		ldapConfigurator.setServer("ldap://192.168.1.199");
+		ldapConfigurator.setPort(389);
+		ldapConfigurator.setUser("uid=sanjay,ou=Users,dc=avi-oil,dc=com");
+		ldapConfigurator.setPassword("redhat");
+		ldapConfigurator.setUserIdAttribute("uid");
+		ldapConfigurator.setQueryUserByUserId("(&(objectClass=inetOrgPerson)(uid={0}))");
+		return ldapConfigurator;
+		
+	}
 	
 	@Bean
 	public ServletRegistrationBean dispatcherServlet(ApplicationContext applicationContext) {
@@ -215,6 +334,17 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 	public XsdSchema userSchema() {
 		return new SimpleXsdSchema(new ClassPathResource("user.xsd"));
 	}
+	
+	
+/*	@Bean
+	public RepositoryStartupServlet getRepositoryStartupServlet(){
+		RepositoryStartupServlet repositoryStartupServlet=new RepositoryStartupServlet();
+		ServletConfig servletConfig= new 
+		repositoryStartupServlet.init();
+	}*/
+	
+	
+	
 
 /*@Bean 
 public DefaultSpringSecurityContextSource getContextSource()

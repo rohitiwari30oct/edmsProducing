@@ -3,10 +3,62 @@
 	targetNamespace="http://edms.com/documentModule" xmlns:tns="http://edms.com/documentModule"
 	elementFormDefault="qualified">
 
+	<xs:element name="createWorkspaceRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+				<xs:element name="workspaceName" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="createWorkspaceResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="responseMessage" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="createEssentialFoldersRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="createEssentialFoldersResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="responseMessage" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="setPublicLinkRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="filePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+				<xs:element name="guestid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="setPublicLinkResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="responseMessage" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	
 	<xs:element name="getSharedFoldersRequest">
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -25,6 +77,18 @@
 			<xs:sequence>
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="path" type="xs:string" />
+				
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getSharedFoldersByPathDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="path" type="xs:string" />
+				
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -42,6 +106,7 @@
 			<xs:sequence>
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="path" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -60,6 +125,16 @@
 			<xs:sequence>
 				<xs:element name="folderPath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getFolderDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folderPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -71,6 +146,8 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+
+	
 	<xs:complexType name="FolderListReturn">
 		<xs:sequence>
 			<xs:element minOccurs="1" maxOccurs="1" name="Success"
@@ -137,6 +214,7 @@
 			<xs:sequence>
 				<xs:element name="folderPath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -156,6 +234,19 @@
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="keywords" type="xs:string" />
 				<xs:element name="notes" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="createFolderDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folderName" type="xs:string" />
+				<xs:element name="parentFolder" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="keywords" type="xs:string" />
+				<xs:element name="notes" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -173,6 +264,16 @@
 			<xs:sequence>
 				<xs:element name="folderPath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getFolderByPathDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folderPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -196,6 +297,7 @@
 				<xs:element name="groups" type="xs:string" />
 				<xs:element name="grouppermissions" type="xs:string" />
 				<xs:element name="userpermissions" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -216,11 +318,54 @@
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="user" type="xs:string" />
 				<xs:element name="value" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assignSinglePermissionDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folderPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="user" type="xs:string" />
+				<xs:element name="value" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="removeAssignedPermissionRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folderPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="user" type="xs:string" />
+				<xs:element name="value" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="removeAssignedPermissionDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folderPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="user" type="xs:string" />
+				<xs:element name="value" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
 
 	<xs:element name="assignSinglePermissionResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="assignSinglePermissionResponse" type="xs:string" />
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="removeAssignedPermissionResponse">
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="assignSinglePermissionResponse" type="xs:string" />
@@ -234,6 +379,7 @@
 			<xs:sequence>
 				<xs:element name="folderPath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -255,6 +401,16 @@
 			<xs:sequence>
 				<xs:element name="folderPath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="recycleFolderDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folderPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -273,6 +429,7 @@
 				<xs:element name="folderPath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="keyword" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -290,6 +447,7 @@
 				<xs:element name="folderPath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="note" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -308,6 +466,7 @@
 				<xs:element name="folderPath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="keyword" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -326,6 +485,7 @@
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="keyword" type="xs:string" />
 				<xs:element name="editedKeyword" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -344,6 +504,7 @@
 				<xs:element name="folderPath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="note" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -362,6 +523,7 @@
 			<xs:sequence>
 				<xs:element name="folderPath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -381,6 +543,7 @@
 				<xs:element name="folderPath" type="xs:string" />
 				<xs:element name="versionName" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -399,6 +562,7 @@
 			<xs:sequence>
 				<xs:element name="folderPath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -428,6 +592,7 @@
 				<xs:element name="oldName" type="xs:string" />
 				<xs:element name="newName" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -454,6 +619,7 @@
 				<xs:element name="folderPath" type="xs:string" />
 				<xs:element name="searchParam" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -473,6 +639,7 @@
 				<xs:element name="folderPath" type="xs:string" />
 				<xs:element name="searchParam" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -484,18 +651,11 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-   
-   
-   
-   
-   <!-- 
-    FILES PROCESSING START
-    -->
-    
     <xs:element name="getSharedFilesRequest">
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -514,6 +674,8 @@
 			<xs:sequence>
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="path" type="xs:string" />
+				
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -525,10 +687,41 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+
+	<xs:element name="getSharedFilesByPathWithContentRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="path" type="xs:string" />
+				
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getSharedFilesByPathWithContentDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="path" type="xs:string" />
+				
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getSharedFilesByPathWithContentResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element minOccurs="0" maxOccurs="1"
+					name="GetSharedFilesByPath" type="tns:FileListReturn" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
     <xs:element name="getSharedFilesWithOutStreamRequest">
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="userid" type="xs:string" />
+				
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -547,6 +740,8 @@
 			<xs:sequence>
 				<xs:element name="userid" type="xs:string" />
 				<xs:element name="path" type="xs:string" />
+				
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -566,6 +761,18 @@
 			<xs:sequence>
 				<xs:element name="FilePath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getFileDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FilePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -583,6 +790,18 @@
 			<xs:sequence>
 				<xs:element name="FilePath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getFileWithOutStreamDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FilePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -666,6 +885,24 @@
 				<xs:element name="keywords" type="xs:string" />
 				<xs:element name="fileSize" type="xs:long" />
 				<xs:element name="notes" type="xs:string" />
+				
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="createFileDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="fileName" type="xs:string" />
+				
+				<xs:element name="fileContent" type="xs:base64Binary" />
+				<xs:element name="parentFile" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="keywords" type="xs:string" />
+				<xs:element name="fileSize" type="xs:long" />
+				<xs:element name="notes" type="xs:string" />
+				
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element> 
@@ -683,6 +920,18 @@
 			<xs:sequence>
 				<xs:element name="FilePath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+				
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="getFileByPathDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FilePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+				
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -702,6 +951,8 @@
 			<xs:sequence>
 				<xs:element name="FilePath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+				
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -721,6 +972,7 @@
 			<xs:sequence>
 				<xs:element name="FilePath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 				<xs:element name="users" type="xs:string" />
 				<xs:element name="groups" type="xs:string" />
 				<xs:element name="grouppermissions" type="xs:string" />
@@ -744,6 +996,16 @@
 			<xs:sequence>
 				<xs:element name="FilePath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="deleteFileDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FilePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -762,6 +1024,7 @@
 			<xs:sequence>
 				<xs:element name="FilePath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -781,6 +1044,7 @@
 			<xs:sequence>
 				<xs:element name="FilePath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -802,6 +1066,7 @@
 				<xs:element name="oldName" type="xs:string" />
 				<xs:element name="newName" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -828,6 +1093,17 @@
 				<xs:element name="fileContent" type="xs:base64Binary" />
 				<xs:element name="filePath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="editFileDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="fileContent" type="xs:base64Binary" />
+				<xs:element name="filePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -853,6 +1129,7 @@
 				<xs:element name="propertyName" type="xs:string" />
 				<xs:element name="path" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -875,6 +1152,16 @@
 			<xs:sequence>
 				<xs:element name="FilePath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+</xs:element>
+<xs:element name="getVCFFileDAVRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FilePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 </xs:element>
@@ -923,6 +1210,7 @@
 				<xs:element name="srcDocPath" type="xs:string" />
 				<xs:element name="destDocPath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -940,6 +1228,7 @@
 				<xs:element name="srcDocPath" type="xs:string" />
 				<xs:element name="destDocPath" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -956,6 +1245,7 @@
 			<xs:sequence>
 				<xs:element name="sortOrder" type="xs:string" />
 				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -967,5 +1257,22 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-	
+	<xs:element name="checkDocExistRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="docPath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+				<xs:element name="parent" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="checkDocExistResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Success" type="xs:boolean" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 </xs:schema>
