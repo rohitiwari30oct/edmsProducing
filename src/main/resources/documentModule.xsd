@@ -53,6 +53,24 @@
 		</xs:complexType>
 	</xs:element>
 	
+	<xs:element name="removePublicLinkRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="filePath" type="xs:string" />
+				<xs:element name="userid" type="xs:string" />
+				<xs:element name="password" type="xs:string" />
+				<xs:element name="guestid" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="removePublicLinkResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="responseMessage" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
 	
 	<xs:element name="getSharedFoldersRequest">
 		<xs:complexType>

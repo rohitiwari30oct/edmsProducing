@@ -1,8 +1,6 @@
 package edms.core;
 
 
-import hello.FileRepository;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -39,6 +37,8 @@ import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
+
+import edms.repository.FileRepository;
 
 public class JcrRepositorySession {
 

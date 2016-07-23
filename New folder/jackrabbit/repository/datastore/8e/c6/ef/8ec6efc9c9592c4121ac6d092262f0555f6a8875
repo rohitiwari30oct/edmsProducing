@@ -1,0 +1,26 @@
+# Entry 51: uid=akash,ou=Users,dc=avi-oil,dc=com
+dn: uid=akash,ou=Users,dc=avi-oil,dc=com
+accountstatus: active
+cn: Mr. akash Chauhan
+deliverymode: nolocal
+deliveryprogrampath: /var/qmail/bin/maildrop.pl
+ftp: TRUE
+gidnumber: 1003
+givenname: Mr. akash
+homedirectory: /home/avi-oil.com/users/akash
+loginshell: /bin/bash
+mail: akash@avi-oil.com
+mailmessagestore: ./Maildir/
+mailquotasize: 5368709120
+mailreplytext:: RGVhciBTZW5kZXIsDQoNCiAgICBJIHdpbGwgYmUgb24gbGVhdmUgZnJvbSA2
+ dGggRmViJzE0IGFuZCByZXR1cm5pbmcgdG8gb2ZmaWNlIG9uIDEzdGggRmViJzE0Lg0KDQpSZWd
+ hcmRzDQoNCkFtaXQgQ2hhdWhhbg==
+mobile: 9899533546
+objectclass: qmailUser
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: top
+sn: Chauhan
+uid: akash
+uidnumber: 1008
+userpassword: {MD5}4nmK8Sp6D09wtNae+8JfTQ==

@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="purchaseRequisitionRequest" name="Purchase Requisition Request" isExecutable="true">
+    <startEvent id="startRequest" name="New Purchase Requisition Request" activiti:initiator="employeeID" activiti:formKey="startPurchaseRequisitionApplicationForm">
+      <documentation>New Purchase Requisition Request</documentation>
+      <extensionElements>
+        <activiti:formProperty id="xmlStringForm" name="XML Form as String" type="string" required="true"></activiti:formProperty>
+      </extensionElements>
+    </startEvent>
+    <sequenceFlow id="flow3" name="To Department HOD" sourceRef="startRequest" targetRef="mailtask4"></sequenceFlow>
+    <userTask id="handlePurchaseRequisitionRequest1" name="Purchase Requisition (Plant)" activiti:candidateUsers="${formTo}" activiti:formKey="handlePurchaseRequisitionApplicationForm">
+      <documentation>Purchase Requisition Verification Step</documentation>
+      <extensionElements>
+        <activiti:formProperty id="xmlStringForm" name="XML Form as String" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="purchaseRequisitionApproved" name="Purchase Requisition Approved?" type="enum" required="true">
+          <activiti:value id="true" name="Approve"></activiti:value>
+          <activiti:value id="false" name="Reject"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <boundaryEvent id="boundarytimer1" name="Timer for 2 Days" attachedToRef="handlePurchaseRequisitionRequest1" cancelActivity="true">
+      <timerEventDefinition>
+        <timeDuration>P2D</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="flow18" sourceRef="boundarytimer1" targetRef="handlePurchaseRequisitionRequest2"></sequenceFlow>
+    <userTask id="handlePurchaseRequisitionRequest2" name="Purchase Requisition (Plant)" activiti:candidateUsers="${formTo}" activiti:formKey="handlePurchaseRequisitionApplicationForm">
+      <documentation>Purchase Requisition Verification Step</documentation>
+      <extensionElements>
+        <activiti:formProperty id="xmlStringForm" name="XML Form as String" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="purchaseRequisitionApproved" name="Purchase Requisition Approved?" type="enum" required="true">
+          <activiti:value id="true" name="Approve"></activiti:value>
+          <activiti:value id="false" name="Reject"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow6" sourceRef="handlePurchaseRequisitionRequest1" targetRef="purchaseRequisitionApprovedDecision1"></sequenceFlow>
+    <sequenceFlow id="flow19" name="Approved?" sourceRef="handlePurchaseRequisitionRequest2" targetRef="purchaseRequisitionApprovedDecision1"></sequenceFlow>
+    <exclusiveGateway id="purchaseRequisitionApprovedDecision1" name="Approved?"></exclusiveGateway>
+    <sequenceFlow id="flow20" name="Yes" sourceRef="purchaseRequisitionApprovedDecision1" targetRef="mailtask2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${purchaseRequisitionApproved == 'true'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="handlePurchaseRequisitionRequest3" name="Purchase Requisition (Plant)" activiti:candidateUsers="${formTo}" activiti:formKey="approvePurchaseRequisitionApplicationForm">
+      <documentation>Purchase Requisition Approval Step</documentation>
+      <extensionElements>
+        <activiti:formProperty id="xmlStringForm" name="XML Form as String" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="purchaseRequisitionApproved" name="Purchase Requisition Approved?" type="enum" required="true">
+          <activiti:value id="true" name="Approve"></activiti:value>
+          <activiti:value id="false" name="Reject"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow25" sourceRef="handlePurchaseRequisitionRequest3" targetRef="purchaseRequisitionApprovedDecision3"></sequenceFlow>
+    <exclusiveGateway id="purchaseRequisitionApprovedDecision3" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow26" sourceRef="purchaseRequisitionApprovedDecision3" targetRef="mailtask3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${purchaseRequisitionApproved == 'true'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="handlePurchaseRequisitionRequest4" name="Purchase Requisition (Plant)" activiti:candidateUsers="${formTo}" activiti:formKey="lastHandlePurchaseRequisitionApplicationForm">
+      <documentation>Purchase Requisition Commercial</documentation>
+      <extensionElements>
+        <activiti:formProperty id="xmlStringForm" name="XML Form as String" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="purchaseRequisitionApproved" name="Purchase Requisition Approved?" type="enum" required="true">
+          <activiti:value id="true" name="Approve"></activiti:value>
+          <activiti:value id="false" name="Reject"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow27" sourceRef="handlePurchaseRequisitionRequest4" targetRef="purchaseRequisitionApprovedDecision4"></sequenceFlow>
+    <exclusiveGateway id="purchaseRequisitionApprovedDecision4" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow30" sourceRef="purchaseRequisitionApprovedDecision4" targetRef="mailtask1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${purchaseRequisitionApproved == 'true'}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="mailtask1" name="Mail Task" activiti:type="mail">
+      <documentation>Purchase Requisition Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[${formTo}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:expression><![CDATA[no-reply@avi-oil.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[${subject}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[${mailContent}]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow28" sourceRef="purchaseRequisitionApprovedDecision4" targetRef="servicetask5">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${purchaseRequisitionApproved == 'false'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow29" sourceRef="purchaseRequisitionApprovedDecision3" targetRef="servicetask4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${purchaseRequisitionApproved == 'false'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow8" name="No" sourceRef="purchaseRequisitionApprovedDecision1" targetRef="servicetask2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${purchaseRequisitionApproved == 'false'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="handlePurchaseRequisitionRequest5" name="Purchase Requisition (Plant)" activiti:assignee="${employeeID}" activiti:formKey="readjustPurchaseRequisitionApplicationForm">
+      <documentation>Readjust Purchase Requisition Request</documentation>
+      <extensionElements>
+        <activiti:formProperty id="xmlStringForm" name="XML Form as String" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="resendRequest" name="Resend Purchase Requisition Request?" type="enum" required="true">
+          <activiti:value id="true" name="Yes"></activiti:value>
+          <activiti:value id="false" name="No"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow22" sourceRef="handlePurchaseRequisitionRequest5" targetRef="purchaseRequisitionApprovedDecision2"></sequenceFlow>
+    <exclusiveGateway id="purchaseRequisitionApprovedDecision2" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow23" sourceRef="purchaseRequisitionApprovedDecision2" targetRef="mailtask4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${resendRequest == 'true'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow24" sourceRef="purchaseRequisitionApprovedDecision2" targetRef="endevent2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${resendRequest == 'false'}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent2" name="End"></endEvent>
+    <serviceTask id="servicetask1" name="Mail Task" activiti:type="mail">
+      <documentation>Purchase Requisition Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[${formTo}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:string><![CDATA[no-reply@avi-oil.com]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[${subject}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[${mailContent}]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <serviceTask id="servicetask2" name="Mail Task" activiti:type="mail">
+      <documentation>Purchase Requisition Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[${employeeID}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:string><![CDATA[no-reply@avi-oil.com]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[${subject}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[${mailContent}]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow31" sourceRef="servicetask1" targetRef="handlePurchaseRequisitionRequest3"></sequenceFlow>
+    <sequenceFlow id="flow32" sourceRef="servicetask2" targetRef="handlePurchaseRequisitionRequest5"></sequenceFlow>
+    <serviceTask id="servicetask3" name="Mail Task" activiti:type="mail">
+      <documentation>Purchase Requisition Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[${formTo}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:string><![CDATA[no-reply@avi-oil.com]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[${subject}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[${mailContent}]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <serviceTask id="servicetask4" name="Mail Task" activiti:type="mail">
+      <documentation>Purchase Requisition Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[${employeeID}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:string><![CDATA[no-reply@avi-oil.com]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[${subject}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[${mailContent}]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow33" sourceRef="servicetask4" targetRef="handlePurchaseRequisitionRequest5"></sequenceFlow>
+    <sequenceFlow id="flow34" sourceRef="servicetask3" targetRef="handlePurchaseRequisitionRequest4"></sequenceFlow>
+    <serviceTask id="servicetask5" name="Mail Task" activiti:type="mail">
+      <documentation>Purchase Requisition Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[${employeeID}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:string><![CDATA[no-reply@avi-oil.com]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[${subject}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[${mailContent}]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow35" sourceRef="servicetask5" targetRef="handlePurchaseRequisitionRequest5"></sequenceFlow>
+    <sequenceFlow id="flow36" sourceRef="mailtask1" targetRef="endevent2"></sequenceFlow>
+    <serviceTask id="servicetask6" name="Mail Task" activiti:type="mail">
+      <documentation>Purchase Requisition Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[${formTo}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:string><![CDATA[no-reply@avi-oil.com]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[${subject}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[${mailContent}]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow37" sourceRef="servicetask6" targetRef="handlePurchaseRequisitionRequest1"></sequenceFlow>
+    <serviceTask id="mailtask2" name="Mail Task" activiti:type="mail">
+      <documentation>Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[${employeeID}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:expression><![CDATA[no-reply@avi-oil.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[${usersubject}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[${usermailContent}]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow38" sourceRef="mailtask2" targetRef="servicetask1"></sequenceFlow>
+    <serviceTask id="mailtask3" name="Mail Task" activiti:type="mail">
+      <documentation>Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[${employeeID}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:expression><![CDATA[no-reply@avi-oil.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[${usersubject}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[${usermailContent}]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow39" sourceRef="mailtask3" targetRef="servicetask3"></sequenceFlow>
+    <serviceTask id="mailtask4" name="Mail Task" activiti:type="mail">
+      <documentation>Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[${employeeID}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:expression><![CDATA[no-reply@avi-oil.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[${usersubject}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[${usermailContent}]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow40" sourceRef="mailtask4" targetRef="servicetask6"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_purchaseRequisitionRequest">
+    <bpmndi:BPMNPlane bpmnElement="purchaseRequisitionRequest" id="BPMNPlane_purchaseRequisitionRequest">
+      <bpmndi:BPMNShape bpmnElement="startRequest" id="BPMNShape_startRequest">
+        <omgdc:Bounds height="35.0" width="35.0" x="46.0" y="50.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="handlePurchaseRequisitionRequest1" id="BPMNShape_handlePurchaseRequisitionRequest1">
+        <omgdc:Bounds height="81.0" width="105.0" x="257.0" y="232.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="boundarytimer1" id="BPMNShape_boundarytimer1">
+        <omgdc:Bounds height="30.0" width="30.0" x="295.0" y="217.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="handlePurchaseRequisitionRequest2" id="BPMNShape_handlePurchaseRequisitionRequest2">
+        <omgdc:Bounds height="65.0" width="105.0" x="257.0" y="65.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="purchaseRequisitionApprovedDecision1" id="BPMNShape_purchaseRequisitionApprovedDecision1">
+        <omgdc:Bounds height="40.0" width="40.0" x="450.0" y="78.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="handlePurchaseRequisitionRequest3" id="BPMNShape_handlePurchaseRequisitionRequest3">
+        <omgdc:Bounds height="61.0" width="107.0" x="734.0" y="68.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="purchaseRequisitionApprovedDecision3" id="BPMNShape_purchaseRequisitionApprovedDecision3">
+        <omgdc:Bounds height="40.0" width="40.0" x="766.0" y="175.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="handlePurchaseRequisitionRequest4" id="BPMNShape_handlePurchaseRequisitionRequest4">
+        <omgdc:Bounds height="60.0" width="111.0" x="889.0" y="249.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="purchaseRequisitionApprovedDecision4" id="BPMNShape_purchaseRequisitionApprovedDecision4">
+        <omgdc:Bounds height="40.0" width="40.0" x="924.0" y="390.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="mailtask1" id="BPMNShape_mailtask1">
+        <omgdc:Bounds height="55.0" width="105.0" x="890.0" y="462.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="handlePurchaseRequisitionRequest5" id="BPMNShape_handlePurchaseRequisitionRequest5">
+        <omgdc:Bounds height="57.0" width="141.0" x="400.0" y="382.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="purchaseRequisitionApprovedDecision2" id="BPMNShape_purchaseRequisitionApprovedDecision2">
+        <omgdc:Bounds height="40.0" width="40.0" x="289.0" y="390.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
+        <omgdc:Bounds height="35.0" width="35.0" x="292.0" y="472.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
+        <omgdc:Bounds height="55.0" width="105.0" x="569.0" y="71.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask2" id="BPMNShape_servicetask2">
+        <omgdc:Bounds height="55.0" width="105.0" x="418.0" y="251.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask3" id="BPMNShape_servicetask3">
+        <omgdc:Bounds height="55.0" width="105.0" x="734.0" y="251.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask4" id="BPMNShape_servicetask4">
+        <omgdc:Bounds height="55.0" width="105.0" x="600.0" y="251.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask5" id="BPMNShape_servicetask5">
+        <omgdc:Bounds height="55.0" width="105.0" x="612.0" y="383.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask6" id="BPMNShape_servicetask6">
+        <omgdc:Bounds height="55.0" width="105.0" x="80.0" y="168.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="mailtask2" id="BPMNShape_mailtask2">
+        <omgdc:Bounds height="55.0" width="105.0" x="418.0" y="11.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="mailtask3" id="BPMNShape_mailtask3">
+        <omgdc:Bounds height="55.0" width="105.0" x="920.0" y="170.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="mailtask4" id="BPMNShape_mailtask4">
+        <omgdc:Bounds height="55.0" width="105.0" x="132.0" y="23.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="81.0" y="67.0"></omgdi:waypoint>
+        <omgdi:waypoint x="132.0" y="50.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="95.0" x="89.0" y="227.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="310.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="309.0" y="130.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="362.0" y="272.0"></omgdi:waypoint>
+        <omgdi:waypoint x="469.0" y="272.0"></omgdi:waypoint>
+        <omgdi:waypoint x="470.0" y="118.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="362.0" y="97.0"></omgdi:waypoint>
+        <omgdi:waypoint x="420.0" y="98.0"></omgdi:waypoint>
+        <omgdi:waypoint x="450.0" y="98.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="54.0" x="360.0" y="87.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="470.0" y="78.0"></omgdi:waypoint>
+        <omgdi:waypoint x="470.0" y="66.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="20.0" x="470.0" y="78.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow25" id="BPMNEdge_flow25">
+        <omgdi:waypoint x="787.0" y="129.0"></omgdi:waypoint>
+        <omgdi:waypoint x="786.0" y="175.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow26" id="BPMNEdge_flow26">
+        <omgdi:waypoint x="806.0" y="195.0"></omgdi:waypoint>
+        <omgdi:waypoint x="920.0" y="197.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow27" id="BPMNEdge_flow27">
+        <omgdi:waypoint x="944.0" y="309.0"></omgdi:waypoint>
+        <omgdi:waypoint x="944.0" y="390.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow30" id="BPMNEdge_flow30">
+        <omgdi:waypoint x="944.0" y="430.0"></omgdi:waypoint>
+        <omgdi:waypoint x="942.0" y="462.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow28" id="BPMNEdge_flow28">
+        <omgdi:waypoint x="924.0" y="410.0"></omgdi:waypoint>
+        <omgdi:waypoint x="717.0" y="410.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow29" id="BPMNEdge_flow29">
+        <omgdi:waypoint x="766.0" y="195.0"></omgdi:waypoint>
+        <omgdi:waypoint x="652.0" y="195.0"></omgdi:waypoint>
+        <omgdi:waypoint x="652.0" y="251.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="470.0" y="118.0"></omgdi:waypoint>
+        <omgdi:waypoint x="470.0" y="251.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="13.0" x="470.0" y="118.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
+        <omgdi:waypoint x="400.0" y="410.0"></omgdi:waypoint>
+        <omgdi:waypoint x="329.0" y="410.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow23" id="BPMNEdge_flow23">
+        <omgdi:waypoint x="309.0" y="390.0"></omgdi:waypoint>
+        <omgdi:waypoint x="184.0" y="78.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
+        <omgdi:waypoint x="309.0" y="430.0"></omgdi:waypoint>
+        <omgdi:waypoint x="309.0" y="472.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow31" id="BPMNEdge_flow31">
+        <omgdi:waypoint x="674.0" y="98.0"></omgdi:waypoint>
+        <omgdi:waypoint x="734.0" y="98.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow32" id="BPMNEdge_flow32">
+        <omgdi:waypoint x="470.0" y="306.0"></omgdi:waypoint>
+        <omgdi:waypoint x="470.0" y="382.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow33" id="BPMNEdge_flow33">
+        <omgdi:waypoint x="652.0" y="306.0"></omgdi:waypoint>
+        <omgdi:waypoint x="652.0" y="410.0"></omgdi:waypoint>
+        <omgdi:waypoint x="541.0" y="410.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">
+        <omgdi:waypoint x="839.0" y="278.0"></omgdi:waypoint>
+        <omgdi:waypoint x="889.0" y="279.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
+        <omgdi:waypoint x="612.0" y="410.0"></omgdi:waypoint>
+        <omgdi:waypoint x="541.0" y="410.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
+        <omgdi:waypoint x="890.0" y="489.0"></omgdi:waypoint>
+        <omgdi:waypoint x="327.0" y="489.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow37" id="BPMNEdge_flow37">
+        <omgdi:waypoint x="132.0" y="223.0"></omgdi:waypoint>
+        <omgdi:waypoint x="132.0" y="272.0"></omgdi:waypoint>
+        <omgdi:waypoint x="257.0" y="272.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow38" id="BPMNEdge_flow38">
+        <omgdi:waypoint x="523.0" y="38.0"></omgdi:waypoint>
+        <omgdi:waypoint x="623.0" y="38.0"></omgdi:waypoint>
+        <omgdi:waypoint x="621.0" y="71.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow39" id="BPMNEdge_flow39">
+        <omgdi:waypoint x="972.0" y="225.0"></omgdi:waypoint>
+        <omgdi:waypoint x="786.0" y="251.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow40" id="BPMNEdge_flow40">
+        <omgdi:waypoint x="184.0" y="78.0"></omgdi:waypoint>
+        <omgdi:waypoint x="132.0" y="168.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -67,19 +67,16 @@ public class Config {
 	//public static final String EDMS_BULKUPLOAD_PATH = "D:\\dghdg";
 	public static final String EDMS_PATH = "edms:path";
 	public static final String EDMS_GUEST = "guestforpubliclink";
-	//public static  String EDMS_DOMAIN = "avi-oil.com";
-	public static  String EDMS_DOMAIN = "silvereye.in";
+	public static  String EDMS_DOMAIN = "avi-oil.com";
+	//public static  String EDMS_DOMAIN = "silvereye.in";
 
-	public static String LDAP_URL="ldap://mail.silvereye.in:389";
+	/*public static String LDAP_URL="ldap://mail.silvereye.in:389";
 	public static String LDAP_DN="dc=silvereye,dc=in";
 	public static String LDAP_RDN="ou=Users,domainName=silvereye.in,o=domains,dc=silvereye,dc=in";
-	public static String LDAP_BASE="mail";
+	public static String LDAP_BASE="mail";*/
 	public static void load(String userid,String password){
 		JCR_USERNAME=userid;
 		JCR_PASSWORD=password;
 		JCR_SYSTEM="jcr:system";
 	}
-	
-	
-	
 }

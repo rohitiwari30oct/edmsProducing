@@ -1,0 +1,125 @@
+import java.io.*;
+public class CandidateCodeTally2
+{ 
+    public static String triplet_sum(int[] input1,int input2,int input3)
+    {
+        return "false";
+    	//Write code here
+    }
+    public static void main(String[] args) {
+    	//int[] input1={12,3,4,1,6,9};
+    	//int[] input1={12,3,4,1,6,9};
+    	int[] arr={1,5,7,10};
+    	int input1 =65;
+    	   	
+    	
+		System.out.println(findMinimumBottle1(arr,input1));
+	}
+	private static int findMinimumBottle(int[] arr, int input1) {
+		
+		if(input1>0){
+		if((1+5+7+10)<input1){
+			int bottle=0;
+			if(input1%10==0){
+				bottle=input1/10;
+			}else{
+			bottle=input1/10+1;
+			}
+			return bottle;
+		}
+		for (int i = 0; i < arr.length; i++) {
+			if(arr[i]==input1)
+				return 1;
+		}
+		
+		for (int i = 0; i < arr.length; i++) {
+			for (int j = 0; j < arr.length; j++) {
+					int sum=0;
+					sum=arr[i]+arr[j];
+					if(sum==input1)
+						return 2;
+				}}
+		
+		for (int i = 0; i < arr.length; i++) {
+			for (int j = 0; j < arr.length; j++) {
+				for (int j2 = 0; j2 < arr.length; j2++) {
+					int sum=0;
+					sum=arr[i]+arr[j]+arr[j2];
+					if(sum==input1)
+						return 3;
+				}
+			}
+		}}
+		return 0;
+	}
+
+	private static int findMinimumBottle1(int[] arr,int input1) {
+		if(input1>0){
+			if((1+5+7+10)<input1){
+				int bottle=0;
+				if(input1%10==0){
+					bottle=input1/10;
+				}else{
+				bottle=input1/10+1;
+				}
+				return bottle;
+			}
+			for (int i = 0; i < arr.length; i++) {
+				if(arr[i]==input1)
+					return 1;
+			}
+			
+			for (int i = 0; i < arr.length; i++) {
+				for (int j = 0; j < arr.length; j++) {
+						int sum=0;
+						sum=arr[i]+arr[j];
+						if(sum==input1)
+							return 2;
+					}}
+			
+			for (int i = 0; i < arr.length; i++) {
+				for (int j = 0; j < arr.length; j++) {
+					for (int j2 = 0; j2 < arr.length; j2++) {
+						int sum=0;
+						sum=arr[i]+arr[j]+arr[j2];
+						if(sum==input1)
+							return 3;
+					}
+				}
+			}}
+		
+		
+		int count=0;
+		int rem = input1;
+		if(input1>=10){
+			rem=input1%10;
+			if(rem==0)
+				return input1/10;
+			else
+				count= input1/10;
+		}
+		
+		if(rem>=7)
+			{
+			rem=rem%7;
+			if(rem==0)
+				return (count+1);
+			else
+				count++;
+			}
+			if(rem>=5)
+			{
+			rem=rem%5;
+			if(rem==0)
+				return (count+1);
+			else
+				count++;
+			}
+		
+				return  (count+rem);
+			
+	}
+    
+    
+    
+}

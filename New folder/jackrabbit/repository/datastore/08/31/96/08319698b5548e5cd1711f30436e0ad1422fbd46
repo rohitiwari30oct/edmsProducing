@@ -1,0 +1,171 @@
+import java.io.*;
+import java.util.ArrayList;
+
+public class CandidateCode {
+
+	public static ArrayList<String> connections = new ArrayList<String>();
+	public static ArrayList<String> correct = new ArrayList<String>();
+	public static int counter=0;
+
+	public static int totalmatching(String[] input1) {
+		return -1;
+	}
+
+	public static void main(String[] args) {
+		String[] input1 = { "M1#W2#W4", "M2#W1#W2", "M3#W1#W3#W4", "M4#W4#W5",		"M5#W4" };
+
+		//String[] input1 = {"M1#W6#W10","M2#W1#W5","M3#W1#W3#W5#W9","M4#W3#W4","M5#W2#W6","M6#W1#W2#W6","M7#W1#W7#W8","M8#W8#W10","M9#W3#W9","M10#W10"};
+		
+		
+		
+		// for (int i = 0; i < input1.length; i++) {
+		makeConnections(input1);
+		counter=correct.size();
+		findCommon(input1.length);
+		System.out.println(" count is "+counter);
+		// }
+	}
+
+	private static String makeConnections(String[] input1) {
+		String[] mi = new String[input1.length];
+		String[] wi = new String[input1.length];
+		// String[] women=string.split("#");
+		for (int i = 0; i < input1.length; i++) {
+			mi[i] = "M" + (i + 1);
+		}
+		for (int i = 0; i < input1.length; i++) {
+			wi[i] = "W" + (i + 1);
+		}
+		Integer[] m = new Integer[input1.length];
+		Integer[] w = new Integer[input1.length];
+		for (int i = 0; i < w.length; i++) {
+			w[i] = 0;
+		}
+		for (int i = 0; i < m.length; i++) {
+			m[i] = 0;
+		}
+
+		for (int i = 0; i < wi.length; i++) {
+			for (int j = 0; j < input1.length; j++) {
+				if (input1[j].contains("#" + wi[i])) {
+					connections.add(input1[j].substring(0,
+							input1[j].indexOf("#"))
+							+ "," + wi[i]);
+				}
+			}
+		}
+		String pair = "";
+		for (String combi : connections) {
+
+			for (int i = 0; i < w.length; i++) {
+				w[i] = 0;
+			}
+			for (int i = 0; i < m.length; i++) {
+				m[i] = 0;
+			}
+			
+
+			String corr=checkValidity(combi, m, w, mi, wi);
+			if(corr.split(" ").length==m.length)
+			{
+			correct.add(corr);
+			System.out.println(corr);
+			}
+		}
+		return pair;
+	}
+
+	private static void findCommon(int length) {
+		// TODO Auto-generated method stub
+		//counter=0;
+		System.out.println(correct.size());
+		for (String string : correct) {
+			
+			for (String string1 : correct) {
+				String fir=string.toString();
+				String sec=string1.toString();
+			if(!(fir.equalsIgnoreCase(sec)))
+			{
+				int flagcount=0;
+				String[] first=string.split(" ");
+				String[] second=string1.split(" ");
+				for (int i = 0; i < first.length; i++) {
+					for (int j = 0; j < second.length; j++) {
+						String firs=first[i];
+						String seco=second[j];
+						if(firs.equalsIgnoreCase(seco)){
+							flagcount++;
+						}
+					}
+				}
+				if(flagcount==length){
+					//correct.remove(index);
+					counter--;
+				}
+				
+			}
+				//index++;
+			}
+		}
+		
+	}
+
+	private static String checkValidity(String combi, Integer[] m, Integer[] w,
+			String[] mi, String[] wi) {
+		String pairs=combi+" ";
+
+		assignFlag( combi, m,  w,mi, wi);
+
+
+
+		for (String combi1 : connections) {
+			
+			if (!combi.equalsIgnoreCase(combi1)) {
+				String[] pair = combi1.split(",");
+				int count = 0;
+				for (int i = 0; i < w.length; i++) {
+					if (pair[0].equalsIgnoreCase(mi[i])) {
+						if (m[i] == 0) {
+							//m[i] = 1;
+							
+							count++;
+						}
+					}
+					if (pair[1].equalsIgnoreCase(wi[i])) {
+						if (w[i] == 0) {
+							//w[i] = 1;
+							count++;
+						}
+					}
+				}
+				if(count==2){
+				pairs+=combi1+" ";	
+
+
+assignFlag( combi1, m,  w,
+		mi, wi);
+				}
+			}
+		}
+		return pairs;
+	}
+	
+	public static void assignFlag(String combi, Integer[] m, Integer[] w,
+			String[] mi, String[] wi){
+
+String[] pair1 = combi.split(",");
+for (int i = 0; i < w.length; i++) {
+	if (pair1[0].equalsIgnoreCase(mi[i])) {
+		if (m[i] == 0) {
+			m[i] = 1;
+			
+		}
+	}
+	if (pair1[1].equalsIgnoreCase(wi[i])) {
+		if (w[i] == 0) {
+			w[i] = 1;
+		}
+	}
+}
+	}
+}
