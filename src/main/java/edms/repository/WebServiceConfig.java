@@ -142,9 +142,13 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 		basicDataSource.setDriverClassName("com.mysql.jdbc.Driver");
 		basicDataSource.setUrl("jdbc:mysql://localhost:3306/edms?useUnicode=true&characterEncoding=UTF-8");
 
-			
+
 		basicDataSource.setUsername("root");
 		basicDataSource.setPassword("");
+		
+		//for silvereye
+//		basicDataSource.setUsername("root");
+//		basicDataSource.setPassword("CCD?6291pdjar9898??##vpjoshi");
 		
 
 		//basicDataSource.setUsername("root");
@@ -177,13 +181,7 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 	      return txManager;
 	   }
 	
-	/* @Bean
-	 @Autowired
-	 public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
-	      HibernateTransactionManager txManager = new HibernateTransactionManager();
-	      txManager.setSessionFactory(sessionFactory);
-	      return txManager;
-	   }*/
+	
 	
 	@Bean
 	public LocalSessionFactoryBean sessionFactory(){
@@ -195,32 +193,7 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 		return localSessionFactoryBean;
 	}
 
-	
-	/*@Bean
-	public WebdavConfig webdavService() throws Exception{
-		WebdavConfig simpleWebdavServlet=new WebdavConfig();
-		return simpleWebdavServlet;
-	}*/
-/*	@Bean
-	public JCRWebdavServerServlet webdavJCRService() throws Exception{
-		JCRWebdavServerServlet simpleWebdavServlet=new JCRWebdavServerServlet() {
-			
-			@Override
-			protected Repository getRepository() {
-				// TODO Auto-generated method stub
-				try {
-					return JcrUtils.getRepository();
-				} catch (RepositoryException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return null;
-			}
-		};
-		DavLocatorFactory davLocatorFact=new DavLocatorFactoryImpl("/jackrabbit/repository");
-		simpleWebdavServlet.setLocatorFactory(davLocatorFact);
-		return simpleWebdavServlet;
-	}*/
+
 	@Bean
 	public RepositoryService repositoryService(ProcessEngineFactoryBean pefb) throws Exception{
 		return pefb.getObject().getRepositoryService();
@@ -257,12 +230,7 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 		processEngineFactoryBean.setProcessEngineConfiguration(processEngineConfiguration());
 		return processEngineFactoryBean;
 	}	
-/*	@Bean
-	public ProcessEngineFactoryBean processEngine(){
-		ProcessEngineFactoryBean processEngineFactoryBean = new ProcessEngineFactoryBean();
-		processEngineFactoryBean.setProcessEngineConfiguration(processEngineConfiguration());
-		return processEngineFactoryBean;
-	}*/	
+
 	
 	@Bean LDAPConfigurator getConfiguration(){
 		LDAPConfigurator ldapConfigurator=new LDAPConfigurator();
@@ -345,57 +313,6 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 	}
 	
 	
-/*	@Bean
-	public RepositoryStartupServlet getRepositoryStartupServlet(){
-		RepositoryStartupServlet repositoryStartupServlet=new RepositoryStartupServlet();
-		ServletConfig servletConfig= new 
-		repositoryStartupServlet.init();
-	}*/
 
-/*@Bean 
-public DefaultSpringSecurityContextSource getContextSource()
-{
-	DefaultSpringSecurityContextSource contextSource=new DefaultSpringSecurityContextSource("ldap://192.168.1.199:389/dc=avi-oil,dc=com");
-	contextSource.setUserDn("cn=admin,dc=avi-oil,dc=com");
-	contextSource.setPassword("redhat");
-	return contextSource;
-}
-@Bean 
-public LdapAuthenticationProvider getLdapAuthenticationProvider()
-{
-	LdapAuthenticationProvider authProvider=new LdapAuthenticationProvider(getBindAuthenticator(),getDefaultLdapAuthoritiesPopulator());
-	return authProvider;
-}
-	
-
-@Bean 
-public BindAuthenticator getBindAuthenticator()
-{
-	BindAuthenticator authProvider=new BindAuthenticator(getContextSource());
-	String[] pattern="uid={0},ou=users".split(",");
-	authProvider.setUserDnPatterns(pattern);
-	return authProvider;
-}
-
-@Bean 
-public DefaultLdapAuthoritiesPopulator getDefaultLdapAuthoritiesPopulator()
-{
-	DefaultLdapAuthoritiesPopulator authPopulator=new DefaultLdapAuthoritiesPopulator(getContextSource(),"ou=Users");
-	authPopulator.setGroupRoleAttribute("ou");
-	return authPopulator;
-}
-*/
-	
-	
-	/*@Bean
-	public ExternalIdentityProvider getManager(){
-		return new CustomExternalIdentityProviderManager().getProvider("ldap");
-	}
-	@Bean
-	public SyncHandler getSyncHandler(){
-		return new ExternalSyncManager().getSyncHandler("ldap");
-	}
-		
-*/
 	
 }

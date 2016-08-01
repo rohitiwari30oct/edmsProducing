@@ -1,12 +1,52 @@
 ----------------------------------------------------------------
-2016-07-15 04:50:35.179 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.5.3.0 - (802917): instance a816c00e-0155-ece4-54c5-0000027e47d0
+2016-07-26 13:23:39.548 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.5.3.0 - (802917): instance a816c00e-0156-2760-050f-000000a8cf30
 on database directory D:\backup of 22july\edmsProducing10jan\EDMS-Web-Service-Producing\jackrabbit\version\db  
 
 Database Class Loader started - derby.database.classpath=''
 ----------------------------------------------------------------
-2016-07-15 04:50:37.834 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.5.3.0 - (802917): instance 888c4022-0155-ece4-54c5-0000027e47d0
+2016-07-26 13:23:41.094 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.5.3.0 - (802917): instance 888c4022-0156-2760-050f-000000a8cf30
+on database directory D:\backup of 22july\edmsProducing10jan\EDMS-Web-Service-Producing\jackrabbit\workspaces\avi-oil.com\db  
+
+Database Class Loader started - derby.database.classpath=''
+
+2016-07-26 13:23:44.654 GMT:
+Shutting down instance 888c4022-0156-2760-050f-000000a8cf30
+----------------------------------------------------------------
+
+2016-07-26 13:23:44.744 GMT:
+Shutting down instance a816c00e-0156-2760-050f-000000a8cf30
+----------------------------------------------------------------
+----------------------------------------------------------------
+2016-07-26 13:27:07.991 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.5.3.0 - (802917): instance 6965c036-0156-2760-050f-000000a8cf30
+on database directory D:\backup of 22july\edmsProducing10jan\EDMS-Web-Service-Producing\jackrabbit\version\db  
+
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+2016-07-26 13:27:08.939 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.5.3.0 - (802917): instance 4aa3404a-0156-2760-050f-000000a8cf30
+on database directory D:\backup of 22july\edmsProducing10jan\EDMS-Web-Service-Producing\jackrabbit\workspaces\avi-oil.com\db  
+
+Database Class Loader started - derby.database.classpath=''
+
+2016-07-26 13:27:12.479 GMT:
+Shutting down instance 4aa3404a-0156-2760-050f-000000a8cf30
+----------------------------------------------------------------
+
+2016-07-26 13:27:12.566 GMT:
+Shutting down instance 6965c036-0156-2760-050f-000000a8cf30
+----------------------------------------------------------------
+----------------------------------------------------------------
+2016-07-26 13:27:16.038 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.5.3.0 - (802917): instance 2c44c05e-0156-2760-050f-000000a8cf30
+on database directory D:\backup of 22july\edmsProducing10jan\EDMS-Web-Service-Producing\jackrabbit\version\db  
+
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+2016-07-26 13:27:16.284 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.5.3.0 - (802917): instance 0e4a4072-0156-2760-050f-000000a8cf30
 on database directory D:\backup of 22july\edmsProducing10jan\EDMS-Web-Service-Producing\jackrabbit\workspaces\avi-oil.com\db  
 
 Database Class Loader started - derby.database.classpath=''

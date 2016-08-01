@@ -162,7 +162,7 @@ public class FileRepository{
 						}, AccessController.getContext());
 			} catch (PrivilegedActionException e1) {
 				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				//e1.printStackTrace();
 			}
 		} catch (RepositoryException e) {
 			e.printStackTrace();
@@ -541,13 +541,13 @@ String expression = "select * from [nt:frozenNode] ";
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	*/
-		/*try{
+		try{
 		Session sessions =GetSession("admin", "admin",JcrRepositoryUtils.getRepositoryHandle());
 		JcrRepositorySession.registerNamespace(sessions, sessions.getRootNode());
 		//System.exit(0);
 		}catch(Exception e){
 			
-		}*/
+		}
 	}
 
 	public FileListReturn listFile(String name, String userid,String password) {

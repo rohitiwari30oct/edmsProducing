@@ -67,8 +67,8 @@ public class Config {
 	//public static final String EDMS_BULKUPLOAD_PATH = "D:\\dghdg";
 	public static final String EDMS_PATH = "edms:path";
 	public static final String EDMS_GUEST = "guestforpubliclink";
-	public static  String EDMS_DOMAIN = "avi-oil.com";
-	//public static  String EDMS_DOMAIN = "silvereye.in";
+	//public static  String EDMS_DOMAIN = "avi-oil.com";
+	public static  String EDMS_DOMAIN = "silvereye.in";
 
 	/*public static String LDAP_URL="ldap://mail.silvereye.in:389";
 	public static String LDAP_DN="dc=silvereye,dc=in";
