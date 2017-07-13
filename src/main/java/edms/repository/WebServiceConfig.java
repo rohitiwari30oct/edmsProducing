@@ -92,8 +92,9 @@ public class WebServiceConfig extends WsConfigurerAdapter {
         springProcessEngineConfiguration.setMailServerHost("smtp.gmail.com");
         springProcessEngineConfiguration.setMailServerPort(587);
         springProcessEngineConfiguration.setMailServerUseTLS(true);
-        springProcessEngineConfiguration.setMailServerUsername("rohitiwari30oct@gmail.com");
-        springProcessEngineConfiguration.setMailServerPassword("h2oh2so4");
+        //put mailid and password which will be used for sending mails.
+        springProcessEngineConfiguration.setMailServerUsername("<email>");
+        springProcessEngineConfiguration.setMailServerPassword("<password>");
 		return springProcessEngineConfiguration;
 	}
 	
