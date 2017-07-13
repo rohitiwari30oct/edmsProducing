@@ -9,12 +9,6 @@ import javax.servlet.Filter;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
-import j2ee.DerbyShutdown;
-import j2ee.JcrRemotingServlet;
-import j2ee.RepositoryAccessServlet;
-//import j2ee.RepositoryStartupServlet;
-import j2ee.SimpleWebdavServlet;
-import org.apache.jackrabbit.servlet.remote.RemoteBindingServlet;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.ServletListenerRegistrationBean;
@@ -26,7 +20,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.servlet.DispatcherServlet;
 //import org.springframework.ldap.core.ContextSource;
 //import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
-import edms.core.WebdavConfig;
 
 @ComponentScan
 @EnableAutoConfiguration

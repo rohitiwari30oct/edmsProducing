@@ -21,7 +21,6 @@
 
 package edms.core;
 
-import javax.jcr.Repository;
 
 public class Config {
 
@@ -63,7 +62,6 @@ public class Config {
 	public static final String DEFAULT_USER_ROLE = "ROLE_USER";
 	public static final Object DEFAULT_ADMIN_ROLE = "ROLE_ADMIN";
 	public static final String EDMS_BULKUPLOAD_PATH = "/maildir/newAccount";
-	public static Repository repository=null;
 	//public static final String EDMS_BULKUPLOAD_PATH = "D:\\dghdg";
 	public static final String EDMS_PATH = "edms:path";
 	public static final String EDMS_GUEST = "guestforpubliclink";

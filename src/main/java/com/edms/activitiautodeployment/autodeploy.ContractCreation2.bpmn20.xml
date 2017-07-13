@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="ContractCreationRequest" name="Contract Creation Form" isExecutable="true">
+    <startEvent id="startevent1" name="Start" activiti:initiator="employeeID" activiti:formKey="startContractCreation">
+      <documentation>Contract Creation Form</documentation>
+    </startEvent>
+    <userTask id="usertask2" name="new contract creation in ER , generate CIS and SB" activiti:candidateUsers="rohitiwari30oct@gmail.com" activiti:formKey="approveContractCreation">
+      <documentation>Contract Creation Recommendation Step</documentation>
+      <extensionElements>
+        <activiti:formProperty id="approvalDecision" name="Approved?" type="enum" required="true">
+          <activiti:value id="true" name="Approve"></activiti:value>
+          <activiti:value id="false" name="Reject"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="parallelgateway1" name="Parallel Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow4" sourceRef="usertask2" targetRef="parallelgateway1"></sequenceFlow>
+    <sequenceFlow id="flow6" name="Yes" sourceRef="parallelgateway1" targetRef="mailtask1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvalDecision == 'true'}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow13" sourceRef="usertask4" targetRef="exclusivegateway2"></sequenceFlow>
+    <sequenceFlow id="flow15" name="Yes" sourceRef="exclusivegateway2" targetRef="servicetask8">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvalDecision == 'true'}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetask3" name="send for approval" activiti:type="mail">
+      <documentation>Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[rohitiwari30oct@gmail.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:expression><![CDATA[rohitiwari30oct@gmail.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[approval request]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[Please find calculated contracted GCM and approve.]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow17" sourceRef="servicetask3" targetRef="usertask5"></sequenceFlow>
+    <serviceTask id="servicetask8" name="receive the confirmation approal" activiti:type="mail">
+      <documentation>Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[rohitiwari30oct@gmail.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:expression><![CDATA[rohitiwari30oct@gmail.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[approval confiramtion]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[hi contract has been approved]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow20" sourceRef="servicetask8" targetRef="endevent1"></sequenceFlow>
+    <userTask id="usertask4" name="CIS and SB confirmation" activiti:candidateUsers="rohitiwari30oct@gmail.com" activiti:formKey="creationContractCreation">
+      <documentation>CIS and SB confirmation</documentation>
+      <extensionElements>
+        <activiti:formProperty id="approvalDecision" name="Approved?" type="enum" required="true">
+          <activiti:value id="true" name="Approve"></activiti:value>
+          <activiti:value id="false" name="Reject"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow25" name="No" sourceRef="parallelgateway1" targetRef="endevent1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvalDecision == 'false'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow26" name="No" sourceRef="exclusivegateway2" targetRef="usertask2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvalDecision == 'false'}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="mailtask1" name="mail for CIS and SB confirmation" activiti:type="mail">
+      <documentation>Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[rohitiwari30oct@gmail.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:expression><![CDATA[rohitiwari30oct@gmail.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[Request for CIS and Sb confirmation]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[please confirm CIS and SB and approve the contract]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <userTask id="usertask5" name="obtain approval for caaf as per sao" activiti:candidateUsers="rohitiwari30oct@gmail.com" activiti:formKey="verifyContractCreation">
+      <documentation>Is approved CAAF as per SOA</documentation>
+      <extensionElements>
+        <activiti:formProperty id="approvalDecision" name="Approved?" type="enum" required="true">
+          <activiti:value id="true" name="Approve"></activiti:value>
+          <activiti:value id="false" name="Reject"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow29" sourceRef="usertask5" targetRef="exclusivegateway4"></sequenceFlow>
+    <serviceTask id="mailtask3" name="to commercial for new contract creation" activiti:type="mail">
+      <documentation>Approved</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[rohitiwari30oct@gmail.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:expression><![CDATA[rohitiwari30oct@gmail.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[approval obtained info]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[the approval hav been obtained please create new contract in ER and generate CIS and SB]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow30" name="Yes" sourceRef="exclusivegateway4" targetRef="mailtask3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvalDecision == 'true'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow31" sourceRef="mailtask3" targetRef="usertask2"></sequenceFlow>
+    <sequenceFlow id="flow33" name="No" sourceRef="exclusivegateway4" targetRef="endevent1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvalDecision == 'false'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow34" sourceRef="startevent1" targetRef="mailtask5"></sequenceFlow>
+    <serviceTask id="mailtask5" name="start1" activiti:type="mail">
+      <documentation>Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[rohitiwari30oct@gmail.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:expression><![CDATA[rohitiwari30oct@gmail.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[Customer and costing details]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[Please find cusotmer and costing details and calculate contracted GCM]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow36" sourceRef="mailtask5" targetRef="usertask6"></sequenceFlow>
+    <userTask id="usertask6" name="calculate contracted GCM" activiti:candidateUsers="rohitiwari30oct@gmail.com" activiti:formKey="calculateContractCreation">
+    <documentation>calculate contracted GCM</documentation>
+      <extensionElements>
+        <activiti:formProperty id="approvalDecision" name="Approved?" type="enum" required="true">
+          <activiti:value id="true" name="Approve"></activiti:value>
+          <activiti:value id="false" name="Reject"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow37" sourceRef="usertask6" targetRef="exclusivegateway5"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway5" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow38" sourceRef="exclusivegateway5" targetRef="servicetask3">
+    <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvalDecision == 'true'}]]></conditionExpression>
+    
+    </sequenceFlow>
+    <sequenceFlow id="flow39" sourceRef="exclusivegateway5" targetRef="endevent1">
+    <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvalDecision == 'false'}]]></conditionExpression>
+    
+    </sequenceFlow>
+    <userTask id="usertask7" name="Authorise the contract" activiti:candidateUsers="rohitiwari30oct@gmail.com" activiti:formKey="authorizeContractCreation">
+    <documentation>Authorize contract</documentation>
+      <extensionElements>
+        <activiti:formProperty id="approvalDecision" name="Approved?" type="enum" required="true">
+          <activiti:value id="true" name="Approve"></activiti:value>
+          <activiti:value id="false" name="Reject"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway6" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow40" sourceRef="servicetask8" targetRef="usertask7"></sequenceFlow>
+    <sequenceFlow id="flow41" sourceRef="usertask7" targetRef="exclusivegateway6"></sequenceFlow>
+    <sequenceFlow id="flow42" sourceRef="exclusivegateway6" targetRef="endevent1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvalDecision == 'false'}]]></conditionExpression>
+   
+    </sequenceFlow>
+    <serviceTask id="mailtask6" name="Final mail for acknowledgment of authorization" activiti:type="mail">
+    
+    <documentation>Mail Task</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[rohitiwari30oct@gmail.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:expression><![CDATA[rohitiwari30oct@gmail.com]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression><![CDATA[Authorization confirmation]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string><![CDATA[UTF-8]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[Congratulation proposed contract has been authorized]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow43" sourceRef="exclusivegateway6" targetRef="mailtask6">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvalDecision == 'true'}]]></conditionExpression>
+   
+    </sequenceFlow>
+    <sequenceFlow id="flow44" sourceRef="mailtask6" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow45" sourceRef="mailtask1" targetRef="usertask4"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_ContractCreationRequest">
+    <bpmndi:BPMNPlane bpmnElement="ContractCreationRequest" id="BPMNPlane_ContractCreationRequest">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="45.0" y="1.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask2" id="BPMNShape_usertask2">
+        <omgdc:Bounds height="74.0" width="105.0" x="661.0" y="14.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="parallelgateway1" id="BPMNShape_parallelgateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="693.0" y="145.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="560.0" y="148.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="829.0" y="30.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask3" id="BPMNShape_servicetask3">
+        <omgdc:Bounds height="55.0" width="105.0" x="170.0" y="263.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask8" id="BPMNShape_servicetask8">
+        <omgdc:Bounds height="95.0" width="115.0" x="670.0" y="353.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask4" id="BPMNShape_usertask4">
+        <omgdc:Bounds height="89.0" width="151.0" x="950.0" y="6.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="mailtask1" id="BPMNShape_mailtask1">
+        <omgdc:Bounds height="91.0" width="121.0" x="965.0" y="361.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask5" id="BPMNShape_usertask5">
+        <omgdc:Bounds height="102.0" width="130.0" x="158.0" y="133.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway4" id="BPMNShape_exclusivegateway4">
+        <omgdc:Bounds height="40.0" width="40.0" x="202.0" y="30.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="mailtask3" id="BPMNShape_mailtask3">
+        <omgdc:Bounds height="75.0" width="140.0" x="398.0" y="13.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="mailtask5" id="BPMNShape_mailtask5">
+        <omgdc:Bounds height="55.0" width="105.0" x="10.0" y="109.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask6" id="BPMNShape_usertask6">
+        <omgdc:Bounds height="67.0" width="122.0" x="2.0" y="263.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway5" id="BPMNShape_exclusivegateway5">
+        <omgdc:Bounds height="40.0" width="40.0" x="42.0" y="380.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask7" id="BPMNShape_usertask7">
+        <omgdc:Bounds height="59.0" width="105.0" x="487.0" y="372.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway6" id="BPMNShape_exclusivegateway6">
+        <omgdc:Bounds height="40.0" width="40.0" x="332.0" y="381.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="mailtask6" id="BPMNShape_mailtask6">
+        <omgdc:Bounds height="85.0" width="105.0" x="300.0" y="123.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="713.0" y="88.0"></omgdi:waypoint>
+        <omgdi:waypoint x="713.0" y="145.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="713.0" y="185.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1025.0" y="361.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="20.0" x="713.0" y="185.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="950.0" y="50.0"></omgdi:waypoint>
+        <omgdi:waypoint x="869.0" y="50.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="849.0" y="70.0"></omgdi:waypoint>
+        <omgdi:waypoint x="849.0" y="400.0"></omgdi:waypoint>
+        <omgdi:waypoint x="785.0" y="400.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="20.0" x="849.0" y="70.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="222.0" y="263.0"></omgdi:waypoint>
+        <omgdi:waypoint x="223.0" y="235.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="727.0" y="353.0"></omgdi:waypoint>
+        <omgdi:waypoint x="577.0" y="183.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow25" id="BPMNEdge_flow25">
+        <omgdi:waypoint x="693.0" y="165.0"></omgdi:waypoint>
+        <omgdi:waypoint x="595.0" y="165.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="13.0" x="693.0" y="165.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow26" id="BPMNEdge_flow26">
+        <omgdi:waypoint x="849.0" y="30.0"></omgdi:waypoint>
+        <omgdi:waypoint x="829.0" y="13.0"></omgdi:waypoint>
+        <omgdi:waypoint x="801.0" y="13.0"></omgdi:waypoint>
+        <omgdi:waypoint x="766.0" y="51.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="13.0" x="849.0" y="30.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow29" id="BPMNEdge_flow29">
+        <omgdi:waypoint x="223.0" y="133.0"></omgdi:waypoint>
+        <omgdi:waypoint x="222.0" y="70.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow30" id="BPMNEdge_flow30">
+        <omgdi:waypoint x="242.0" y="50.0"></omgdi:waypoint>
+        <omgdi:waypoint x="398.0" y="50.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="20.0" x="242.0" y="50.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow31" id="BPMNEdge_flow31">
+        <omgdi:waypoint x="538.0" y="50.0"></omgdi:waypoint>
+        <omgdi:waypoint x="661.0" y="51.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow33" id="BPMNEdge_flow33">
+        <omgdi:waypoint x="222.0" y="70.0"></omgdi:waypoint>
+        <omgdi:waypoint x="577.0" y="148.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="13.0" x="222.0" y="70.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">
+        <omgdi:waypoint x="62.0" y="36.0"></omgdi:waypoint>
+        <omgdi:waypoint x="62.0" y="109.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
+        <omgdi:waypoint x="62.0" y="164.0"></omgdi:waypoint>
+        <omgdi:waypoint x="63.0" y="263.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow37" id="BPMNEdge_flow37">
+        <omgdi:waypoint x="63.0" y="330.0"></omgdi:waypoint>
+        <omgdi:waypoint x="62.0" y="380.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow38" id="BPMNEdge_flow38">
+        <omgdi:waypoint x="82.0" y="400.0"></omgdi:waypoint>
+        <omgdi:waypoint x="222.0" y="400.0"></omgdi:waypoint>
+        <omgdi:waypoint x="222.0" y="318.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow39" id="BPMNEdge_flow39">
+        <omgdi:waypoint x="82.0" y="400.0"></omgdi:waypoint>
+        <omgdi:waypoint x="271.0" y="400.0"></omgdi:waypoint>
+        <omgdi:waypoint x="577.0" y="183.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow40" id="BPMNEdge_flow40">
+        <omgdi:waypoint x="670.0" y="400.0"></omgdi:waypoint>
+        <omgdi:waypoint x="592.0" y="401.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow41" id="BPMNEdge_flow41">
+        <omgdi:waypoint x="487.0" y="401.0"></omgdi:waypoint>
+        <omgdi:waypoint x="372.0" y="401.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow42" id="BPMNEdge_flow42">
+        <omgdi:waypoint x="352.0" y="381.0"></omgdi:waypoint>
+        <omgdi:waypoint x="577.0" y="183.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow43" id="BPMNEdge_flow43">
+        <omgdi:waypoint x="352.0" y="381.0"></omgdi:waypoint>
+        <omgdi:waypoint x="352.0" y="208.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow44" id="BPMNEdge_flow44">
+        <omgdi:waypoint x="405.0" y="165.0"></omgdi:waypoint>
+        <omgdi:waypoint x="560.0" y="165.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow45" id="BPMNEdge_flow45">
+        <omgdi:waypoint x="415.0" y="175.0"></omgdi:waypoint>
+        <omgdi:waypoint x="570.0" y="175.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

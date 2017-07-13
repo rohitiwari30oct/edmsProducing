@@ -44,7 +44,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.edms.workflow.GetAttachmentResponse;
-import com.edms.entity.SnTable;
 import com.edms.workflow.GroupTaskListReturn;
 import com.edms.workflow.HashMap;
 import com.edms.workflow.StartFormProperty;
@@ -126,19 +125,24 @@ public class WorkflowRepository {
 		return res;
 	}
 	public void startWorkflow(List<HashMap> hashMap, String processKey, String processName)  {
+		try{
 		System.out
 				.println(" Number of process definitions: " + repositoryService.createProcessDefinitionQuery().count());
 		
 		java.util.HashMap<String, Object> variables = new java.util.LinkedHashMap<String, Object>();
 		for (HashMap hm : hashMap) {
-			variables.put(hm.getKey(), hm.getValue());
+			String[] keyval = hm.getKey().split(",");
+			
+			variables.put(keyval[0], keyval[1]);
 		}
 		ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processKey, variables);
 		System.out.println("Number of process instances: " + runtimeService.createProcessInstanceQuery().count());
 		String id = processInstance.getProcessInstanceId();
 		runtimeService.setProcessInstanceName(id, processName);
 		System.out.println("The instance ID of the process created by the activiti= " + id);
-
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	public String generateProcessImage(String processKey) {
@@ -312,7 +316,7 @@ public class WorkflowRepository {
 }
 		return userTaskListReturn;
 	}
-	
+
 	public UserTaskListReturn fetchUserTask(String empid) {
 		System.out.println("using task assignee :- " + empid);
 		List<Task> tasks = taskService.createTaskQuery().taskCandidateOrAssigned(empid).includeTaskLocalVariables().includeProcessVariables().list();
@@ -352,6 +356,46 @@ public class WorkflowRepository {
 		}
 		return userTaskListReturn;
 	}
+	public String fetchUserTaskLast(String empid) {
+		System.out.println("using task assignee :- " + empid);
+		List<Task> tasks = taskService.createTaskQuery().taskCandidateOrAssigned(empid).includeTaskLocalVariables().includeProcessVariables().list();
+		
+		System.out.println("assigne task size = " + tasks.size());
+		UserTaskListReturn userTaskListReturn = new UserTaskListReturn();
+		
+		
+		
+		// List<Attachment>
+		// lst=taskService.getProcessInstanceAttachments(tasks.get(0).getProcessInstanceId());
+		for (Task tk : tasks) {
+			com.edms.workflow.Task tsk = new com.edms.workflow.Task();
+			
+			//tsk.setAssignee(tk.getAssignee());
+
+			if(tk.getProcessVariables().get("employeeID")!=null)
+			tsk.setAssignee((String)tk.getProcessVariables().get("employeeID"));
+			else
+				tsk.setAssignee("--");
+			if(tk.getProcessVariables().get("filledDaete")!=null)
+				tsk.setCategory((String)tk.getProcessVariables().get("filledDaete"));
+				else
+					tsk.setCategory("--");
+			//tsk.setCategory(tk.getCategory());
+
+			if(tk.getProcessVariables().get("formSStatus")!=null)
+				tsk.setDescription((String)tk.getProcessVariables().get("formSStatus"));
+			else
+				tsk.setDescription(tk.getDescription());
+			tsk.setFormKey(tk.getFormKey());
+			tsk.setId(tk.getId());
+			
+			tsk.setName(tk.getName());
+			tsk.setProcessInstanceId(tk.getProcessInstanceId());
+			userTaskListReturn.getUserTaskList().add(tsk);
+			return tk.getId();
+		}
+		return null;
+	}
 
 	public GroupTaskListReturn fetchGroupTasks(String deptid) {
 		List<Task> tasks = taskService.createTaskQuery().taskCandidateGroup(deptid).list();
@@ -371,20 +415,27 @@ public class WorkflowRepository {
 	}
 
 	public void continueTask(List<HashMap> hashMap, String taskid) {
+		
+		//taskid = fetchUserTaskLast(taskid);
+		if(taskid!=null){
 		System.out.println("in continue task &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& taskid= " + taskid);
 		System.out.println("sizew =====" + hashMap.size());
 		java.util.HashMap<String, Object> taskVariables = new java.util.LinkedHashMap<String, Object>();
 		//tring processId=		taskService.getTaskEvents(taskid).get(0).getProcessInstanceId();
 		for (HashMap hm : hashMap) {
-				taskVariables.put(hm.getKey(), hm.getValue());
+			String[] keyval = hm.getKey().split(",");
+			taskVariables.put(keyval[0], keyval[1]);
 		}
-		try{
+		try{	
 		taskService.complete(taskid, taskVariables);
 		}catch(Exception e){
 			e.printStackTrace();
 			taskService.complete(taskid, taskVariables);
 		}
 		System.out.println(taskid + " completed!");
+		}else{
+			System.out.println("no task");
+		}
 	}
 
 	public com.edms.workflow.TaskFormData getTaskFormData(String taskId) {
@@ -522,33 +573,7 @@ if(formkey.indexOf("eaveApplicationForm")>=0){
 				Query query = session.createQuery(hql);
 				query.setParameter("keyword", "%" + formName + "%");
 				 
-				 List<SnTable> snlst = query.list();
-				 
-				
-				if(snlst.size()>0)
-				{
-					for(SnTable st: snlst)
-					{
-						snno=(st.getFormNo()+1);
-						st.setFormNo(snno);
-						session.beginTransaction();
-						session.saveOrUpdate(st);
-						session.getTransaction().commit();
-						session.close();
-						break;
-					}
-				}
-				else
-				{
-					SnTable snt=new SnTable();
-					snno=1;
-					snt.setFormNo(snno);
-					snt.setFormName(formName);
-					session.beginTransaction();
-					session.saveOrUpdate(snt);
-					session.getTransaction().commit();
-					session.close();
-				}
+			
 				}catch(Exception e){
 			
 		}finally{
